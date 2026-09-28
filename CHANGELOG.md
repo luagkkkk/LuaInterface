@@ -2,6 +2,12 @@
 
 Notable changes to LuaInterface are documented here.
 
+## [5.4.5] — 2026-09-28
+
+### Fixed
+
+- The loaded chunk now returns the initialized API table as well as assigning `_G.LuaInterface`; `loadstring(game:HttpGet(...))()` therefore receives the library object instead of `nil`.
+
 ## [5.4.4] — 2026-09-28
 
 ### Fixed
