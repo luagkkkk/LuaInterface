@@ -1,6 +1,6 @@
 # LuaInterface
 
-![Version](https://img.shields.io/badge/version-5.4.5-blue)
+![Version](https://img.shields.io/badge/version-5.4.6-blue)
 ![Platform](https://img.shields.io/badge/platform-Roblox-red)
 ![Language](https://img.shields.io/badge/language-Luau-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -42,7 +42,7 @@ In Roblox Studio or a project that does not allow remote `loadstring`, place the
 ```lua
 local Window = LuaInterface:CreateWindow({
     Title = "My Interface",
-    Footer = "LuaInterface 5.4.5",
+    Footer = "LuaInterface 5.4.6",
 })
 
 Window:SetTheme("Obsidian") -- this is also the default theme

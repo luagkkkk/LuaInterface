@@ -1,6 +1,6 @@
 --!nonstrict
 -- ============================================================
--- LUA INTERFACE v5.4.5
+-- LUA INTERFACE v5.4.6
 -- Client-safe bootstrap, clean tab-first startup, Obsidian theme,
 -- vector/SVG tab icons, resilient selection and cleanup.
 -- ============================================================
@@ -36,7 +36,7 @@ local ty,ts,tn=typeof,tostring,tonumber
 local trem,tins=table.remove,table.insert
 local I=Instance.new
 
-local CFG={Name="LuaInterface",Version="v5.4.5",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
+local CFG={Name="LuaInterface",Version="v5.4.6",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
 local IMA={FPS="88339611171447",Ping="126112532632455",Home="107671250314081",Keybind="126112532632455",Lua="104650551286971"}
 
 -- Tema normalizado: os campos públicos seguem a estrutura Accent/Background/Outline/Text/Placeholder/Button/Icon,
@@ -1591,10 +1591,11 @@ task.spawn(function()
     local ok,av=pcall(function()
         return S.P:GetUserThumbnailAsync(S.LP.UserId,Enum.ThumbnailType.HeadShot,Enum.ThumbnailSize.Size100x100)
     end)
-    if ok and av and UI.Avatar.Parent then
+    if not UI.Avatar or not UI.Avatar.Parent then return end
+    if ok and av then
         UI.Avatar.Image=av
         Tk(UI.Avatar:GetPropertyChangedSignal("IsLoaded"):Connect(function()
-            if not UI.Avatar.Parent then return end
+            if not UI.Avatar or not UI.Avatar.Parent then return end
             if not UI.Avatar.IsLoaded then
                 UI.Avatar.Visible=false
                 local dn0=S.LP.DisplayName or S.LP.Name or "P"
@@ -1741,7 +1742,7 @@ local function ScrollU()
         ST.ScrollScheduled=false
         if not UI.PageC or not UI.PageC.Parent then return end
         local VH=ma(1,UI.PageC.AbsoluteSize.Y)
-        if UI.Cards and UI.Cards.Parent then
+        if UI.Cards and UI.Cards.Parent and UI.Grid and UI.Grid.Parent then
             local gh=UI.Grid.AbsoluteContentSize.Y
             if gh>0 then UI.Cards.Size=U2(1,0,0,gh) end
         end
@@ -2508,24 +2509,26 @@ UpdateResp=function()
             if T then T.Visible=false end
             if Bar then Bar.Position=U3(0,12) Bar.Size=U3(3,25) end
         end
-        UI.Greet.Size=U2(1,0,0,L and 76 or 82)
-        UI.Avatar.Size=U3(L and 44 or 48,L and 44 or 48)
-        UI.Avatar.Position=U3(12,L and 16 or 17)
-        UI.Hello.Position=U3(68,L and 12 or 15)
-        UI.Hello.Size=U2(1,-110,0,28)
-        UI.Hello.TextSize=ClampTextSize(L and 15 or 16)
-        UI.Sect.Position=U3(0,L and 88 or 95)
-        UI.Sect.Size=U2(1,0,0,22)
-        UI.Sect.TextSize=ClampTextSize(12)
-        UI.Cards.Position=U3(0,L and 116 or 124)
-        if L and MW>=680 then
-            UI.Grid.FillDirectionMaxCells=2
-            UI.Grid.CellSize=U2(.5,-5,0,88)
-            UI.Grid.CellPadding=U3(10,9)
-        else
-            UI.Grid.FillDirectionMaxCells=1
-            UI.Grid.CellSize=U2(1,0,0,82)
-            UI.Grid.CellPadding=U3(0,9)
+        if UI.HomeC and UI.HomeC.Parent then
+            UI.Greet.Size=U2(1,0,0,L and 76 or 82)
+            UI.Avatar.Size=U3(L and 44 or 48,L and 44 or 48)
+            UI.Avatar.Position=U3(12,L and 16 or 17)
+            UI.Hello.Position=U3(68,L and 12 or 15)
+            UI.Hello.Size=U2(1,-110,0,28)
+            UI.Hello.TextSize=ClampTextSize(L and 15 or 16)
+            UI.Sect.Position=U3(0,L and 88 or 95)
+            UI.Sect.Size=U2(1,0,0,22)
+            UI.Sect.TextSize=ClampTextSize(12)
+            UI.Cards.Position=U3(0,L and 116 or 124)
+            if L and MW>=680 then
+                UI.Grid.FillDirectionMaxCells=2
+                UI.Grid.CellSize=U2(.5,-5,0,88)
+                UI.Grid.CellPadding=U3(10,9)
+            else
+                UI.Grid.FillDirectionMaxCells=1
+                UI.Grid.CellSize=U2(1,0,0,82)
+                UI.Grid.CellPadding=U3(0,9)
+            end
         end
     elseif mode=="Tablet" then
         UI.Header.Position=U3(18,10)
@@ -2556,19 +2559,21 @@ UpdateResp=function()
             end
             if T then T.Visible=true T.Position=U3(48,0) T.Size=U2(1,-54,48,0) T.TextSize=ClampTextSize(12) end
         end
-        UI.Greet.Size=U2(1,0,0,86)
-        UI.Avatar.Size=U3(52,52)
-        UI.Avatar.Position=U3(16,17)
-        UI.Hello.Position=U3(82,16)
-        UI.Hello.Size=U2(1,-120,0,29)
-        UI.Hello.TextSize=ClampTextSize(17)
-        UI.Sect.Position=U3(0,99)
-        UI.Sect.Size=U2(1,0,0,24)
-        UI.Sect.TextSize=ClampTextSize(12)
-        UI.Cards.Position=U3(0,128)
-        UI.Grid.FillDirectionMaxCells=2
-        UI.Grid.CellSize=U2(.5,-5,0,105)
-        UI.Grid.CellPadding=U3(10,10)
+        if UI.HomeC and UI.HomeC.Parent then
+            UI.Greet.Size=U2(1,0,0,86)
+            UI.Avatar.Size=U3(52,52)
+            UI.Avatar.Position=U3(16,17)
+            UI.Hello.Position=U3(82,16)
+            UI.Hello.Size=U2(1,-120,0,29)
+            UI.Hello.TextSize=ClampTextSize(17)
+            UI.Sect.Position=U3(0,99)
+            UI.Sect.Size=U2(1,0,0,24)
+            UI.Sect.TextSize=ClampTextSize(12)
+            UI.Cards.Position=U3(0,128)
+            UI.Grid.FillDirectionMaxCells=2
+            UI.Grid.CellSize=U2(.5,-5,0,105)
+            UI.Grid.CellPadding=U3(10,10)
+        end
     else
         UI.Header.Position=U3(22,12)
         UI.Header.Size=U2(1,-44,0,70)
@@ -2601,19 +2606,21 @@ UpdateResp=function()
             end
             if T then T.Visible=true T.Position=U3(60,0) T.Size=U2(1,-70,48,0) T.TextSize=ClampTextSize(14) end
         end
-        UI.Greet.Size=U2(1,0,0,90)
-        UI.Avatar.Size=U3(55,55)
-        UI.Avatar.Position=U3(18,17)
-        UI.Hello.Position=U3(90,19)
-        UI.Hello.Size=U2(1,-140,0,30)
-        UI.Hello.TextSize=ClampTextSize(18)
-        UI.Sect.Position=U3(0,105)
-        UI.Sect.Size=U3(150,25)
-        UI.Sect.TextSize=ClampTextSize(12)
-        UI.Cards.Position=U3(0,135)
-        UI.Grid.FillDirectionMaxCells=2
-        UI.Grid.CellSize=U2(.5,-8,0,115)
-        UI.Grid.CellPadding=U3(16,14)
+        if UI.HomeC and UI.HomeC.Parent then
+            UI.Greet.Size=U2(1,0,0,90)
+            UI.Avatar.Size=U3(55,55)
+            UI.Avatar.Position=U3(18,17)
+            UI.Hello.Position=U3(90,19)
+            UI.Hello.Size=U2(1,-140,0,30)
+            UI.Hello.TextSize=ClampTextSize(18)
+            UI.Sect.Position=U3(0,105)
+            UI.Sect.Size=U3(150,25)
+            UI.Sect.TextSize=ClampTextSize(12)
+            UI.Cards.Position=U3(0,135)
+            UI.Grid.FillDirectionMaxCells=2
+            UI.Grid.CellSize=U2(.5,-8,0,115)
+            UI.Grid.CellPadding=U3(16,14)
+        end
     end
     local ILs,IPs,TLs,TSs,TTSs,VLs,VSs,VTSs
     if mode=="Mobile" then
@@ -5274,7 +5281,7 @@ API.Window=ST.Window
 -- large number of chunk-level locals. Runtime state lives in ST.
 -- ============================================================
 ST.Framework=ST.Framework or {}
-ST.Framework.Version="5.4.5"
+ST.Framework.Version="5.4.6"
 ST.Framework.KeepDefaultTabs=false
 ST.Framework.UserTabsStarted=false
 ST.Framework.Modules=ST.Framework.Modules or {}

@@ -2,6 +2,13 @@
 
 Notable changes to LuaInterface are documented here.
 
+## [5.4.6] — 2026-09-28
+
+### Fixed
+
+- Responsive layout now skips Home-only widgets after the built-in Home tab is removed, preventing `UpdateResp` from indexing `nil.Size` on mobile and other layouts.
+- Avatar thumbnail callbacks now exit safely if Home was removed while the asynchronous request was pending.
+
 ## [5.4.5] — 2026-09-28
 
 ### Fixed
