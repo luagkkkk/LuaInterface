@@ -35,12 +35,14 @@ Useful window methods include:
 ```lua
 Window:AddKeybind("toggle-menu", {
     Name = "Show/Hide menu",
-    Default = Enum.KeyCode.RightShift,
+    Default = Enum.KeyCode.Insert,
     Callback = function()
         Window:Toggle()
     end,
 })
 ```
+
+The global menu key defaults to `RightShift`. It is reserved for the window manager; do not bind it again to a keybind callback that also toggles the window. `SetScale(value)` scales the main window subtree (not the full-screen coordinate space). The title/header area is draggable by mouse or touch.
 
 ## Tabs and groupboxes
 

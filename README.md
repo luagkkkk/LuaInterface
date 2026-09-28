@@ -1,6 +1,6 @@
 # LuaInterface
 
-![Version](https://img.shields.io/badge/version-5.4.7-blue)
+![Version](https://img.shields.io/badge/version-5.4.8-blue)
 ![Platform](https://img.shields.io/badge/platform-Roblox-red)
 ![Language](https://img.shields.io/badge/language-Luau-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -42,7 +42,7 @@ In Roblox Studio or a project that does not allow remote `loadstring`, place the
 ```lua
 local Window = LuaInterface:CreateWindow({
     Title = "My Interface",
-    Footer = "LuaInterface 5.4.7",
+    Footer = "LuaInterface 5.4.8",
 })
 
 Window:SetTheme("Obsidian") -- this is also the default theme
@@ -74,12 +74,14 @@ Group:AddToggle("demo-enabled", {
 
 Window:AddKeybind("toggle-menu", {
     Name = "Show/Hide menu",
-    Default = Enum.KeyCode.RightShift,
+    Default = Enum.KeyCode.Insert,
     Callback = function()
         Window:Toggle()
     end,
 })
 ```
+
+The global menu shortcut defaults to `RightShift`. Do not bind that same key to a callback that also calls `Window:Toggle()`; use another key such as `Insert` for a separate keybind. The global toggle is handled only once.
 
 **No component demo tabs are created at startup.** When the first user tab is added, it is selected automatically and the built-in `Home`/`Theme` tabs are removed so the window shows the tabs your script created. Pass `KeepDefaultTabs = true` to `CreateWindow` to retain those two system tabs:
 

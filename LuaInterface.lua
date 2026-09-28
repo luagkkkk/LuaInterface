@@ -1,6 +1,6 @@
 --!nonstrict
 -- ============================================================
--- LUA INTERFACE v5.4.7
+-- LUA INTERFACE v5.4.8
 -- Client-safe bootstrap, clean tab-first startup, Obsidian theme,
 -- vector/SVG tab icons, resilient selection and cleanup.
 -- ============================================================
@@ -36,7 +36,7 @@ local ty,ts,tn=typeof,tostring,tonumber
 local trem,tins=table.remove,table.insert
 local I=Instance.new
 
-local CFG={Name="LuaInterface",Version="v5.4.7",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
+local CFG={Name="LuaInterface",Version="v5.4.8",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
 local IMA={FPS="88339611171447",Ping="126112532632455",Home="107671250314081",Keybind="126112532632455",Lua="104650551286971"}
 
 -- Tema normalizado: os campos públicos seguem a estrutura Accent/Background/Outline/Text/Placeholder/Button/Icon,
@@ -1467,10 +1467,13 @@ UI.DragHandle.Name="DragHandle"
 UI.DragHandle.BackgroundTransparency=1
 UI.DragHandle.Text=""
 UI.DragHandle.AutoButtonColor=false
+UI.DragHandle.Active=true
+UI.DragHandle.Selectable=false
 UI.DragHandle.Size=U2(1,-420,1,0)
 UI.DragHandle.ZIndex=2
 UI.DragHandle.Parent=UI.Header
 UI.PT=FT.L(UI.Header,"Home",27,CFG.Text)
+UI.PT.Active=true
 UI.PT.Font=Enum.Font.GothamBold
 UI.PT.ZIndex=3
 Reg(UI.PT,"TextColor3","Text")
@@ -2340,7 +2343,12 @@ local function UpdD(inp)
     cy=cl(cy,-hh+keep,v.Y+hh-keep)
     UI.Main.Position=U3(cx,cy)
 end
-Tk(UI.DragHandle.InputBegan:Connect(BeginD))
+for _,handle in ipairs({UI.DragHandle,UI.PT,UI.TabInfoName,UI.TabInfoDesc}) do
+    if handle then
+        handle.Active=true
+        Tk(handle.InputBegan:Connect(BeginD))
+    end
+end
 -- Header-wide drag fallback: allows dragging from the title/header area even when
 -- responsive layout changes the DragHandle width. Controls remain clickable.
 Tk(UI.Header.InputBegan:Connect(function(inp)
@@ -2652,21 +2660,14 @@ UpdateResp=function()
         UI.Main.Position=Uv(.5,.5)
         ST.UserMoved=false
     elseif viewportReady and ST.FirstLayout then
-        if not ST.UserMoved then UI.Main.Position=U3(W*.5,Hh*.5) end
+        if not ST.UserMoved then UI.Main.Position=Uv(.5,.5) end
         ST.FirstLayout=false
     elseif viewportReady and modeChanged then
-        UI.Main.Position=U3(W*.5,Hh*.5)
+        UI.Main.Position=Uv(.5,.5)
         ST.UserMoved=false
-    elseif viewportReady and not ST.UserMoved and not ST.Resizing then
-        local A=UI.Main.AbsolutePosition
-        local cx=A.X+UI.Main.AbsoluteSize.X*.5
-        local cy=A.Y+UI.Main.AbsoluteSize.Y*.5
-        local hw=UI.Main.AbsoluteSize.X*.5
-        local hh=UI.Main.AbsoluteSize.Y*.5
-        local keep=20
-        cx=cl(cx,-hw+keep,W+hw-keep)
-        cy=cl(cy,-hh+keep,Hh+hh-keep)
-        UI.Main.Position=U3(cx,cy)
+    elseif viewportReady and not ST.UserMoved and not ST.Resizing and not ST.Dragging then
+        -- Scale-based center is stable across UIScale and viewport coordinate changes.
+        UI.Main.Position=Uv(.5,.5)
     end
     SyncState()
     if viewportReady and mode=="Mobile" and not CFG.Fullscreen then
@@ -2674,7 +2675,7 @@ UpdateResp=function()
         local W2=UI.Main.AbsoluteSize.X
         local H2=UI.Main.AbsoluteSize.Y
         if A.X<-W2+40 or A.X>v.X-40 or A.Y<-H2+40 or A.Y>v.Y-40 then
-            UI.Main.Position=U3(v.X*.5,v.Y*.5)
+            UI.Main.Position=Uv(.5,.5)
             ST.UserMoved=false
         end
     end
@@ -4501,6 +4502,9 @@ function El.Keybind(parent,opts)
     end))
     local function match(inp)
         if not cur or cur==Enum.KeyCode.Unknown then return false end
+        -- The global menu shortcut is handled once by the window manager; do not
+        -- fire a second keybind callback for the same key.
+        if inp.UserInputType==Enum.UserInputType.Keyboard and inp.KeyCode==CFG.ToggleKey then return false end
         if ty(cur)=="EnumItem" then return inp.UserInputType==Enum.UserInputType.Keyboard and inp.KeyCode==cur end
         if cur=="MouseButton1" then return inp.UserInputType==Enum.UserInputType.MouseButton1 end
         if cur=="MouseButton2" then return inp.UserInputType==Enum.UserInputType.MouseButton2 end
@@ -5068,8 +5072,12 @@ end
 function API:SetScale(v)
     v=tn(v); if not v then return false,"escala inválida" end
     v=cl(v,.75,1.35)
-    local sc=UI.Gui:FindFirstChild("LuaInterfaceScale")
-    if not sc then sc=I("UIScale"); sc.Name="LuaInterfaceScale"; sc.Parent=UI.Gui end
+    -- Scale only the window GuiObject subtree, never the ScreenGui coordinate
+    -- system; scaling the whole ScreenGui also scaled its pixel-centered Position.
+    local legacy=UI.Gui:FindFirstChild("LuaInterfaceScale")
+    if legacy and legacy:IsA("UIScale") then legacy:Destroy() end
+    local sc=UI.Main:FindFirstChild("LuaInterfaceScale")
+    if not sc then sc=I("UIScale"); sc.Name="LuaInterfaceScale"; sc.Parent=UI.Main end
     sc.Scale=v; ST.Scale=v; return true
 end
 function API:GetScale() return ST.Scale or 1 end
@@ -5286,7 +5294,7 @@ API.Window=ST.Window
 -- large number of chunk-level locals. Runtime state lives in ST.
 -- ============================================================
 ST.Framework=ST.Framework or {}
-ST.Framework.Version="5.4.7"
+ST.Framework.Version="5.4.8"
 ST.Framework.KeepDefaultTabs=false
 ST.Framework.UserTabsStarted=false
 ST.Framework.Modules=ST.Framework.Modules or {}

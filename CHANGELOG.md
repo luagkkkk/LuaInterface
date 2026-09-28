@@ -2,6 +2,15 @@
 
 Notable changes to LuaInterface are documented here.
 
+## [5.4.8] — 2026-09-28
+
+### Fixed
+
+- `SetScale()` now parents `UIScale` to the main window rather than the full `ScreenGui`, avoiding scaled screen coordinates and off-center placement. Default centering uses the parent-relative scale center.
+- Global menu-toggle input is excluded from component keybind callbacks, preventing duplicate toggles when both use `RightShift`.
+- Dragging is explicitly wired to the transparent handle, title, and tab-info header labels for mouse and touch input.
+- The Hitbox Expander example now relies on the built-in `RightShift` menu toggle, starts/open-center the window explicitly, and no longer registers a conflicting second toggle.
+
 ## [5.4.7] — 2026-09-28
 
 ### Fixed
