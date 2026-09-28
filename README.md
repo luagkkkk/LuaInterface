@@ -1,61 +1,60 @@
 # LuaInterface
 
-![Version](https://img.shields.io/badge/version-5.4.3-blue)
+![Version](https://img.shields.io/badge/version-5.4.4-blue)
 ![Platform](https://img.shields.io/badge/platform-Roblox-red)
 ![Language](https://img.shields.io/badge/language-Luau-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-A responsive Roblox Luau interface library with theming, reusable components, notifications, configuration helpers, and a built-in vector icon manager.
+A responsive Roblox Luau interface library with reusable components, a clean tab-first startup, theme support, inline SVG icons, notifications, and configuration helpers.
 
 ## Features
 
 - Responsive desktop, tablet, and mobile layouts
-- Built-in themes and runtime theme switching
-- Tabs, groupboxes, and nested tabboxes
+- Obsidian-inspired default theme, plus runtime theme switching
+- User-created tabs, groupboxes, and nested tabboxes
 - Buttons, toggles, sliders, dropdowns, inputs, keybinds, and color pickers
 - Notifications, dialogs, loading overlays, and search
 - Dependency helpers for conditional UI
-- Configuration save/load/export helpers when filesystem functions are available
-- Icon registry, aliases, namespaced lookup, tinting, and sizing
-- Built-in vector icons and inline SVG outline rendering
+- Configuration save/load/export helpers when compatible filesystem functions are available
+- Icon registry, aliases, `lucide:`-style namespaced lookup, tinting, sizing, image assets, and inline SVG rendering
 - Cleanup, lifecycle, and error-handling helpers
-
-> **Icon-pack naming:** `lucide:settings`, `tabler:settings`, and `phosphor:settings` are namespace aliases to LuaInterface's own registered icon renderers. They do **not** mean the official Lucide, Tabler, or Phosphor SVG collections are bundled.
 
 ## Installation
 
-For environments that allow `loadstring` and HTTP requests:
+Load the library from a compatible **client** environment that permits `loadstring` and HTTP requests:
 
 ```lua
-local LuaInterface = loadstring(game:HttpGet(
+local source, loadError = loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/luagkkkk/LuaInterface/main/LuaInterface.lua"
-))()
+))
+assert(source, loadError)
+
+local LuaInterface = source()
+assert(type(LuaInterface) == "table", "LuaInterface did not initialize")
 ```
 
-In Roblox Studio or a project that does not allow remote `loadstring`, place the source in a trusted `ModuleScript` and require it from a compatible client context. The library uses `Players.LocalPlayer` and `PlayerGui`.
+The library needs `Players.LocalPlayer` and that player's `PlayerGui`. It waits briefly for them and raises a descriptive error if it is running on the server or the client UI is unavailable, rather than silently returning `nil`.
 
-Only execute code you trust. `loadstring` availability and filesystem helper functions vary by environment. Configuration file operations are optional and require compatible filesystem functions such as `readfile` and `writefile`.
+In Roblox Studio or a project that does not allow remote `loadstring`, place the source in a trusted `ModuleScript` and require it from a compatible client context. Only execute code you trust. Filesystem functions such as `readfile` and `writefile` are optional and vary by environment.
 
 ## Quick start
 
 ```lua
-local LuaInterface = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/luagkkkk/LuaInterface/main/LuaInterface.lua"
-))()
-
 local Window = LuaInterface:CreateWindow({
     Title = "My Interface",
-    Footer = "LuaInterface 5.4.3",
+    Footer = "LuaInterface 5.4.4",
 })
 
+Window:SetTheme("Obsidian") -- this is also the default theme
+
 local Tab = Window:AddTab("Dashboard", {
-    Icon = "home",
-    Description = "A small example",
+    Icon = "lucide:settings",
+    Description = "Overview",
 })
 
 local Group = Tab:AddLeftGroupbox({
     Name = "Controls",
-    IconName = "settings",
+    IconName = "sliders",
 })
 
 Group:AddButton({
@@ -72,9 +71,34 @@ Group:AddToggle("demo-enabled", {
         print("Enabled:", enabled)
     end,
 })
+
+Window:AddKeybind("toggle-menu", {
+    Name = "Show/Hide menu",
+    Default = Enum.KeyCode.RightShift,
+    Callback = function()
+        Window:Toggle()
+    end,
+})
 ```
 
-The script currently includes demonstration tabs and components in its startup UI. Use `CreateWindow`, `AddTab`, and the component methods to configure and extend it.
+**No component demo tabs are created at startup.** When the first user tab is added, it is selected automatically and the built-in `Home`/`Theme` tabs are removed so the window shows the tabs your script created. Pass `KeepDefaultTabs = true` to `CreateWindow` to retain those two system tabs:
+
+```lua
+local Window = LuaInterface:CreateWindow({
+    Title = "My Interface",
+    KeepDefaultTabs = true,
+})
+```
+
+## Icons
+
+The tab option accepts a built-in name (`"settings"`), a supported namespace form (`"lucide:settings"`), an asset ID/URI, inline SVG markup, or a renderer function. For example:
+
+```lua
+local Tab = Window:AddTab("Settings", {Icon = "lucide:settings", IconSize = 18})
+```
+
+The built-in `lucide:`, `tabler:`, and `phosphor:` namespaces expose LuaInterface's **included subset** of renderers; they do not bundle the full official icon collections. See [ICONS.md](docs/ICONS.md) for the exact supported names and custom SVG examples.
 
 ## Documentation
 
@@ -93,8 +117,8 @@ The script currently includes demonstration tabs and components in its startup U
 ## Compatibility notes
 
 - This is a Roblox Luau UI library, not a standalone Lua UI toolkit.
-- Raw SVG is not assigned to a Roblox `ImageLabel`. Common outline SVG paths/primitives are parsed and drawn using Roblox GUI objects. It is not a complete SVG/CSS renderer; see [ICONS.md](docs/ICONS.md) for supported syntax and limitations.
-- The project has been statically syntax-checked. Runtime behavior still needs to be tested in Roblox Studio or the target client environment.
+- Raw SVG is not assigned to a Roblox `ImageLabel`. Supported outline paths and primitives are parsed and drawn using Roblox GUI objects. This is a lightweight icon renderer, not a complete SVG/CSS engine.
+- The source passes static syntax checks. Roblox Studio/client runtime behavior should still be verified in the target experience.
 
 ## License
 

@@ -1,10 +1,14 @@
-local LuaInterface = loadstring(game:HttpGet(
+local source, loadError = loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/luagkkkk/LuaInterface/main/LuaInterface.lua"
-))()
+))
+assert(source, loadError)
+local LuaInterface = source()
+assert(type(LuaInterface) == "table", "LuaInterface did not initialize")
 
 local Window = LuaInterface:CreateWindow({Title = "Icon examples"})
-local Tab = Window:AddTab("Icons", {Icon = "palette"})
-local Group = Tab:AddLeftGroupbox({Name = "IconManager", IconName = "settings"})
+Window:SetTheme("Obsidian")
+local Tab = Window:AddTab("Icons", {Icon = "lucide:settings", IconSize = 18})
+local Group = Tab:AddLeftGroupbox({Name = "IconManager", IconName = "sliders"})
 local Icons = LuaInterface.IconManager
 
 print("Built-in icon:", Icons:Exists("settings"))
@@ -14,14 +18,17 @@ print("Missing icon:", Icons:Exists("not-a-real-icon"))
 Icons:RegisterAlias("my-gear", "settings")
 print("Registered alias:", Icons:Exists("my-gear"))
 
-Icons:RegisterSVG("heart-outline", [[
+local heartSvg = [[
 <svg viewBox="0 0 24 24">
   <path d="M20 8 C20 4 15 3 12 8 C9 3 4 4 4 8 C4 13 12 20 12 20 C12 20 20 13 20 8 Z"/>
 </svg>
-]])
+]]
+Icons:RegisterSVG("heart-outline", heartSvg)
 
--- To render a standalone icon, provide a GuiObject parent (for example, a Frame
--- inside a ScreenGui). Tab and groupbox icons can also be supplied by name.
+-- Raw inline SVG also works directly in a tab's Icon option.
+Window:AddTab("Favorites", {Icon = heartSvg})
+
+-- For a standalone icon, use a GuiObject parent inside a ScreenGui.
 local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 local host = Instance.new("Frame")
 host.Name = "IconPreviewHost"

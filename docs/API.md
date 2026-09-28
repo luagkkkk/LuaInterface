@@ -4,7 +4,7 @@ The public object is returned by the library script. The examples below assume i
 
 ## Window
 
-The script initializes its UI when it is loaded. `CreateWindow(config)` applies window settings to that library instance and returns the library API object.
+The UI is initialized when the source is loaded in a compatible client context. `CreateWindow(config)` applies window settings and returns the library API object.
 
 ```lua
 local Window = LuaInterface:CreateWindow({
@@ -15,31 +15,52 @@ local Window = LuaInterface:CreateWindow({
 })
 ```
 
+Set `KeepDefaultTabs = true` if the built-in `Home` and `Theme` tabs should remain visible after creating your own tabs. By default, the first custom tab removes those two system tabs and becomes selected; no component demo tabs are shipped in the startup UI.
+
+```lua
+local Window = LuaInterface:CreateWindow({
+    Title = "My Interface",
+    KeepDefaultTabs = true,
+})
+```
+
 Useful window methods include:
 
 - `CreateWindow(config)` / `ConfigureWindow(config)`
 - `Open()`, `Close()`, `Toggle()`, `Minimize()`, `Fullscreen()`
 - `SetSize(width, height)`, `SetPosition(position)`
 - `SetTheme(name)`, `Destroy()` / `Unload()`
+- `AddKeybind(id, config)`, which places the keybind control on the currently selected tab
+
+```lua
+Window:AddKeybind("toggle-menu", {
+    Name = "Show/Hide menu",
+    Default = Enum.KeyCode.RightShift,
+    Callback = function()
+        Window:Toggle()
+    end,
+})
+```
 
 ## Tabs and groupboxes
 
 ```lua
 local Tab = Window:AddTab("Dashboard", {
-    Icon = "home",
+    Icon = "lucide:settings",
+    IconSize = 18,
     Description = "Overview",
 })
 
 local Left = Tab:AddLeftGroupbox({
     Name = "Controls",
     Description = "Main actions",
-    IconName = "settings",
+    IconName = "sliders",
 })
 
 local Right = Tab:AddRightGroupbox({Name = "Status"})
 ```
 
-`AddTab(name, config)` accepts an icon name, SVG string, or renderer function. Groupboxes support `AddLeftGroupbox`, `AddRightGroupbox`, `AddGroupbox`, and nested tabboxes. Tabs also expose direct component methods such as `AddButton`, `AddToggle`, `AddSlider`, `AddDropdown`, and `AddInput`.
+`AddTab(name, config)` accepts a built-in icon name, a supported namespaced icon name, an asset ID/URI, inline SVG markup, or a renderer function. The first tab is selected automatically unless `Select = false`; set `Select = true` on later tabs to select them immediately. Groupboxes support `AddLeftGroupbox`, `AddRightGroupbox`, `AddGroupbox`, and nested tabboxes. Tabs and groupboxes expose component methods such as `AddButton`, `AddToggle`, `AddSlider`, `AddDropdown`, `AddInput`, `AddKeybind`, `AddSection`, and `AddDivider`.
 
 ## Components
 
@@ -105,7 +126,7 @@ A string can also be passed as notification content. `Duration = 0` creates a pe
 
 ```lua
 print(table.concat(LuaInterface:GetThemes(), ", "))
-LuaInterface:SetTheme("Ocean")
+LuaInterface:SetTheme("Obsidian")
 ```
 
 See [THEMES.md](THEMES.md) for built-in names and theme behavior.

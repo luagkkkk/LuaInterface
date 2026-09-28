@@ -1,6 +1,15 @@
 # Themes
 
-LuaInterface ships with these themes: `Dark`, `Light`, `Darker`, `Amoled`, `Rose`, `Indigo`, `Blue`, `Green`, `Red`, `Purple`, `Mellowsi`, `Ocean`, `Amber`, `Emerald`, and `Violet`.
+LuaInterface ships with these themes: `Obsidian`, `Dark`, `Light`, `Darker`, `Amoled`, `Rose`, `Indigo`, `Blue`, `Green`, `Red`, `Purple`, `Mellowsi`, `Ocean`, `Amber`, `Emerald`, and `Violet`.
+
+## Obsidian-inspired default
+
+`Obsidian` is the default theme in v5.4.4. It uses graphite surfaces, soft borders, readable muted text, and a restrained violet accent. An existing saved/autoloaded theme can still override the default.
+
+```lua
+Window:SetTheme("Obsidian")
+print("Current theme:", Window:GetTheme())
+```
 
 ## List and apply a theme
 
@@ -10,7 +19,6 @@ for _, name in ipairs(LuaInterface:GetThemes()) do
 end
 
 LuaInterface:SetTheme("Ocean")
-print("Current theme:", LuaInterface:GetTheme())
 local ocean = LuaInterface:GetThemeData("Ocean")
 ```
 

@@ -1,18 +1,32 @@
 --!nonstrict
 -- ============================================================
--- LUA INTERFACE v5.4.3
--- Adiciona TweenManager central: cancelamento por (obj,key),
--- validação de TweenInfo, fallback direto se Create falhar,
--- Completed com validação de tween atual, cleanup no Destroy.
+-- LUA INTERFACE v5.4.4
+-- Client-safe bootstrap, clean tab-first startup, Obsidian theme,
+-- vector/SVG tab icons, resilient selection and cleanup.
 -- ============================================================
 if _G.LuaInterface and _G.LuaInterface.Destroy then pcall(function()_G.LuaInterface:Destroy()end)end
 _G.LuaInterface=(function()
 local S={P=game:GetService("Players"),R=game:GetService("RunService"),U=game:GetService("UserInputService"),T=game:GetService("TweenService"),St=game:GetService("Stats"),M=game:GetService("MarketplaceService"),H=game:GetService("HttpService"),D=game:GetService("Debris"),TP=game:GetService("TeleportService"),G=game:GetService("GuiService"),CP=game:GetService("ContentProvider")}
+if not S.R:IsClient() then
+    error("[LuaInterface] Esta biblioteca precisa ser carregada no cliente; não use um Script do servidor.",0)
+end
+local playerDeadline=os.clock()+12
 S.LP=S.P.LocalPlayer
-if not S.LP then return end
-local pgOk,pg=S.LP:WaitForChild("PlayerGui",12)
-S.PG=(pgOk and pg) or S.LP:FindFirstChildOfClass("PlayerGui")
-if not S.PG then return end
+while not S.LP and os.clock()<playerDeadline do
+    task.wait(.1)
+    S.LP=S.P.LocalPlayer
+end
+if not S.LP then
+    error("[LuaInterface] Players.LocalPlayer está indisponível. Execute em um contexto cliente/LocalScript.",0)
+end
+S.PG=S.LP:FindFirstChildOfClass("PlayerGui")
+if not S.PG then
+    local ok,playerGui=pcall(function() return S.LP:WaitForChild("PlayerGui",20) end)
+    if ok then S.PG=playerGui end
+end
+if not S.PG then
+    error("[LuaInterface] PlayerGui não foi encontrado para o jogador local.",0)
+end
 local U2,U3,Uv,Un,V2,WH=UDim2.new,UDim2.fromOffset,UDim2.fromScale,UDim.new,Vector2.new,Color3.new(1,1,1)
 local c3rgb,c3hsv,c3hex=Color3.fromRGB,Color3.fromHSV,Color3.fromHex
 local cl,mi,ma,fl,ro=math.clamp,math.min,math.max,math.floor,math.round
@@ -22,7 +36,7 @@ local ty,ts,tn=typeof,tostring,tonumber
 local trem,tins=table.remove,table.insert
 local I=Instance.new
 
-local CFG={Name="Lua",Version="v5.4.3",Bg=c3hex("#0B0B0F"),Sidebar=c3hex("#0A0A0D"),Card=c3hex("#15151C"),CardHover=c3hex("#1F1F28"),Field=c3hex("#121218"),Purple=c3hex("#B24CFF"),PurpleSoft=c3hex("#9B5BC8"),Red=c3rgb(255,90,110),Text=c3hex("#EEE8F4"),SubText=c3hex("#BEB8C4"),Stroke=c3hex("#2A2A35"),CardHoverBorder=c3hex("#4A2A5E"),IconBg=c3hex("#23232C"),BgButton=c3hex("#23232C"),BgTrack=c3hex("#1E1E26"),NavActive=c3hex("#1F1F28"),AvatarBg=c3hex("#23232C"),DangerBg=c3hex("#3C1420"),DangerText=c3hex("#FF8CA0"),PopupBg=c3hex("#15151C"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
+local CFG={Name="LuaInterface",Version="v5.4.4",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
 local IMA={FPS="88339611171447",Ping="126112532632455",Home="107671250314081",Keybind="126112532632455",Lua="104650551286971"}
 
 -- Tema normalizado: os campos públicos seguem a estrutura Accent/Background/Outline/Text/Placeholder/Button/Icon,
@@ -58,6 +72,8 @@ end
 local Themes={
     -- Dark: quase preto, superfícies cinza escuro, accent cinza-claro.
     ["Dark"]=MakeTheme("#101114","#0B0C0F","#181A1F","#22252B","#14161A","#B8BDC7","#D0D4DB","#F2F4F7","#A7ADB7","#30343B","#25292F","#C5CAD2","#3A1820","#FF9AAA"),
+    -- Obsidian-inspired graphite surfaces, restrained violet accent, and clear text contrast.
+    ["Obsidian"]=MakeTheme("#1E1E1E","#18181B","#242428","#2D2D33","#1B1B20","#A78BFA","#C4B5FD","#E7E5EA","#A7A4AE","#39383F","#2B2A31","#C4B5FD","#3D1B25","#FF9AAA"),
     -- Light: branco, superfícies muito claras, accent cinza/azul.
     ["Light"]=MakeTheme("#F7F8FA","#FFFFFF","#FFFFFF","#EEF1F5","#F1F3F6","#64748B","#7C8DA5","#171A21","#667085","#D9DEE7","#E8ECF2","#7C8798","#FCE9ED","#C73550","#111318"),
     -- Darker: preto/cinza mais profundo.
@@ -90,14 +106,14 @@ local Themes={
 
 
 -- v5.1.4: ActiveTweens adicionado ao ST (não é local novo do chunk)
-local ST={CurrentMode="Desktop",CurrentPage=nil,MainVisible=true,Pages={},Buttons={},ButtonIcons={},toggleToken=0,Conns=setmetatable({}, {__mode="k"}),ConnCount=0,ButtonLowerNames={},TweenInfoCache={},TweenInfoCacheCount=0,ActiveNotif={},ActiveCount=0,Elements={},ElementOrder={},CustomSize=nil,Resizing=false,OpenPopup=nil,OpenDropdown=nil,ActiveDialog=nil,FirstLayout=true,ScrollScheduled=false,RespScheduled=false,UserMoved=false,LastDragTime=0,PageToken=0,CurrentTheme="Dark",PColor=c3hex("#DDDDDD"),PTmin=.35,PTmax=.78,Themed={},ThemeHooks={},Tasks={},ThemeToken=0,Dragging=false,LastTabChange=0,State="Ready",Destroyed=false,Errors={},ErrorSeq=0,Keybinds={},ListeningKeybind=nil,ForceCheckbox=false,Scale=1,Language="en-US",Locales={},Plugins={},Loading=nil,
+local ST={CurrentMode="Desktop",CurrentPage=nil,MainVisible=true,Pages={},Buttons={},ButtonIcons={},toggleToken=0,Conns=setmetatable({}, {__mode="k"}),ConnCount=0,ButtonLowerNames={},TweenInfoCache={},TweenInfoCacheCount=0,ActiveNotif={},ActiveCount=0,Elements={},ElementOrder={},CustomSize=nil,Resizing=false,OpenPopup=nil,OpenDropdown=nil,ActiveDialog=nil,FirstLayout=true,ScrollScheduled=false,RespScheduled=false,UserMoved=false,LastDragTime=0,PageToken=0,CurrentTheme="Obsidian",PColor=c3hex("#DDDDDD"),PTmin=.35,PTmax=.78,Themed={},ThemeHooks={},Tasks={},ThemeToken=0,Dragging=false,LastTabChange=0,State="Ready",Destroyed=false,Errors={},ErrorSeq=0,Keybinds={},ListeningKeybind=nil,ForceCheckbox=false,Scale=1,Language="en-US",Locales={},Plugins={},Loading=nil,
 PageScrolls={},
 Tabboxes={},
 Groupboxes={},
 DependencyRefreshers={},
 LastResizeMode="",
 ActiveTweens=setmetatable({}, {__mode="k"}),
-Window={Title="Lua",Footer="",Position=nil,Size=nil,Center=true,AutoShow=true,ToggleKeybind=nil,NotifySide="Right",ShowCustomCursor=true,AlwaysOnTop=false,Font=Enum.Font.GothamMedium,CornerRadius=15,Icon=nil,IconSize=30,BackgroundImage=nil,Resizable=true,ShowMobileButtons=true,MobileButtonsSide="Right",DisableSearch=false,SearchbarSize=nil,GlobalSearch=false,UnlockMouseWhileOpen=true,EnableSidebarResize=false,EnableCompacting=true,DisableCompactingSnap=false,SidebarCompacted=false,MinContainerWidth=256,MinSidebarWidth=128,SidebarCompactWidth=48,SidebarCollapseThreshold=.5,CompactWidthActivation=128,Snapping=false,SnapDistance=28,SnapMargin=8,SnapAvoidCoreGui=true,Animations={ToggleWindow=true,TabSwitch=true,Groupbox=true,Dropdown=true,KeyPicker=true},TabTransitionTime=.22,TabSwipeOffset=26,TabSwipeFrom="bottom",TabButtonsStyle={Gap=0,Padding=0,CornerRadius=0,Indicator=false,IndicatorWidth=2,IndicatorHeight=20},SidebarWidth=nil,LastExpandedSidebarWidth=nil,FullscreenSaved=nil},
+Window={Title="LuaInterface",Footer="",Position=nil,Size=nil,Center=true,AutoShow=true,ToggleKeybind=nil,NotifySide="Right",ShowCustomCursor=true,AlwaysOnTop=false,Font=Enum.Font.GothamMedium,CornerRadius=15,Icon=nil,IconSize=30,BackgroundImage=nil,Resizable=true,ShowMobileButtons=true,MobileButtonsSide="Right",DisableSearch=false,SearchbarSize=nil,GlobalSearch=false,UnlockMouseWhileOpen=true,EnableSidebarResize=false,EnableCompacting=true,DisableCompactingSnap=false,SidebarCompacted=false,MinContainerWidth=256,MinSidebarWidth=128,SidebarCompactWidth=48,SidebarCollapseThreshold=.5,CompactWidthActivation=128,Snapping=false,SnapDistance=28,SnapMargin=8,SnapAvoidCoreGui=true,Animations={ToggleWindow=true,TabSwitch=true,Groupbox=true,Dropdown=true,KeyPicker=true},TabTransitionTime=.22,TabSwipeOffset=26,TabSwipeFrom="bottom",TabButtonsStyle={Gap=0,Padding=0,CornerRadius=0,Indicator=false,IndicatorWidth=2,IndicatorHeight=20},SidebarWidth=nil,LastExpandedSidebarWidth=nil,FullscreenSaved=nil},
 }
 
 local UI={}
@@ -1716,7 +1732,7 @@ local function CrtPg(Nm)
     UI.PageCts[Nm]=Cn
     return Pg,Cn
 end
-CrtPg("Example1") CrtPg("Example2") CrtPg("Example3") CrtPg("Example4") CrtPg("Example5") CrtPg("Theme")
+CrtPg("Theme")
 
 local function ScrollU()
     if ST.ScrollScheduled then return end
@@ -1730,8 +1746,8 @@ local function ScrollU()
             if gh>0 then UI.Cards.Size=U2(1,0,0,gh) end
         end
         local hn=VH
-        if UI.HomeC then hn=ma(VH,UI.HomeC.AbsoluteSize.Y+24) end
-        UI.Home.Size=U2(1,0,0,hn)
+        if UI.HomeC and UI.HomeC.Parent then hn=ma(VH,UI.HomeC.AbsoluteSize.Y+24) end
+        if UI.Home and UI.Home.Parent then UI.Home.Size=U2(1,0,0,hn) end
         local Nm=ST.CurrentPage
         if Nm and Nm~="Home" then
             local Pg=ST.Pages[Nm]
@@ -1797,15 +1813,28 @@ local function AnimPg(Pg)
     end
 end
 
-SetTab=function(Nm)
+local function FirstVisibleTab(exclude)
+    local bestName,bestOrder=nil,math.huge
+    for candidate,button in pairs(ST.Buttons) do
+        if candidate~=exclude and button and button.Parent and button.Visible~=false and ST.Pages[candidate] then
+            local order=tn(button.LayoutOrder) or 0
+            if order<bestOrder then bestName,bestOrder=candidate,order end
+        end
+    end
+    return bestName
+end
+
+SetTab=function(Nm,force)
+    Nm=ts(Nm or "")
     local now=os.clock()
-    if now-(ST.LastTabChange or 0)<.06 and ST.CurrentPage~=Nm then
-        return
+    local currentPageExists=ST.CurrentPage and ST.Pages[ST.CurrentPage]
+    if not force and currentPageExists and now-(ST.LastTabChange or 0)<.06 and ST.CurrentPage~=Nm then
+        return false
     end
     ST.LastTabChange=now
     CloseDropdowns()
-    if not ST.Pages[Nm] then Nm="Home" end
-    if not ST.Pages[Nm] or ST.CurrentPage==Nm then return end
+    if not ST.Pages[Nm] or (ST.Buttons[Nm] and ST.Buttons[Nm].Visible==false) then Nm=FirstVisibleTab(Nm) end
+    if not Nm or not ST.Pages[Nm] or ST.CurrentPage==Nm then return false end
     SaveScrolls()
     ST.CurrentPage=Nm
     ST.PageToken=ST.PageToken+1
@@ -1855,9 +1884,10 @@ SetTab=function(Nm)
     UI.Nav.CanvasPosition=V2(0,UI.Nav.CanvasPosition.Y)
     RestoreScroll(Nm)
     ScrollU()
+    return true
 end
 
-local TD={{V=IC.Home,N="Home",D="Home"},{T="◎",N="Example1",D="Example"},{T="◉",N="Example2",D="Example"},{T="ϟ",N="Example3",D="Example"},{V=IC.Settings,N="Example4",D="Example"},{T="◇",N="Example5",D="Example"},{V=IC.Moon,N="Theme",D="Theme"}}
+local TD={{V=IC.Home,N="Home",D="Home"},{V=IC.Moon,N="Theme",D="Theme"}}
 for i=1,#TD do
     local D=TD[i]
     local B=I("TextButton")
@@ -2748,7 +2778,7 @@ ThemeLayout.Padding=Un(0,10)
 ThemeLayout.SortOrder=Enum.SortOrder.LayoutOrder
 ThemeLayout.Parent=ThemeC
 local ThemeCards={}
-local TOrder={"Dark","Light","Darker","Amoled","Rose","Indigo","Blue","Green","Red","Purple","Mellowsi","Ocean","Amber","Emerald","Violet"}
+local TOrder={"Obsidian","Dark","Light","Darker","Amoled","Rose","Indigo","Blue","Green","Red","Purple","Mellowsi","Ocean","Amber","Emerald","Violet"}
 for i=1,#TOrder do
     local name=TOrder[i]
     local theme=Themes[name]
@@ -4865,91 +4895,6 @@ function SM:Rename(oldName,newName)
     pcall(delfile,oldPath); return true
 end
 
-local Ex1=UI.PageCts["Example1"]
-local Ex2=UI.PageCts["Example2"]
-local Ex3=UI.PageCts["Example3"]
-local Ex4=UI.PageCts["Example4"]
-local Ex5=UI.PageCts["Example5"]
-
-local GB_Left=MakeGroupbox(Ex1,{Side="Left",Name="Basic Groupbox",Description="Left groupbox test",IconName="boxes",Visible=true,Collapsed=false,DisableCollapsing=false,PopOut=true,MaxPopOutHeight=220,PopOutWidth=280})
-GB_Left:AddToggle("TestToggle",{Name="Enable test",Default=false,Index="GB_TestToggle"})
-GB_Left:AddSlider("TestSlider",{Name="Volume",Default=50,Min=0,Max=100,Decimals=0,Index="GB_TestSlider"})
-GB_Left:AddDivider()
-GB_Left:AddSection({Title="Static Section",Opened=true})
-local GB_Right=MakeGroupbox(Ex1,{Side="Right",Name="Right Groupbox",Description="Right column test",IconName="settings",Visible=true,Collapsed=false,PopOut=true})
-GB_Right:AddButton("TestButton",{Name="Test Button",Index="GB_TestButton"})
-GB_Right:AddToggle("StartEnabled",{Name="Start Enabled",Default=true,Index="GB_StartEnabled"})
-GB_Right:AddKeybind("TestKey",{Name="Test Keybind",Default=Enum.KeyCode.H,Mode="Toggle",Index="GB_TestKeybind",Callback=function(state) LuaNotify({Title="Keybind",Content=state and "ON" or "OFF",Duration=2}) end})
-
-local DepGroup=MakeGroupbox(Ex2,{Side="Left",Name="Dependency Box",Description="Visible only when Enable Audio is true",IconName="wrench"})
-local DepToggle=DepGroup:AddToggle("EnableAudio",{Name="Enable Audio",Default=false,Index="Dep_EnableAudio"})
-local AudioSettings=DepGroup:AddDependencyBox()
-AudioSettings:AddSlider("Volume",{Name="Volume",Default=50,Min=0,Max=100,Index="Dep_Volume"})
-AudioSettings:AddToggle("Mute",{Name="Mute",Default=false,Index="Dep_Mute"})
-AudioSettings:SetupDependencies({{DepToggle,true}})
-local DepGBParent=MakeGroupbox(Ex2,{Side="Right",Name="Dependency Groupbox",Description="Framed dependency container",IconName="boxes"})
-local EnableAdvanced=DepGBParent:AddToggle("EnableAdvanced",{Name="Enable Advanced",Default=false,Index="Dep_EnableAdvanced"})
-local Advanced=DepGBParent:AddDependencyGroupbox()
-Advanced:AddSlider("Power",{Name="Power",Default=25,Min=0,Max=100,Index="Dep_Power"})
-Advanced:AddButton("AdvancedButton",{Name="Advanced Button",Index="Dep_AdvancedButton"})
-Advanced:SetupDependencies({{EnableAdvanced,true}})
-
-local PopTest=MakeGroupbox(Ex3,{Side="Left",Name="Pop Out Test",Description="Groupbox pop-out",PopOut=true,MaxPopOutHeight=260,PopOutWidth=300})
-PopTest:AddToggle("PopToggle",{Name="Popout toggle",Default=false,Index="Pop_PopToggle"})
-PopTest:AddSlider("PopSlider",{Name="Popout size",Default=10,Min=1,Max=25,Index="Pop_PopSlider"})
-PopTest:AddButton("PopButton",{Name="Popout button",Index="Pop_Button"})
-local TabboxParent=MakeGroupbox(Ex3,{Side="Right",Name="Nested Tabbox",Description="Groupbox:AddTabbox()",IconName="boxes"})
-local Nested=TabboxParent:AddTabbox({Side="Left",Name="Nested Tabs",MaxPopOutHeight=220,PopOutWidth=280})
-local NestedA=Nested:AddTab("General")
-NestedA:AddToggle("NestedToggle",{Name="Nested toggle",Default=false,Index="Nested_Toggle"})
-NestedA:AddSlider("NestedSlider",{Name="Nested slider",Default=5,Min=0,Max=10,Index="Nested_Slider"})
-local NestedB=Nested:AddTab("Options")
-NestedB:AddButton("NestedButton",{Name="Nested button",Index="Nested_Button"})
-NestedB:AddToggle("NestedSecond",{Name="Second toggle",Default=true,Index="Nested_Second"})
-
-local Methods=MakeGroupbox(Ex4,{Side="Left",Name="Groupbox Methods",Description="Configuration API test"})
-Methods:AddButton("ShowTest",{Name="Show / Hide test",Index="Methods_ShowHide"})
-Methods:AddButton("PopTest",{Name="PopOut test",Index="Methods_Pop"})
-Methods:SetMaxPopOutHeight(240)
-Methods:SetPopOutWidth(300)
-local AllTypes=MakeGroupbox(Ex4,{Side="Right",Name="All Basic Elements",Description="Configuration-only examples"})
-AllTypes:AddToggle("BasicToggle",{Name="Toggle",Default=true,Index="All_Toggle"})
-AllTypes:AddSlider("BasicSlider",{Name="Slider",Default=25,Min=0,Max=50,Index="All_Slider"})
-AllTypes:AddButton("BasicButton",{Name="Button",Index="All_Button"})
-AllTypes:AddKeybind("BasicKey",{Name="Keybind",Default=Enum.KeyCode.K,Mode="Hold",Index="All_Keybind",Callback=function(state) LuaNotify({Title="Keybind",Content=state and "Pressed" or "Released",Duration=1.5}) end})
-
-local Final=MakeGroupbox(Ex5,{Side="Left",Name="Dependency Combination",Description="Multiple dependencies are ANDed"})
-local A=Final:AddToggle("A",{Name="Condition A",Default=false,Index="Final_A"})
-local B=Final:AddToggle("B",{Name="Condition B",Default=false,Index="Final_B"})
-local Both=Final:AddDependencyBox()
-Both:AddSection({Title="Visible when A AND B",Opened=true})
-Both:AddToggle("Inside",{Name="Dependent option",Default=false,Index="Final_Inside"})
-Both:SetupDependencies({{A,true},{B,true}})
-local FinalGB=MakeGroupbox(Ex5,{Side="Right",Name="Non-Collapsible",Description="DisableCollapsing=true",DisableCollapsing=true,Collapsed=false,PopOut=true})
-FinalGB:AddToggle("Fixed",{Name="Always open",Default=true,Index="Final_Fixed"})
-local FixedTabs=FinalGB:AddTabbox({Side="Left",Name="Fixed Tabs"})
-local FixedTab=FixedTabs:AddTab("Test")
-FixedTab:AddToggle("FixedNested",{Name="Nested fixed",Default=false,Index="Final_FixedNested"})
-
--- Obsidian-compatible Toggle/Button surface tests. These examples intentionally use no callback functions.
-local ToggleDocs=MakeGroupbox(Ex1,{Side="Left",Name="Toggles Docs",Description="Obsidian-compatible Toggle API"})
-local DocsToggle=ToggleDocs:AddToggle("DocsToggle",{Text="Enable Speed Hack",Default=true,Tooltip="Toggle tooltip",DisabledTooltip="Disabled tooltip",Risky=true,Disabled=false,Visible=true,Index="Docs_Toggle"})
-ToggleDocs:AddToggle("DocsDisabled",{Text="Disabled Toggle",Default=false,Disabled=true,Visible=true,Index="Docs_ToggleDisabled"})
-ToggleDocs:AddCheckbox("DocsCheckbox",{Text="Enable Checkbox",Default=true,Visible=true,Index="Docs_Checkbox"})
-ToggleDocs:AddCheckbox("DocsCheckboxDisabled",{Text="Disabled Checkbox",Default=false,Disabled=true,DisabledTooltip="Unavailable",Index="Docs_CheckboxDisabled"})
-local ButtonDocs=MakeGroupbox(Ex1,{Side="Right",Name="Buttons Docs",Description="Obsidian-compatible Button API"})
-local DocsButton=ButtonDocs:AddButton({Text="This is a button",Visible=true,Disabled=false,Risky=true,DoubleClick=false,Tooltip="Button tooltip",DisabledTooltip="Disabled button tooltip",Index="Docs_Button"})
-DocsButton:AddButton({Text="Sub Button",Disabled=false,Tooltip="Sub button tooltip"})
-DocsButton:AddKeyPicker("DocsButtonKey",{Default=Enum.KeyCode.V,Text="Button Bind",Mode="Press",DefaultModifiers={"LShift"}})
-ButtonDocs:AddButton({Text="Disabled Button",Disabled=true,Index="Docs_ButtonDisabled"})
-ButtonDocs:AddButton({Text="Double Click Button",DoubleClick=true,Index="Docs_ButtonDouble"})
-
-local DropdownDocs=MakeGroupbox(Ex5,{Side="Right",Name="Dropdown Docs",Description="Obsidian-compatible Dropdown API"})
-DropdownDocs:AddDropdown("DocsDropdown",{Text="A dropdown",Values={"This","is","a","dropdown"},Default=1,Multi=false,Searchable=true,MaxVisibleDropdownItems=6,AllowNull=true,Tooltip="Dropdown tooltip",Index="Docs_Dropdown"})
-DropdownDocs:AddDropdown("DocsMultiDropdown",{Text="Multi dropdown",Values={item01="Excalibur",item05="Aegis Shield"},Default={item01=true},Multi=true,AllowNull=true,Searchable=true,DisabledValues={item05},Index="Docs_MultiDropdown"})
-
--- Theme remains the dedicated theme test area. Keybind callbacks above are intentional.
-
 SM:SetFolder("LuaInterface")
 SM:SetSubFolder(ts(game.PlaceId))
 SM:LoadAutoloadConfig()
@@ -5019,8 +4964,21 @@ function API:AddTabbox(tabName,cfg)
     if not tab then return nil,err end
     return tab:AddTabbox(cfg)
 end
+function API:AddKeybind(id,cfg)
+    if not ValidState() then return nil,"LuaInterface destroyed" end
+    local target=ST.CurrentPage and UI.PageCts[ST.CurrentPage]
+    if not target or not target.Parent then return nil,"selecione ou crie uma tab antes de adicionar um keybind" end
+    return ElementAPI(target):AddKeybind(id,cfg or {})
+end
 function API:NewSection(parent,opts) return El.Section(parent,opts) end
-function API:Divider(parent) return El.Divider(parent or Ex1) end
+function API:Divider(parent)
+    local target=parent
+    if not target then
+        target=(ST.CurrentPage and UI.PageCts[ST.CurrentPage]) or (UI.HomeC and UI.HomeC.Parent and UI.HomeC)
+    end
+    if not target then return nil,"parent inválido" end
+    return El.Divider(target)
+end
 function API:SetErrorHandler(fn)
     if fn~=nil and type(fn)~="function" then return false,"handler inválido" end
     ST.ErrorHandler=fn
@@ -5160,7 +5118,14 @@ function API:CreateWatermark(cfg)
     local api={Frame=f,SetText=function(self,t) f.Text=ts(t or "") end,Destroy=function(self) if f.Parent then f:Destroy() end end}; UI.Watermark=f; if cfg.Text then f.Text=ts(cfg.Text) end; return api
 end
 
-function API:CreateWindow(config) if not ValidState() then return nil,"LuaInterface destroyed" end ApplyWindowConfig(config) return self end
+function API:CreateWindow(config)
+    if not ValidState() then return nil,"LuaInterface destroyed" end
+    if type(config)=="table" and config.KeepDefaultTabs~=nil then
+        ST.Framework.KeepDefaultTabs=config.KeepDefaultTabs==true
+    end
+    ApplyWindowConfig(config)
+    return self
+end
 function API:ConfigureWindow(config) return self:CreateWindow(config) end
 function API:GetWindowConfig() local o={} for k,v in pairs(ST.Window) do if k~="Animations" and k~="TabButtonsStyle" then o[k]=v end end o.Animations={} for k,v in pairs(ST.Window.Animations) do o.Animations[k]=v end o.TabButtonsStyle={} for k,v in pairs(ST.Window.TabButtonsStyle) do o.TabButtonsStyle[k]=v end return o end
 function API:SetFooter(v) ST.Window.Footer=ts(v or "") UI.Footer.Text=ST.Window.Footer UI.Footer.Visible=ST.CurrentMode~="Mobile" and ST.Window.Footer~="" return true end
@@ -5296,7 +5261,7 @@ API.NewButton=El.Button
 API.NewKeybind=El.Keybind
 API.NewSection=El.Section
 API.NewDivider=El.Divider
-API.SetTab=function(n) if not ValidState() then return false end return SetTab(n) end
+API.SetTab=function(n) if not ValidState() then return false end return SetTab(n,true) end
 API.Config=CFG
 API.Version=CFG.Version
 API.Themes=Themes
@@ -5309,7 +5274,9 @@ API.Window=ST.Window
 -- large number of chunk-level locals. Runtime state lives in ST.
 -- ============================================================
 ST.Framework=ST.Framework or {}
-ST.Framework.Version="5.4.2"
+ST.Framework.Version="5.4.4"
+ST.Framework.KeepDefaultTabs=false
+ST.Framework.UserTabsStarted=false
 ST.Framework.Modules=ST.Framework.Modules or {}
 ST.Framework.ManagedInstances=ST.Framework.ManagedInstances or {}
 ST.Framework.Cleanup=ST.Framework.Cleanup or {}
@@ -5337,10 +5304,9 @@ ST.Framework.CustomThemeNames=ST.Framework.CustomThemeNames or {}
 -- ---------- Icon Manager / vector + asset icon registry ----------
 -- Public API: Register, RegisterAlias, RegisterPack, Get, Resolve, Exists,
 -- Create, Remove, Preload and ClearCache. Built-ins are vector-rendered;
--- asset-backed packs can use Image = "rbxassetid://...". Raw SVG text is
--- intentionally kept as metadata: Roblox ImageLabel cannot consume arbitrary
--- SVG markup directly, so SVGs should be imported/packed as Roblox assets or
--- represented by a renderer function.
+-- asset-backed packs can use Image = "rbxassetid://...". Common inline SVG
+-- outline paths/primitives are parsed to GuiObjects; this is intentionally not
+-- a complete SVG/CSS renderer.
 ST.Framework.IconRegistry=ST.Framework.IconRegistry or {}
 ST.Framework.IconAliases=ST.Framework.IconAliases or {}
 ST.Framework.IconPacks=ST.Framework.IconPacks or {}
@@ -5412,6 +5378,8 @@ function ST.Framework.IconManager:RegisterPack(pack,icons)
 end
 function ST.Framework.IconManager:Get(name)
     local raw=self:_Norm(name)
+    if sm(raw,"^rbxassetid://%d+$") then return {Image=raw,BuiltIn=true,Name=raw} end
+    if sm(raw,"^%d+$") then return {Image="rbxassetid://"..raw,BuiltIn=true,Name=raw} end
     local n=self:_ResolveName(raw)
     local spec=ST.Framework.IconRegistry[n]
     if spec then return spec end
@@ -5431,7 +5399,9 @@ function ST.Framework.IconManager:Resolve(name)
 end
 function ST.Framework.IconManager:Exists(name)
     if type(name)=="string" and sm(name,"^%s*<svg") then return true end
-    local n=self:_ResolveName(name)
+    local raw=self:_Norm(name)
+    if sm(raw,"^%d+$") or sm(raw,"^rbxassetid://%d+$") then return true end
+    local n=self:_ResolveName(raw)
     if ST.Framework.IconRegistry[n] or IC.ByName[n] then return true end
     local pack,icon=sm(n,"^([^:]+):(.+)$")
     return pack~=nil and ST.Framework.IconPacks[pack]~=nil and ST.Framework.IconPacks[pack][icon]~=nil
@@ -5823,8 +5793,15 @@ function API:AddTab(name,cfg)
     cfg=cfg or {}
     name=ts(name or cfg.Name or "Tab")
     if name=="" then return nil,"nome inválido" end
-    if name=="Home" then return self:GetTab("Home") end
     if ST.Pages[name] then return self:GetTab(name) end
+    local firstUserTab=not ST.Framework.UserTabsStarted
+    if firstUserTab then
+        ST.Framework.UserTabsStarted=true
+        if not ST.Framework.KeepDefaultTabs then
+            if ST.Pages.Home then self:RemoveTab("Home",true) end
+            if ST.Pages.Theme then self:RemoveTab("Theme",true) end
+        end
+    end
     local page
     page=select(1,CrtPg(name))
     if not page then return nil,"não foi possível criar tab" end
@@ -5848,16 +5825,28 @@ function API:AddTab(name,cfg)
     local bar=I("Frame")
     bar.Name="ActiveBar"; bar.Size=U3(3,24); bar.Position=U3(0,12); bar.BackgroundColor3=CFG.Purple; bar.BorderSizePixel=0; bar.Visible=false; bar.Parent=b; FT.C(bar,3); Reg(bar,"BackgroundColor3","Purple")
     local iconText=nil
-    if type(cfg.Icon)=="function" then
+    local iconSpec=cfg.Icon
+    local iconSize=tn(cfg.IconSize) or 18
+    local iconType=type(iconSpec)
+    local rawSvg=iconType=="string" and sm(iconSpec,"^%s*<svg")~=nil
+    local namespaced=iconType=="string" and sm(iconSpec,"^%s*[%w_%-]+:")~=nil
+    local assetIcon=iconType=="number" or (iconType=="string" and (sm(iconSpec,"^%s*%d+$")~=nil or sm(iconSpec,"^%s*rbxassetid://%d+")~=nil))
+    local namedIcon=iconType=="string" and API.IconManager and API.IconManager:Exists(iconSpec)
+    if iconType=="function" then
         local holder=I("Frame"); holder.Name="Icon"; holder.BackgroundTransparency=1; holder.Size=U3(30,30); holder.Position=U3(6,9); holder.Parent=b
-        local ico=cfg.Icon(holder,18)
-        if ico then ico.AnchorPoint=V2(.5,.5); ico.Position=Uv(.5,.5); IC.T(ico,CFG.SubText); ST.ButtonIcons[name]=ST.ButtonIcons[name] or {}; ST.ButtonIcons[name][#ST.ButtonIcons[name]+1]=ico end
-    elseif type(cfg.Icon)=="string" and API.IconManager and API.IconManager:Exists(cfg.Icon) then
+        local ok,ico=pcall(iconSpec,holder,iconSize)
+        if not ok or not ico then ico=IC.Dots(holder,iconSize) end
+        ico.AnchorPoint=V2(.5,.5); ico.Position=Uv(.5,.5); IC.T(ico,CFG.SubText)
+        ST.ButtonIcons[name]=IC.CT(ico); ST.ButtonIcons[name][#ST.ButtonIcons[name]+1]=ico
+    elseif API.IconManager and (namedIcon or rawSvg or namespaced or assetIcon) then
         local holder=I("Frame"); holder.Name="Icon"; holder.BackgroundTransparency=1; holder.Size=U3(30,30); holder.Position=U3(6,9); holder.Parent=b
-        local ico=API.IconManager:Create(holder,cfg.Icon,{Size=18,Color="SubText"})
-        if ico then ST.ButtonIcons[name]=IC.CT(ico); ST.Framework.IconInstances[ico]=ST.Framework.IconInstances[ico] or {Name=cfg.Icon,Color=CFG.SubText,ThemeKey="SubText",Size=18} end
+        local ico=API.IconManager:Create(holder,iconSpec,{Size=iconSize,Color="SubText",AnchorPoint=V2(.5,.5),Position=Uv(.5,.5)})
+        if ico then
+            ST.ButtonIcons[name]=IC.CT(ico)
+            ST.ButtonIcons[name][#ST.ButtonIcons[name]+1]=ico
+        end
     else
-        iconText=FT.L(b,ts(cfg.Icon or ""),18,CFG.SubText); iconText.Name="Icon"; iconText.Size=U3(30,48); iconText.Position=U3(4,0); iconText.TextXAlignment=Enum.TextXAlignment.Center; Reg(iconText,"TextColor3","SubText")
+        iconText=FT.L(b,ts(iconSpec or ""),18,CFG.SubText); iconText.Name="Icon"; iconText.Size=U3(30,48); iconText.Position=U3(4,0); iconText.TextXAlignment=Enum.TextXAlignment.Center; Reg(iconText,"TextColor3","SubText")
     end
     local text=FT.L(b,name,13,CFG.SubText); text.Name="Text"; text.Position=U3(44,0); text.Size=U2(1,-50,1,0); text.TextTruncate=Enum.TextTruncate.AtEnd; Reg(text,"TextColor3","SubText")
     ST.Buttons[name]=b; ST.ButtonLowerNames[name]=sl(name)
@@ -5885,7 +5874,7 @@ function API:AddTab(name,cfg)
     function tab:AddSection(a) return El.Section(page,a) end
     function tab:AddDivider(a) return El.Divider(page,a) end
     tab.GetContainer=function() return UI.PageCts[name] end
-    if cfg.Select==true then SetTab(name) end
+    if cfg.Select==true or (firstUserTab and cfg.Select~=false and cfg.Visible~=false) then SetTab(name,true) end
     ScheduleResp()
     return tab
 end
@@ -5904,26 +5893,36 @@ function API:AddRightGroupbox(tabName,cfg)
     local t=self:GetTab(tabName); if not t then return nil,"tab inexistente" end
     cfg=cfg or {}; cfg.Side="Right"; return MakeGroupbox(t.Container,cfg)
 end
-function API:RemoveTab(name)
+function API:RemoveTab(name,force)
     name=ts(name or "")
-    if name=="Home" then return false,"Home não pode ser removida" end
+    if name=="Home" and force~=true then return false,"Home não pode ser removida" end
     local b=ST.Buttons[name]; local p=ST.Pages[name]; local c=UI.PageCts[name]
     if not b and not p then return false end
     if ST.CurrentPage==name then
-        if ST.Pages.Home then SetTab("Home") end
+        local fallback=FirstVisibleTab(name)
+        if fallback then
+            SetTab(fallback,true)
+        else
+            ST.CurrentPage=nil
+            for _,page in pairs(ST.Pages) do page.Visible=false end
+        end
     end
     if b and b.Parent then b:Destroy() end
     if p and p.Parent then p:Destroy() end
     if c and c.Parent then c:Destroy() end
     ST.Buttons[name]=nil; ST.Pages[name]=nil; UI.PageCts[name]=nil; ST.ButtonIcons[name]=nil; ST.ButtonLowerNames[name]=nil; ST.Framework.TabMeta[name]=nil
+    if name=="Home" then UI.Home=nil; UI.HomeC=nil; UI.Greet=nil; UI.Cards=nil; UI.Grid=nil end
     ScheduleResp()
     return true
 end
-function API:SelectTab(name) return SetTab(ts(name or "Home")) end
+function API:SelectTab(name) return SetTab(ts(name or "Home"),true) end
 function API:SetTabVisible(name,v)
     name=ts(name or ""); local b=ST.Buttons[name]; local p=ST.Pages[name]; if not b then return false end
     local vis=v~=false; b.Visible=vis; if p and ST.CurrentPage~=name then p.Visible=false end
-    if not vis and ST.CurrentPage==name then SetTab("Home") end
+    if not vis and ST.CurrentPage==name then
+        local fallback=FirstVisibleTab(name)
+        if fallback then SetTab(fallback,true) else ST.CurrentPage=nil; if p then p.Visible=false end end
+    end
     if ST.Framework.TabMeta[name] then ST.Framework.TabMeta[name].Visible=vis end
     return true
 end

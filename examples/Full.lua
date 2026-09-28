@@ -1,6 +1,9 @@
-local LuaInterface = loadstring(game:HttpGet(
+local source, loadError = loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/luagkkkk/LuaInterface/main/LuaInterface.lua"
-))()
+))
+assert(source, loadError)
+local LuaInterface = source()
+assert(type(LuaInterface) == "table", "LuaInterface did not initialize")
 
 local Window = LuaInterface:CreateWindow({
     Title = "LuaInterface",
@@ -8,7 +11,7 @@ local Window = LuaInterface:CreateWindow({
     Resizable = true,
 })
 
-Window:SetTheme("Indigo")
+Window:SetTheme("Obsidian")
 
 local Tab = Window:AddTab("Settings", {
     Icon = "lucide:settings",
