@@ -1,0 +1,22 @@
+# Roblox Studio place/model files
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Operating systems
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+
+# Logs and local secrets
+*.log
+.env
