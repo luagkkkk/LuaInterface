@@ -2,6 +2,13 @@
 
 Notable changes to LuaInterface are documented here.
 
+## [5.4.7] — 2026-09-28
+
+### Fixed
+
+- First pixel-based centering now waits for a non-zero `CurrentCamera.ViewportSize`. The initial layout no longer consumes the center position using the temporary 800×600 fallback before the camera is ready.
+- A caller-specified window position is preserved while the first valid viewport is being awaited.
+
 ## [5.4.6] — 2026-09-28
 
 ### Fixed
