@@ -1,17 +1,17 @@
-# Temas
+# Themes
 
-O tema inicial da LuaInterface é **Obsidian**: superfícies grafite, bordas discretas e acento violeta. Um tema salvo e carregado automaticamente pode substituir esse padrão.
+LuaInterface starts with **Obsidian**: graphite surfaces, quiet borders, and a violet accent. A saved theme loaded by your script can override this default.
 
-Temas incluídos: `Obsidian`, `Dark`, `Light`, `Darker`, `Amoled`, `Rose`, `Indigo`, `Blue`, `Green`, `Red`, `Purple`, `Mellowsi`, `Ocean`, `Amber`, `Emerald` e `Violet`.
+Included themes: `Obsidian`, `Dark`, `Light`, `Darker`, `Amoled`, `Rose`, `Indigo`, `Blue`, `Green`, `Red`, `Purple`, `Mellowsi`, `Ocean`, `Amber`, `Emerald`, and `Violet`.
 
-## Trocar o tema
+## Change the theme
 
 ```lua
 Window:SetTheme("Ocean")
 print(Window:GetTheme())
 ```
 
-Para listar os nomes disponíveis:
+List the available names with:
 
 ```lua
 for _, name in ipairs(LuaInterface:GetThemes()) do
@@ -19,13 +19,13 @@ for _, name in ipairs(LuaInterface:GetThemes()) do
 end
 ```
 
-`GetTheme()` retorna o nome ativo; `GetThemeData(name)` retorna uma cópia dos dados do tema. `RegisterTheme(name, data, baseTheme)` registra uma variação própria. Se `ApplyTheme` receber um nome inválido, a biblioteca usa `Dark` como fallback.
+`GetTheme()` returns the active theme name. `GetThemeData(name)` returns a copy of a theme's data. `RegisterTheme(name, data, baseTheme)` registers a custom variant. If `ApplyTheme` receives an invalid name, the library falls back to `Dark`.
 
-## Cores sem valor fixo
+## Use theme colors
 
-Os dados do tema têm tokens como `Accent`, `Background`, `Outline`, `Text`, `Placeholder`, `Button` e `Icon`. Há aliases antigos (`Purple`, `Bg`, `Stroke`, `SubText`) para manter compatibilidade com controles existentes.
+Theme data includes tokens such as `Accent`, `Background`, `Outline`, `Text`, `Placeholder`, `Button`, and `Icon`. Compatibility aliases (`Purple`, `Bg`, `Stroke`, `SubText`) remain available for existing controls.
 
-Use tokens em ícones e outros elementos que devam acompanhar a troca de tema:
+Use a token when an icon should follow theme changes:
 
 ```lua
 LuaInterface.IconManager:Create(parent, "settings", {

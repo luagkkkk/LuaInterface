@@ -1,12 +1,12 @@
 # LuaInterface
 
-**Versão atual: `1.0.0-beta`** · Biblioteca de interface para Roblox, escrita em Luau.
+**Current version: `1.0.0-beta`** · A Roblox UI library written in Luau.
 
-LuaInterface fornece a camada de interface para scripts Roblox: janela responsiva, abas, groupboxes, controles, temas e ícones vetoriais renderizados com objetos GUI. O tema inicial é **Obsidian** (grafite com acento violeta).
+LuaInterface provides a tabbed interface for Roblox client scripts: a responsive window, groupboxes, controls, themes, notifications, and vector icons rendered with Roblox GUI objects. The default theme is **Obsidian**, with graphite surfaces and a violet accent.
 
-## Carregar a biblioteca
+## Load the library
 
-Em um cliente que permita HTTP e `loadstring`:
+Run in a client environment that permits HTTP requests and `loadstring`:
 
 ```lua
 local source, err = loadstring(game:HttpGet(
@@ -15,29 +15,29 @@ local source, err = loadstring(game:HttpGet(
 assert(source, err)
 
 local LuaInterface = source()
-assert(type(LuaInterface) == "table", "LuaInterface não inicializou")
+assert(type(LuaInterface) == "table", "LuaInterface did not initialize")
 ```
 
-O código precisa rodar no cliente, com `Players.LocalPlayer` e `PlayerGui` disponíveis. Em um projeto Roblox Studio que não permite `loadstring`, coloque o arquivo em um `ModuleScript` confiável e carregue-o por um `LocalScript`. Recursos de arquivo como `readfile` e `writefile` dependem do ambiente e não são necessários para abrir a interface.
+The library needs `Players.LocalPlayer` and that player's `PlayerGui`. In a Roblox Studio project that does not allow `loadstring`, place the source in a trusted `ModuleScript` and require it from a `LocalScript`. Filesystem functions such as `readfile` and `writefile` are environment-dependent and are not needed to open the UI.
 
-## Exemplo mínimo
+## Quick start
 
 ```lua
 local Window = LuaInterface:CreateWindow({
-    Title = "Meu painel",
+    Title = "My panel",
     Footer = "LuaInterface 1.0.0-beta",
     AutoShow = true,
 })
 
 local Reach = Window:AddTab("Reach", {
     Icon = "lucide:target",
-    Description = "Controles de alcance",
+    Description = "Reach controls",
 })
 
-local Controls = Reach:AddLeftGroupbox({Name = "Ajustes"})
+local Controls = Reach:AddLeftGroupbox({Name = "Settings"})
 
 Controls:AddToggle("reach-enabled", {
-    Name = "Ativar",
+    Name = "Enabled",
     Default = false,
     Callback = function(enabled)
         print("Reach:", enabled)
@@ -45,39 +45,39 @@ Controls:AddToggle("reach-enabled", {
 })
 
 Controls:AddSlider("reach-size", {
-    Name = "Tamanho",
+    Name = "Size",
     Min = 1,
     Max = 20,
     Default = 4,
     Rounding = 1,
     Callback = function(value)
-        print("Tamanho:", value)
+        print("Size:", value)
     end,
 })
 ```
 
-A primeira aba criada pelo script fica selecionada; as páginas de demonstração não são inseridas na janela. Para manter as páginas internas `Home` e `Theme`, passe `KeepDefaultTabs = true` em `CreateWindow`.
+The first custom tab is selected automatically. The built-in `Home` and `Theme` pages are removed when custom tabs are added; pass `KeepDefaultTabs = true` to `CreateWindow` to keep them.
 
-## Tecla do menu
+## Menu key
 
-`RightShift` é o atalho global padrão para abrir/fechar a janela. Não registre outra ação em `RightShift` que também chame `Window:Toggle()`: isso provoca dois toggles no mesmo pressionamento. Use outra tecla para um keybind de componente ou defina `ToggleKeybind` ao criar a janela.
+`RightShift` is the default global show/hide key. Do not bind a second action to `RightShift` that also calls `Window:Toggle()`, or one keypress can toggle the window twice. Use another key for a component keybind, or set `ToggleKeybind` when creating the window.
 
-## Ícones e aparência
+## Icons and themes
 
-As abas aceitam nomes como `lucide:target`, IDs de imagem Roblox e SVG inline simples. Os pacotes `lucide:`, `tabler:` e `phosphor:` apontam para o subconjunto incluído neste projeto; não são cópias completas dessas coleções. Consulte [ícones](docs/ICONS.md) e [temas](docs/THEMES.md).
+Tabs accept built-in names such as `lucide:target`, Roblox image IDs, simple inline SVG strings, or renderer functions. The `lucide:`, `tabler:`, and `phosphor:` prefixes map to the subset included in this repository; they are not the full upstream collections. See [Icons](docs/ICONS.md) and [Themes](docs/THEMES.md).
 
-## Documentação e exemplos
+## Guides and examples
 
-- [API de janela, abas e controles](docs/API.md)
-- [Ícones e SVG](docs/ICONS.md)
-- [Temas](docs/THEMES.md)
-- [Salvar e carregar configurações](docs/CONFIG.md)
-- [Exemplos Lua](examples/), incluindo [HitboxExpander com as abas Reach e Helper](examples/HitboxExpander.lua)
+- [Window, tabs, and controls](docs/API.md)
+- [Icons](docs/ICONS.md)
+- [Themes](docs/THEMES.md)
+- [Saving and loading configurations](docs/CONFIG.md)
+- [Lua examples](examples/): [basic UI](examples/Basic.lua), [combined controls](examples/Full.lua), [icons](examples/Icons.lua), and [notifications](examples/Notifications.lua)
 
-## Estado do projeto
+## Project status
 
-Esta é uma versão beta. A sintaxe dos arquivos é verificada antes das atualizações; a validação visual e de interação deve ser feita no Roblox Studio ou no cliente-alvo. Relate erros com a versão usada e a mensagem completa do console.
+This is a beta release. Lua files are checked for syntax before updates; visual and interaction testing should be done in Roblox Studio or the target client. When reporting an issue, include the version and the full console message.
 
-## Licença
+## License
 
-MIT. Consulte [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).

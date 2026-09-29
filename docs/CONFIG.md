@@ -1,28 +1,28 @@
-# Salvar configurações
+# Saving configurations
 
-`LuaInterface.SaveManager` serializa valores dos controles registrados e parte do estado da janela. As chamadas de arquivo só funcionam quando o ambiente fornece as funções de filesystem usadas pelo manager; Roblox Studio padrão não oferece `readfile`/`writefile`.
+`LuaInterface.SaveManager` stores registered control values and some window state. File operations require the runtime to expose compatible filesystem functions; standard Roblox Studio does not provide `readfile` or `writefile`.
 
-## Salvar e carregar
+## Save and load
 
 ```lua
 local SaveManager = LuaInterface.SaveManager
-SaveManager:SetFolder("MeuPainel")
+SaveManager:SetFolder("MyPanel")
 
-local ok, err = SaveManager:Save("config-principal")
+local ok, err = SaveManager:Save("main-config")
 if not ok then
-    warn("Falha ao salvar:", err)
+    warn("Could not save:", err)
 end
 
-local loaded, loadErr = SaveManager:Load("config-principal")
+local loaded, loadErr = SaveManager:Load("main-config")
 if not loaded then
-    warn("Falha ao carregar:", loadErr)
+    warn("Could not load:", loadErr)
 end
 ```
 
-Dê a cada controle persistente um identificador único. Nos métodos de grupo, ele costuma ser o primeiro argumento (`AddToggle("feature-enabled", ...)`); também é possível informar `Index` na configuração do controle.
+Give each persistent control a unique identifier. For group methods, this is usually the first argument (`AddToggle("feature-enabled", ...)`); you can also set `Index` in the control config.
 
-## Pastas, lista e exportação
+## Folders, listing, and export
 
-`SetSubFolder(name)` cria uma subpasta lógica sob a pasta definida. `List()` e `Refresh()` consultam os arquivos disponíveis quando o ambiente suporta listagem. `Delete(name)` e `Rename(oldName, newName)` alteram arquivos locais. `Export(name)` produz os dados JSON e `Import(raw, applyNow)` importa uma configuração.
+`SetSubFolder(name)` selects a subfolder under the configured folder. `List()` and `Refresh()` query available files when the runtime supports listing. `Delete(name)` and `Rename(oldName, newName)` modify local files. `Export(name)` returns JSON data, and `Import(raw, applyNow)` imports it.
 
-`SetAutoload(name)`, `LoadAutoloadConfig()`, `StartAutoSave(name, seconds)` e `StopAutoSave()` são opcionais. Sempre verifique o retorno `(ok, err)`: disponibilidade e permissões de filesystem variam conforme o executor ou ambiente em que o cliente roda.
+`SetAutoload(name)`, `LoadAutoloadConfig()`, `StartAutoSave(name, seconds)`, and `StopAutoSave()` are optional helpers. Check the returned `(ok, err)` values: filesystem support and permissions depend on the client environment.

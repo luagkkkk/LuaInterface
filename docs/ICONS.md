@@ -1,8 +1,8 @@
-# Ícones
+# Icons
 
-As abas e controles usam o `IconManager` da LuaInterface. Os vetores embutidos são desenhados com instâncias GUI do Roblox; não é preciso carregar uma imagem para cada ícone.
+Tabs and controls use LuaInterface's `IconManager`. Built-in vectors are drawn with Roblox GUI instances, so a separate image upload is not required for each icon.
 
-## Ícone em uma aba
+## Use an icon in a tab
 
 ```lua
 local Reach = Window:AddTab("Reach", {
@@ -11,15 +11,15 @@ local Reach = Window:AddTab("Reach", {
 })
 ```
 
-Também é possível passar um nome simples (`"target"`), um ID/URI `rbxassetid://`, uma string SVG inline ou uma função renderizadora. Os prefixos `lucide:`, `tabler:` e `phosphor:` são aliases de pacotes internos: a biblioteca inclui apenas os nomes abaixo, não as coleções completas desses projetos. Um nome desconhecido usa o ícone de fallback.
+You can also pass a plain built-in name (`"target"`), an `rbxassetid://` ID/URI, an inline SVG string, or a renderer function. The `lucide:`, `tabler:`, and `phosphor:` prefixes point to the icon subset included here; they are not the complete upstream collections. Unknown names use the fallback icon.
 
-## Nomes embutidos
+## Included names
 
-`home`, `bell`, `alert`, `activity`, `user`, `keyboard`, `ping`, `server`, `save`, `settings`, `info`, `trash`, `arrow-right`, `x`, `dots`, `moon`, `plus`, `minus`, `check`, `search`, `menu`, `eye`, `eye-off`, `shield`, `sword`, `swords`, `target`, `crosshair`, `zap`, `play`, `pause`, `chevron-down`, `chevron-up`, `chevron-left`, `chevron-right`, `refresh`, `download`, `upload`, `copy`, `edit`, `folder`, `lock`, `unlock`, `star`, `heart`, `palette`, `sliders`, `filter`, `list`, `grid`, `smartphone`, `gamepad`, `globe`, `clock`, `volume`, `mic`, `trophy`, `users`, `package`, `database`, `terminal`, `code`, `help` e `sparkles`.
+`home`, `bell`, `alert`, `activity`, `user`, `keyboard`, `ping`, `server`, `save`, `settings`, `info`, `trash`, `arrow-right`, `x`, `dots`, `moon`, `plus`, `minus`, `check`, `search`, `menu`, `eye`, `eye-off`, `shield`, `sword`, `swords`, `target`, `crosshair`, `zap`, `play`, `pause`, `chevron-down`, `chevron-up`, `chevron-left`, `chevron-right`, `refresh`, `download`, `upload`, `copy`, `edit`, `folder`, `lock`, `unlock`, `star`, `heart`, `palette`, `sliders`, `filter`, `list`, `grid`, `smartphone`, `gamepad`, `globe`, `clock`, `volume`, `mic`, `trophy`, `users`, `package`, `database`, `terminal`, `code`, `help`, and `sparkles`.
 
-Aliases: `gear` → `settings`, `magnify` → `search`, `warning` → `alert`, `delete` → `trash` e `controls` → `sliders`.
+Aliases: `gear` → `settings`, `magnify` → `search`, `warning` → `alert`, `delete` → `trash`, and `controls` → `sliders`.
 
-## SVG próprio
+## Register a custom icon
 
 ```lua
 local Icons = LuaInterface.IconManager
@@ -35,12 +35,12 @@ local icon = Icons:Create(parent, "heart-outline", {
     Color = "Accent",
 })
 
-Window:AddTab("Favoritos", {Icon = heart})
+Window:AddTab("Favorites", {Icon = heart})
 ```
 
-O SVG inline é interpretado pelo renderizador da LuaInterface; não é enviado diretamente para um `ImageLabel`. Há suporte para paths simples (`M`, `L`, `H`, `V`, `C`, `S`, `Q`, `T`, `A`, `Z`) e primitivas comuns (`line`, `circle`, `rect`, `polyline`, `polygon`), com `viewBox` e `stroke-width` básicos. CSS, gradientes, filtros, máscaras e transformações complexas não fazem parte do parser.
+Inline SVG is parsed by LuaInterface; it is not assigned directly to an `ImageLabel`. The parser supports simple path commands (`M`, `L`, `H`, `V`, `C`, `S`, `Q`, `T`, `A`, `Z`) and common primitives (`line`, `circle`, `rect`, `polyline`, `polygon`), with basic `viewBox` and `stroke-width` handling. CSS, gradients, filters, masks, and complex transforms are outside its scope.
 
-## Gerenciar ícones
+## Manage icons
 
 ```lua
 local Icons = LuaInterface.IconManager
@@ -50,4 +50,4 @@ Icons:SetSize(icon, 28)
 Icons:RegisterAlias("favorite", "heart-outline")
 ```
 
-`Color` aceita `Color3` ou tokens de tema como `Accent`, `Text`, `SubText`, `Icon`, `Button` e `Outline`. Para ver as rotinas de registro e limpeza, consulte `IconManager` em `LuaInterface.lua`.
+`Color` accepts a `Color3` or theme tokens such as `Accent`, `Text`, `SubText`, `Icon`, `Button`, and `Outline`. See `IconManager` in `LuaInterface.lua` for registration and cleanup methods.

@@ -1,33 +1,32 @@
-# Histórico de versões
+# Changelog
 
 ## [1.0.0-beta] — 2026-09-29
 
-Primeira beta publicada sob o novo versionamento. A API continua sendo a da LuaInterface; esta mudança renomeia a linha de versão e deixa os guias centrados no uso real da biblioteca.
+First beta release under the 1.0 version line. This release keeps the existing LuaInterface API and documents its current behavior and examples.
 
-- README e guias reescritos em português com exemplos de janela, tabs, controles, ícones e configuração.
-- Exemplo HitboxExpander: aba Reach com transparência 0–1 e contorno Box opcional; aba Helper com plataforma soldada, tamanho, cor e visibilidade.
-- Sem mudança intencional nos nomes dos métodos públicos nesta beta.
+- README and guides now describe the window, tabs, controls, icons, themes, and configuration helpers.
+- No intentional changes to public method names in this beta.
 
-## Histórico anterior à beta
+## History before the beta
 
 ### 5.4.8 — 2026-09-28
 
-- `SetScale()` passou a escalar a janela, não o `ScreenGui` inteiro; centralização usa posição relativa.
-- O atalho global do menu não dispara um segundo keybind de componente.
-- Arraste disponível no cabeçalho e no título, por mouse ou toque.
+- `SetScale()` scales the window rather than the full `ScreenGui`; centering uses relative positioning.
+- The global menu key no longer triggers a duplicate component keybind.
+- Mouse and touch dragging are available from the header/title area.
 
 ### 5.4.7 — 2026-09-28
 
-- O primeiro layout aguarda o `ViewportSize` válido da câmera e preserva uma posição definida pelo script.
+- Initial layout waits for the camera's valid `ViewportSize` and preserves a position set by the script.
 
 ### 5.4.6 — 2026-09-28
 
-- O layout ignora widgets da Home removida e o retorno assíncrono do avatar verifica se a página ainda existe.
+- Layout skips removed Home widgets, and the asynchronous avatar callback checks that its page still exists.
 
 ### 5.4.5 — 2026-09-28
 
-- O chunk retorna a tabela da API ao ser carregado com `loadstring`.
+- The library chunk returns its API table when loaded with `loadstring`.
 
 ### 5.4.4 — 2026-09-28
 
-- Abas e exemplos de uso, registro de SVG, tema Obsidian, seleção da primeira aba própria e conveniência `Window:AddKeybind`.
+- Added tabs, examples, SVG registration, the Obsidian theme, first-custom-tab selection, and `Window:AddKeybind`.
