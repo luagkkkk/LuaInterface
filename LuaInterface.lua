@@ -1,6 +1,6 @@
 --!nonstrict
 -- ============================================================
--- LUA INTERFACE v5.4.8
+-- LUA INTERFACE v1.0.0-beta
 -- Client-safe bootstrap, clean tab-first startup, Obsidian theme,
 -- vector/SVG tab icons, resilient selection and cleanup.
 -- ============================================================
@@ -36,7 +36,7 @@ local ty,ts,tn=typeof,tostring,tonumber
 local trem,tins=table.remove,table.insert
 local I=Instance.new
 
-local CFG={Name="LuaInterface",Version="v5.4.8",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
+local CFG={Name="LuaInterface",Version="v1.0.0-beta",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
 local IMA={FPS="88339611171447",Ping="126112532632455",Home="107671250314081",Keybind="126112532632455",Lua="104650551286971"}
 
 -- Tema normalizado: os campos públicos seguem a estrutura Accent/Background/Outline/Text/Placeholder/Button/Icon,
@@ -5294,7 +5294,7 @@ API.Window=ST.Window
 -- large number of chunk-level locals. Runtime state lives in ST.
 -- ============================================================
 ST.Framework=ST.Framework or {}
-ST.Framework.Version="5.4.8"
+ST.Framework.Version="1.0.0-beta"
 ST.Framework.KeepDefaultTabs=false
 ST.Framework.UserTabsStarted=false
 ST.Framework.Modules=ST.Framework.Modules or {}

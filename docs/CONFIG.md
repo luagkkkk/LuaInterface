@@ -1,32 +1,28 @@
-# Configuration
+# Salvar configurações
 
-`LuaInterface.SaveManager` stores and restores component values and selected UI state. It can also export/import JSON data. Filesystem operations depend on the runtime exposing compatible functions; in Roblox Studio or standard client contexts, helpers such as `writefile`, `readfile`, and `listfiles` may not exist.
+`LuaInterface.SaveManager` serializa valores dos controles registrados e parte do estado da janela. As chamadas de arquivo só funcionam quando o ambiente fornece as funções de filesystem usadas pelo manager; Roblox Studio padrão não oferece `readfile`/`writefile`.
 
-## Save and load
+## Salvar e carregar
 
 ```lua
 local SaveManager = LuaInterface.SaveManager
-SaveManager:SetFolder("LuaInterface")
+SaveManager:SetFolder("MeuPainel")
 
-local ok, err = SaveManager:Save("my-settings")
+local ok, err = SaveManager:Save("config-principal")
 if not ok then
-    warn("Could not save config:", err)
+    warn("Falha ao salvar:", err)
 end
 
-local loaded, loadErr = SaveManager:Load("my-settings")
+local loaded, loadErr = SaveManager:Load("config-principal")
 if not loaded then
-    warn("Could not load config:", loadErr)
+    warn("Falha ao carregar:", loadErr)
 end
 ```
 
-Configuration names are sanitized by the library. Saved values include registered elements with an `Index`; give each persistent control a stable unique index (the first argument to the component method, or its `Index` option).
+Dê a cada controle persistente um identificador único. Nos métodos de grupo, ele costuma ser o primeiro argumento (`AddToggle("feature-enabled", ...)`); também é possível informar `Index` na configuração do controle.
 
-## Other helpers
+## Pastas, lista e exportação
 
-- `SetSubFolder(name)` selects a subfolder under the configured folder.
-- `List()` / `Refresh()` list available config names when supported.
-- `Delete(name)` and `Rename(oldName, newName)` manage saved files.
-- `Export(name)` returns JSON data for a config; `Import(raw, applyNow)` imports JSON.
-- `SetAutoload(name)`, `LoadAutoloadConfig()`, `StartAutoSave(name, seconds)`, and `StopAutoSave()` provide optional autoload/automatic-save behavior.
+`SetSubFolder(name)` cria uma subpasta lógica sob a pasta definida. `List()` e `Refresh()` consultam os arquivos disponíveis quando o ambiente suporta listagem. `Delete(name)` e `Rename(oldName, newName)` alteram arquivos locais. `Export(name)` produz os dados JSON e `Import(raw, applyNow)` importa uma configuração.
 
-Check the returned success value and error whenever using a filesystem-dependent method. `Export`/`Import` are useful for building an application-specific settings UI or storing data through your own trusted mechanism.
+`SetAutoload(name)`, `LoadAutoloadConfig()`, `StartAutoSave(name, seconds)` e `StopAutoSave()` são opcionais. Sempre verifique o retorno `(ok, err)`: disponibilidade e permissões de filesystem variam conforme o executor ou ambiente em que o cliente roda.

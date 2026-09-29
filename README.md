@@ -1,127 +1,83 @@
 # LuaInterface
 
-![Version](https://img.shields.io/badge/version-5.4.8-blue)
-![Platform](https://img.shields.io/badge/platform-Roblox-red)
-![Language](https://img.shields.io/badge/language-Luau-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+**Versão atual: `1.0.0-beta`** · Biblioteca de interface para Roblox, escrita em Luau.
 
-A responsive Roblox Luau interface library with reusable components, a clean tab-first startup, theme support, inline SVG icons, notifications, and configuration helpers.
+LuaInterface fornece a camada de interface para scripts Roblox: janela responsiva, abas, groupboxes, controles, temas e ícones vetoriais renderizados com objetos GUI. O tema inicial é **Obsidian** (grafite com acento violeta).
 
-## Features
+## Carregar a biblioteca
 
-- Responsive desktop, tablet, and mobile layouts
-- Obsidian-inspired default theme, plus runtime theme switching
-- User-created tabs, groupboxes, and nested tabboxes
-- Buttons, toggles, sliders, dropdowns, inputs, keybinds, and color pickers
-- Notifications, dialogs, loading overlays, and search
-- Dependency helpers for conditional UI
-- Configuration save/load/export helpers when compatible filesystem functions are available
-- Icon registry, aliases, `lucide:`-style namespaced lookup, tinting, sizing, image assets, and inline SVG rendering
-- Cleanup, lifecycle, and error-handling helpers
-
-## Installation
-
-Load the library from a compatible **client** environment that permits `loadstring` and HTTP requests:
+Em um cliente que permita HTTP e `loadstring`:
 
 ```lua
-local source, loadError = loadstring(game:HttpGet(
+local source, err = loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/luagkkkk/LuaInterface/main/LuaInterface.lua"
 ))
-assert(source, loadError)
+assert(source, err)
 
 local LuaInterface = source()
-assert(type(LuaInterface) == "table", "LuaInterface did not initialize")
+assert(type(LuaInterface) == "table", "LuaInterface não inicializou")
 ```
 
-The library needs `Players.LocalPlayer` and that player's `PlayerGui`. It waits briefly for them and raises a descriptive error if it is running on the server or the client UI is unavailable, rather than silently returning `nil`.
+O código precisa rodar no cliente, com `Players.LocalPlayer` e `PlayerGui` disponíveis. Em um projeto Roblox Studio que não permite `loadstring`, coloque o arquivo em um `ModuleScript` confiável e carregue-o por um `LocalScript`. Recursos de arquivo como `readfile` e `writefile` dependem do ambiente e não são necessários para abrir a interface.
 
-In Roblox Studio or a project that does not allow remote `loadstring`, place the source in a trusted `ModuleScript` and require it from a compatible client context. Only execute code you trust. Filesystem functions such as `readfile` and `writefile` are optional and vary by environment.
-
-## Quick start
+## Exemplo mínimo
 
 ```lua
 local Window = LuaInterface:CreateWindow({
-    Title = "My Interface",
-    Footer = "LuaInterface 5.4.8",
+    Title = "Meu painel",
+    Footer = "LuaInterface 1.0.0-beta",
+    AutoShow = true,
 })
 
-Window:SetTheme("Obsidian") -- this is also the default theme
-
-local Tab = Window:AddTab("Dashboard", {
-    Icon = "lucide:settings",
-    Description = "Overview",
+local Reach = Window:AddTab("Reach", {
+    Icon = "lucide:target",
+    Description = "Controles de alcance",
 })
 
-local Group = Tab:AddLeftGroupbox({
-    Name = "Controls",
-    IconName = "sliders",
-})
+local Controls = Reach:AddLeftGroupbox({Name = "Ajustes"})
 
-Group:AddButton({
-    Text = "Say hello",
-    Func = function()
-        print("LuaInterface is ready")
-    end,
-})
-
-Group:AddToggle("demo-enabled", {
-    Name = "Enabled",
+Controls:AddToggle("reach-enabled", {
+    Name = "Ativar",
     Default = false,
     Callback = function(enabled)
-        print("Enabled:", enabled)
+        print("Reach:", enabled)
     end,
 })
 
-Window:AddKeybind("toggle-menu", {
-    Name = "Show/Hide menu",
-    Default = Enum.KeyCode.Insert,
-    Callback = function()
-        Window:Toggle()
+Controls:AddSlider("reach-size", {
+    Name = "Tamanho",
+    Min = 1,
+    Max = 20,
+    Default = 4,
+    Rounding = 1,
+    Callback = function(value)
+        print("Tamanho:", value)
     end,
 })
 ```
 
-The global menu shortcut defaults to `RightShift`. Do not bind that same key to a callback that also calls `Window:Toggle()`; use another key such as `Insert` for a separate keybind. The global toggle is handled only once.
+A primeira aba criada pelo script fica selecionada; as páginas de demonstração não são inseridas na janela. Para manter as páginas internas `Home` e `Theme`, passe `KeepDefaultTabs = true` em `CreateWindow`.
 
-**No component demo tabs are created at startup.** When the first user tab is added, it is selected automatically and the built-in `Home`/`Theme` tabs are removed so the window shows the tabs your script created. Pass `KeepDefaultTabs = true` to `CreateWindow` to retain those two system tabs:
+## Tecla do menu
 
-```lua
-local Window = LuaInterface:CreateWindow({
-    Title = "My Interface",
-    KeepDefaultTabs = true,
-})
-```
+`RightShift` é o atalho global padrão para abrir/fechar a janela. Não registre outra ação em `RightShift` que também chame `Window:Toggle()`: isso provoca dois toggles no mesmo pressionamento. Use outra tecla para um keybind de componente ou defina `ToggleKeybind` ao criar a janela.
 
-## Icons
+## Ícones e aparência
 
-The tab option accepts a built-in name (`"settings"`), a supported namespace form (`"lucide:settings"`), an asset ID/URI, inline SVG markup, or a renderer function. For example:
+As abas aceitam nomes como `lucide:target`, IDs de imagem Roblox e SVG inline simples. Os pacotes `lucide:`, `tabler:` e `phosphor:` apontam para o subconjunto incluído neste projeto; não são cópias completas dessas coleções. Consulte [ícones](docs/ICONS.md) e [temas](docs/THEMES.md).
 
-```lua
-local Tab = Window:AddTab("Settings", {Icon = "lucide:settings", IconSize = 18})
-```
+## Documentação e exemplos
 
-The built-in `lucide:`, `tabler:`, and `phosphor:` namespaces expose LuaInterface's **included subset** of renderers; they do not bundle the full official icon collections. See [ICONS.md](docs/ICONS.md) for the exact supported names and custom SVG examples.
+- [API de janela, abas e controles](docs/API.md)
+- [Ícones e SVG](docs/ICONS.md)
+- [Temas](docs/THEMES.md)
+- [Salvar e carregar configurações](docs/CONFIG.md)
+- [Exemplos Lua](examples/), incluindo [HitboxExpander com as abas Reach e Helper](examples/HitboxExpander.lua)
 
-## Documentation
+## Estado do projeto
 
-- [API reference](docs/API.md)
-- [Icons and inline SVG](docs/ICONS.md)
-- [Themes](docs/THEMES.md)
-- [Configuration](docs/CONFIG.md)
+Esta é uma versão beta. A sintaxe dos arquivos é verificada antes das atualizações; a validação visual e de interação deve ser feita no Roblox Studio ou no cliente-alvo. Relate erros com a versão usada e a mensagem completa do console.
 
-## Examples
+## Licença
 
-- [Basic interface](examples/Basic.lua)
-- [IconManager and inline SVG](examples/Icons.lua)
-- [Notifications](examples/Notifications.lua)
-- [Combined example](examples/Full.lua)
-
-## Compatibility notes
-
-- This is a Roblox Luau UI library, not a standalone Lua UI toolkit.
-- Raw SVG is not assigned to a Roblox `ImageLabel`. Supported outline paths and primitives are parsed and drawn using Roblox GUI objects. This is a lightweight icon renderer, not a complete SVG/CSS engine.
-- The source passes static syntax checks. Roblox Studio/client runtime behavior should still be verified in the target experience.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+MIT. Consulte [LICENSE](LICENSE).

@@ -1,87 +1,67 @@
-# API Reference
+# API da LuaInterface
 
-The public object is returned by the library script. The examples below assume it is stored in `LuaInterface`.
+Este guia cobre as chamadas usadas com mais frequência na versão `1.0.0-beta`. A tabela mais completa continua sendo o próprio arquivo [`LuaInterface.lua`](../LuaInterface.lua).
 
-## Window
+## Janela
 
-The UI is initialized when the source is loaded in a compatible client context. `CreateWindow(config)` applies window settings and returns the library API object.
+O chunk da biblioteca retorna a tabela da API:
 
 ```lua
+local source = loadstring(game:HttpGet(URL))
+local LuaInterface = source()
+
 local Window = LuaInterface:CreateWindow({
-    Title = "My Interface",
-    Footer = "Example",
+    Title = "Meu painel",
+    Footer = "1.0.0-beta",
     AutoShow = true,
     Resizable = true,
 })
 ```
 
-Set `KeepDefaultTabs = true` if the built-in `Home` and `Theme` tabs should remain visible after creating your own tabs. By default, the first custom tab removes those two system tabs and becomes selected; no component demo tabs are shipped in the startup UI.
+`CreateWindow(config)` configura a instância e retorna a própria API da janela. A interface inicia com o tema Obsidian. `Center`, `Position`, `ToggleKeybind`, `AutoShow` e `KeepDefaultTabs` podem ser informados na configuração. Por padrão, a primeira aba criada pelo script é selecionada e as páginas internas são removidas.
+
+Chamadas comuns da janela:
 
 ```lua
-local Window = LuaInterface:CreateWindow({
-    Title = "My Interface",
-    KeepDefaultTabs = true,
-})
+Window:Open()
+Window:Close()
+Window:Toggle()
+Window:Minimize()
+Window:SetPosition(UDim2.fromScale(0.5, 0.5))
+Window:SetScale(0.9)
+Window:SetTheme("Obsidian")
 ```
 
-Useful window methods include:
+`RightShift` é o atalho global padrão. Não o reutilize em um componente que também chama `Window:Toggle()`.
 
-- `CreateWindow(config)` / `ConfigureWindow(config)`
-- `Open()`, `Close()`, `Toggle()`, `Minimize()`, `Fullscreen()`
-- `SetSize(width, height)`, `SetPosition(position)`
-- `SetTheme(name)`, `Destroy()` / `Unload()`
-- `AddKeybind(id, config)`, which places the keybind control on the currently selected tab
+## Abas e áreas
 
 ```lua
-Window:AddKeybind("toggle-menu", {
-    Name = "Show/Hide menu",
-    Default = Enum.KeyCode.Insert,
-    Callback = function()
-        Window:Toggle()
-    end,
+local Reach = Window:AddTab("Reach", {
+    Icon = "lucide:target",
+    Description = "Controles de alcance",
 })
+
+local Left = Reach:AddLeftGroupbox({Name = "Ajustes"})
+local Right = Reach:AddRightGroupbox({Name = "Ações"})
 ```
 
-The global menu key defaults to `RightShift`. It is reserved for the window manager; do not bind it again to a keybind callback that also toggles the window. `SetScale(value)` scales the main window subtree (not the full-screen coordinate space). The title/header area is draggable by mouse or touch.
+Para um ícone de aba, use um nome interno, `pack:nome`, ID de imagem, SVG inline ou função renderizadora. `IconSize` altera o tamanho do ícone. Veja [ICONS.md](ICONS.md) para os nomes disponíveis.
 
-## Tabs and groupboxes
+## Controles
 
-```lua
-local Tab = Window:AddTab("Dashboard", {
-    Icon = "lucide:settings",
-    IconSize = 18,
-    Description = "Overview",
-})
-
-local Left = Tab:AddLeftGroupbox({
-    Name = "Controls",
-    Description = "Main actions",
-    IconName = "sliders",
-})
-
-local Right = Tab:AddRightGroupbox({Name = "Status"})
-```
-
-`AddTab(name, config)` accepts a built-in icon name, a supported namespaced icon name, an asset ID/URI, inline SVG markup, or a renderer function. The first tab is selected automatically unless `Select = false`; set `Select = true` on later tabs to select them immediately. Groupboxes support `AddLeftGroupbox`, `AddRightGroupbox`, `AddGroupbox`, and nested tabboxes. Tabs and groupboxes expose component methods such as `AddButton`, `AddToggle`, `AddSlider`, `AddDropdown`, `AddInput`, `AddKeybind`, `AddSection`, and `AddDivider`.
-
-## Components
-
-### Button
+### Botão e toggle
 
 ```lua
 Left:AddButton({
-    Text = "Run",
+    Text = "Restaurar",
     Func = function()
-        print("Clicked")
+        print("ação executada")
     end,
 })
-```
 
-### Toggle
-
-```lua
-local Toggle = Left:AddToggle("feature-enabled", {
-    Name = "Feature enabled",
+local enabled = Left:AddToggle("feature-enabled", {
+    Name = "Ativar recurso",
     Default = false,
     Callback = function(value)
         print(value)
@@ -89,66 +69,42 @@ local Toggle = Left:AddToggle("feature-enabled", {
 })
 ```
 
-### Slider and dropdown
+### Slider e color picker
 
 ```lua
-Left:AddSlider("volume", {
-    Name = "Volume",
-    Min = 0,
-    Max = 100,
-    Default = 50,
-    Rounding = 0,
-    Callback = function(value) print(value) end,
+Left:AddSlider("platform-size", {
+    Name = "Tamanho da plataforma",
+    Min = 2,
+    Max = 30,
+    Default = 8,
+    Rounding = 1,
+    Callback = function(value)
+        print(value)
+    end,
 })
 
-Left:AddDropdown("quality", {
-    Name = "Quality",
-    Values = {"Low", "Medium", "High"},
-    Default = "Medium",
-    Callback = function(value) print(value) end,
+Left:AddColorPicker("platform-color", {
+    Title = "Cor da plataforma",
+    Default = Color3.fromRGB(90, 160, 255),
+    Callback = function(color, transparency)
+        print(color, transparency)
+    end,
 })
 ```
 
-Inputs, keybinds, color pickers, labels, sections, dividers, and multi-dropdowns are also exposed from tabs/groupboxes. Each component returns an element object with methods such as `Get`, `SetValue`, `OnChanged`, or `Destroy` where supported by that component.
+Os valores `Index` (ou o primeiro argumento do controle) devem ser únicos se forem usados para salvar configurações. Componentes retornam objetos de controle; os métodos disponíveis dependem do tipo e incluem `Get`, `SetValue` e `Destroy`.
 
-## Notifications
+## Notificações
 
 ```lua
-LuaInterface:Notify({
+Window:Notify({
     Type = "Success", -- Info, Success, Warning, Error, Loading, Debug, Option
-    Title = "Saved",
-    Content = "Your settings were saved.",
-    Duration = 4,
+    Title = "Pronto",
+    Content = "As configurações foram aplicadas.",
+    Duration = 3,
 })
 ```
 
-A string can also be passed as notification content. `Duration = 0` creates a persistent notification; use the returned notification object's `Destroy()` method to close it.
+## Encerramento
 
-## Themes
-
-```lua
-print(table.concat(LuaInterface:GetThemes(), ", "))
-LuaInterface:SetTheme("Obsidian")
-```
-
-See [THEMES.md](THEMES.md) for built-in names and theme behavior.
-
-## Icons
-
-`LuaInterface.IconManager` exposes `Register`, `RegisterSVG`, `RegisterAlias`, `RegisterPack`, `Get`, `Resolve`, `Exists`, `Create`, `Tint`, `SetSize`, `Preload`, and `ClearCache`.
-
-See [ICONS.md](ICONS.md) for examples and SVG limitations.
-
-## Configuration helpers
-
-`LuaInterface.SaveManager` provides `SetFolder`, `SetSubFolder`, `Save`, `Load`, `Delete`, `List`, `Rename`, `Export`, `Import`, `StartAutoSave`, and `StopAutoSave`. Filesystem-dependent calls return an error when the runtime does not expose compatible filesystem functions. See [CONFIG.md](CONFIG.md).
-
-## Lifecycle and diagnostics
-
-- `Destroy()` / `Unload()` clean up the library UI and managed connections.
-- `IsAlive()` checks whether the library instance is still active.
-- `GetVersion()` returns the library version.
-- `GetMetrics()` returns runtime performance counters.
-- `GetErrors()` and `ClearErrors()` inspect/reset captured errors.
-
-Method details may vary by component. Consult the source when using less common options.
+`Window:Destroy()` ou `Window:Unload()` remove a interface e as conexões administradas pela biblioteca. Se o seu script também criou conexões próprias (por exemplo, `RunService.Heartbeat`), desconecte-as antes de destruir a janela.
