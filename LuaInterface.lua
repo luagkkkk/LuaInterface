@@ -1,7 +1,7 @@
 --!nonstrict
 -- ============================================================
--- LUA INTERFACE v1.0.0-beta
--- Client-safe bootstrap, clean tab-first startup, Obsidian theme,
+-- LUA INTERFACE v1.1.0-beta
+-- Client-safe bootstrap, clean tab-first startup, Graphite theme,
 -- vector/SVG tab icons, resilient selection and cleanup.
 -- ============================================================
 if _G.LuaInterface and _G.LuaInterface.Destroy then pcall(function()_G.LuaInterface:Destroy()end)end
@@ -36,7 +36,7 @@ local ty,ts,tn=typeof,tostring,tonumber
 local trem,tins=table.remove,table.insert
 local I=Instance.new
 
-local CFG={Name="LuaInterface",Version="v1.0.0-beta",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
+local CFG={Name="LuaInterface",Version="v1.1.0-beta",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
 local IMA={FPS="88339611171447",Ping="126112532632455",Home="107671250314081",Keybind="126112532632455",Lua="104650551286971"}
 
 -- Tema normalizado: os campos públicos seguem a estrutura Accent/Background/Outline/Text/Placeholder/Button/Icon,
@@ -57,7 +57,7 @@ local function MakeTheme(bg,sidebar,card,hover,field,accent,accentSoft,text,sub,
     local Icon=c3hex(icon)
     return {
         E="●",
-        -- Estrutura de tema compatível com o modelo WindUI/Obsidian-like
+        -- Estrutura de tema compatível com o modelo WindUI-compatible
         Accent=Accent, Background=Background, Outline=Outline, Text=Text, Placeholder=Placeholder, Button=Button, Icon=Icon,
         -- Superfícies
         Bg=Background, Sidebar=c3hex(sidebar), Card=Panel, CardHover=c3hex(hover), Field=c3hex(field),
@@ -72,8 +72,8 @@ end
 local Themes={
     -- Dark: quase preto, superfícies cinza escuro, accent cinza-claro.
     ["Dark"]=MakeTheme("#101114","#0B0C0F","#181A1F","#22252B","#14161A","#B8BDC7","#D0D4DB","#F2F4F7","#A7ADB7","#30343B","#25292F","#C5CAD2","#3A1820","#FF9AAA"),
-    -- Obsidian-inspired graphite surfaces, restrained violet accent, and clear text contrast.
-    ["Obsidian"]=MakeTheme("#1E1E1E","#18181B","#242428","#2D2D33","#1B1B20","#A78BFA","#C4B5FD","#E7E5EA","#A7A4AE","#39383F","#2B2A31","#C4B5FD","#3D1B25","#FF9AAA"),
+    -- Graphite surfaces, restrained violet accent, and clear text contrast.
+    ["Graphite"]=MakeTheme("#1E1E1E","#18181B","#242428","#2D2D33","#1B1B20","#A78BFA","#C4B5FD","#E7E5EA","#A7A4AE","#39383F","#2B2A31","#C4B5FD","#3D1B25","#FF9AAA"),
     -- Light: branco, superfícies muito claras, accent cinza/azul.
     ["Light"]=MakeTheme("#F7F8FA","#FFFFFF","#FFFFFF","#EEF1F5","#F1F3F6","#64748B","#7C8DA5","#171A21","#667085","#D9DEE7","#E8ECF2","#7C8798","#FCE9ED","#C73550","#111318"),
     -- Darker: preto/cinza mais profundo.
@@ -104,9 +104,14 @@ local Themes={
     ["Violet"]=MakeTheme("#0E0917","#08050E","#1B1029","#29183E","#120B1C","#9A6BFF","#B695FF","#F5EEFF","#BDAAD4","#37234D","#29183E","#C19BFF","#3F1427","#FF9FBC")
 }
 
+local ThemeNameAliases={Obsidian="Graphite"}
+local function resolveThemeName(name)
+    name=ts(name or "")
+    return ThemeNameAliases[name] or name
+end
 
 -- v5.1.4: ActiveTweens adicionado ao ST (não é local novo do chunk)
-local ST={CurrentMode="Desktop",CurrentPage=nil,MainVisible=true,Pages={},Buttons={},ButtonIcons={},toggleToken=0,Conns=setmetatable({}, {__mode="k"}),ConnCount=0,ButtonLowerNames={},TweenInfoCache={},TweenInfoCacheCount=0,ActiveNotif={},ActiveCount=0,Elements={},ElementOrder={},CustomSize=nil,Resizing=false,OpenPopup=nil,OpenDropdown=nil,ActiveDialog=nil,FirstLayout=true,ScrollScheduled=false,RespScheduled=false,UserMoved=false,LastDragTime=0,PageToken=0,CurrentTheme="Obsidian",PColor=c3hex("#DDDDDD"),PTmin=.35,PTmax=.78,Themed={},ThemeHooks={},Tasks={},ThemeToken=0,Dragging=false,LastTabChange=0,State="Ready",Destroyed=false,Errors={},ErrorSeq=0,Keybinds={},ListeningKeybind=nil,ForceCheckbox=false,Scale=1,Language="en-US",Locales={},Plugins={},Loading=nil,
+local ST={CurrentMode="Desktop",CurrentPage=nil,MainVisible=true,Pages={},Buttons={},ButtonIcons={},toggleToken=0,Conns=setmetatable({}, {__mode="k"}),ConnCount=0,ButtonLowerNames={},TweenInfoCache={},TweenInfoCacheCount=0,ActiveNotif={},ActiveCount=0,Elements={},ElementOrder={},CustomSize=nil,Resizing=false,OpenPopup=nil,OpenDropdown=nil,ActiveDialog=nil,FirstLayout=true,ScrollScheduled=false,RespScheduled=false,UserMoved=false,LastDragTime=0,PageToken=0,CurrentTheme="Graphite",PColor=c3hex("#DDDDDD"),PTmin=.35,PTmax=.78,Themed={},ThemeHooks={},Tasks={},ThemeToken=0,Dragging=false,LastTabChange=0,State="Ready",Destroyed=false,Errors={},ErrorSeq=0,Keybinds={},ListeningKeybind=nil,ForceCheckbox=false,Scale=1,Language="en-US",Locales={},Plugins={},Loading=nil,
 PageScrolls={},
 Tabboxes={},
 Groupboxes={},
@@ -253,6 +258,7 @@ local function SyncState()
 end
 
 local function ApplyTheme(name)
+    name=resolveThemeName(name)
     local t=Themes[name]
     if not t then
         RecordError("Theme", "Tema inválido: "..ts(name), "Tema inválido")
@@ -597,11 +603,7 @@ function IC.Server(p,sz)
     return c
 end
 function IC.Save(p,sz)
-    local c=ICo(p,sz) local s,t=sz/24,ma(1.3,sz*.075)
-    IR(c,t,3*s,3*s,18*s,18*s,2.5*s)
-    IR(c,t,7*s,3*s,10*s,5*s,1*s)
-    IR(c,t,7*s,13*s,10*s,8*s,1*s)
-    return c
+    return IC.SVG(p,sz,[=[<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>]=])
 end
 function IC.Settings(p,sz)
     local c=ICo(p,sz) local s,t=sz/24,ma(1.2,sz*.07)
@@ -2791,7 +2793,7 @@ ThemeLayout.Padding=Un(0,10)
 ThemeLayout.SortOrder=Enum.SortOrder.LayoutOrder
 ThemeLayout.Parent=ThemeC
 local ThemeCards={}
-local TOrder={"Obsidian","Dark","Light","Darker","Amoled","Rose","Indigo","Blue","Green","Red","Purple","Mellowsi","Ocean","Amber","Emerald","Violet"}
+local TOrder={"Graphite","Dark","Light","Darker","Amoled","Rose","Indigo","Blue","Green","Red","Purple","Mellowsi","Ocean","Amber","Emerald","Violet"}
 for i=1,#TOrder do
     local name=TOrder[i]
     local theme=Themes[name]
@@ -2945,13 +2947,13 @@ local function LuaNotifyImpl(cfg)
     local typeColors={
         Success=c3rgb(70,200,120),Info=CFG.Purple,Warning=c3rgb(235,180,70),Error=CFG.Red,Loading=c3rgb(90,160,255),Debug=c3rgb(150,150,160),Option=CFG.Purple
     }
-    local title=cfg.Title or (ntype=="Success" and "Sucesso" or ntype=="Warning" and "Aviso" or ntype=="Error" and "Erro" or CFG.Name)
-    local content=cfg.Content or cfg.Description or ""
+    local title=cfg.Title or cfg.Heading or (ntype=="Success" and "Sucesso" or ntype=="Warning" and "Aviso" or ntype=="Error" and "Erro" or CFG.Name)
+    local content=cfg.Content or cfg.Description or cfg.Message or ""
     local time=ma(0,tn(cfg.Duration or cfg.Time) or CFG.NotifyDur)
     local ic=cfg.IconColor
     if ty(ic)~="Color3" then ic=typeColors[ntype] or CFG.Purple end
     local persist=cfg.Persist or false
-    local Actions=cfg.Actions
+    local Actions=cfg.Actions or cfg.Buttons
     local dedupe=cfg.DedupeKey
     if dedupe then
         for i=1,#ST.ActiveNotif do
@@ -2971,14 +2973,14 @@ local function LuaNotifyImpl(cfg)
     W2.ClipsDescendants=true
     W2.Parent=UI.NH
     local C=I("Frame")
-    C.BackgroundColor3=CFG.Card
+    C.BackgroundColor3=typeof(cfg.BackgroundColor)=="Color3" and cfg.BackgroundColor or CFG.Card
     C.BorderSizePixel=0
     C.Size=U2(1,0,0,0)
     C.AutomaticSize=Enum.AutomaticSize.Y
     C.Position=U2(0,0,0,0)
     C.Parent=W2
     FT.C(C,12)
-    Reg(C,"BackgroundColor3","Card")
+    if typeof(cfg.BackgroundColor)~="Color3" then Reg(C,"BackgroundColor3","Card") end
     local CS=FT.S(C,CFG.Stroke,1)
     Reg(CS,"Color","Stroke")
     local A=I("Frame")
@@ -3008,6 +3010,7 @@ local function LuaNotifyImpl(cfg)
     CB.Size=U3(32,32)
     CB.Position=U2(1,-38,0,6)
     CB.Parent=C
+    CB.Visible=cfg.Closable~=false
     Reg(CB,"TextColor3","SubText")
     local Dsc=I("TextLabel")
     Dsc.BackgroundTransparency=1
@@ -3022,6 +3025,12 @@ local function LuaNotifyImpl(cfg)
     Dsc.Size=U2(1,-35,0,20)
     Dsc.Parent=C
     Reg(Dsc,"TextColor3","SubText")
+    local notificationIconHolder=nil
+    if cfg.Icon and ST.Framework.IconManager then
+        notificationIconHolder=I("Frame"); notificationIconHolder.Name="NotificationIcon"; notificationIconHolder.BackgroundTransparency=1; notificationIconHolder.Size=U3(22,22); notificationIconHolder.Position=U3(12,11); notificationIconHolder.ZIndex=3; notificationIconHolder.Parent=C
+        local icon=ST.Framework.IconManager:Create(notificationIconHolder,cfg.Icon,{Size=18,Color=ic,AnchorPoint=V2(.5,.5),Position=Uv(.5,.5)})
+        if icon then TL.Position=U3(40,12); TL.Size=U2(1,-88,0,20); Dsc.Position=U3(40,34); Dsc.Size=U2(1,-52,0,20) else notificationIconHolder:Destroy(); notificationIconHolder=nil end
+    end
     local Pad=I("Frame")
     Pad.BackgroundTransparency=1
     Pad.Size=U2(1,0,0,14)
@@ -4047,6 +4056,12 @@ function El.Slider(parent,opts)
     if mx<mn then mn,mx=mx,mn end
     if mx==mn then mx=mn+1 end
     local dec=ma(0,fl(tn(opts.Rounding) or tn(opts.Decimals) or 0))
+    local step=tn(opts.Step)
+    if not step or step<=0 then step=nil else
+        local stepText=sf("%.8f",step):gsub("0+$",""):gsub("%.$","")
+        local fractional=stepText:match("%.(%d+)$")
+        dec=ma(dec,fractional and #fractional or 0)
+    end
     local prefix=ts(opts.Prefix or "")
     local suffix=ts(opts.Suffix or "")
     local compact=opts.Compact==true
@@ -4059,6 +4074,7 @@ function El.Slider(parent,opts)
     local rng=mx-mn
     local inv=(rng>0) and (1/rng) or 0
     local function roundValue(n)
+        if step then n=mn+math.floor((n-mn)/step+0.5)*step end
         local mult=10^dec
         return math.floor(n*mult+0.5)/mult
     end
@@ -4182,7 +4198,7 @@ function El.Slider(parent,opts)
         VL.TextTransparency=disabled and .45 or 0
     end
     E=RegEl(idx,"Slider",function() return v end,set,{Frame=R2,Label=L})
-    E.Disabled=disabled; E.Visible=visible; E.Min=mn; E.Max=mx; E.Rounding=dec; E.Prefix=prefix; E.Suffix=suffix
+    E.Disabled=disabled; E.Visible=visible; E.Min=mn; E.Max=mx; E.Rounding=dec; E.Step=step; E.Prefix=prefix; E.Suffix=suffix
     E._ApplyDisabled=applyDisabled
     E.SetText=function(self,text) L.Text=ts(text or ""); return true end
     E.SetMin=function(self,n)
@@ -4635,8 +4651,125 @@ function El.Divider(parent,opts)
     return E
 end
 
+function El.Paragraph(parent,opts)
+    if not ValidParent(parent) then return nil end
+    if type(opts)=="string" then opts={Title=opts} else opts=opts or {} end
+    local idx=opts.Index or ("Paragraph_"..ts(#ST.ElementOrder+1))
+    local root=I("Frame")
+    root.Name="Paragraph_"..ts(idx); root.BackgroundColor3=CFG.Card; root.BorderSizePixel=0
+    root.Size=U2(1,0,0,0); root.AutomaticSize=Enum.AutomaticSize.Y; root.Parent=parent
+    FT.C(root,10); local stroke=FT.S(root,CFG.Stroke,1)
+    Reg(root,"BackgroundColor3","Card"); Reg(stroke,"Color","Stroke")
+    local pad=I("UIPadding"); pad.PaddingLeft=Un(0,12); pad.PaddingRight=Un(0,12); pad.PaddingTop=Un(0,10); pad.PaddingBottom=Un(0,10); pad.Parent=root
+    local layout=I("UIListLayout"); layout.SortOrder=Enum.SortOrder.LayoutOrder; layout.Padding=Un(0,5); layout.Parent=root
+    local titleText=ts(opts.Title or opts.Text or "Paragraph")
+    local title=FT.L(root,titleText,13,CFG.Text); title.Size=U2(1,0,0,18); title.Font=Enum.Font.GothamBold; title.TextXAlignment=Enum.TextXAlignment.Left; title.LayoutOrder=1; title.Visible=titleText~=""; Reg(title,"TextColor3","Text")
+    local content=FT.L(root,ts(opts.Desc or opts.Description or ""),12,CFG.SubText)
+    content.Size=U2(1,0,0,0); content.AutomaticSize=Enum.AutomaticSize.Y; content.TextWrapped=true; content.TextXAlignment=Enum.TextXAlignment.Left; content.TextYAlignment=Enum.TextYAlignment.Top; content.LayoutOrder=2; content.RichText=opts.RichText==true; Reg(content,"TextColor3","SubText")
+    local buttonRow=nil; local buttonHandles={}
+    if type(opts.Buttons)=="table" and #opts.Buttons>0 then
+        buttonRow=I("Frame"); buttonRow.Name="ParagraphButtons"; buttonRow.BackgroundTransparency=1; buttonRow.Size=U2(1,0,0,32); buttonRow.LayoutOrder=3; buttonRow.Parent=root
+        local rowLayout=I("UIListLayout"); rowLayout.FillDirection=Enum.FillDirection.Horizontal; rowLayout.HorizontalAlignment=Enum.HorizontalAlignment.Right; rowLayout.VerticalAlignment=Enum.VerticalAlignment.Center; rowLayout.Padding=Un(0,6); rowLayout.Parent=buttonRow
+        for i,buttonCfg in ipairs(opts.Buttons) do
+            local bc=type(buttonCfg)=="table" and buttonCfg or {Title=ts(buttonCfg)}
+            local button=I("TextButton"); button.Name="Action"..i; button.Text=ts(bc.Title or bc.Text or "Action"); button.Font=Enum.Font.GothamBold; button.TextSize=11; button.TextColor3=CFG.Text; button.BackgroundColor3=CFG.BgButton; button.BorderSizePixel=0; button.AutoButtonColor=false; button.Size=U2(0,math.max(74,#button.Text*7+24),0,30); button.LayoutOrder=i; button.Parent=buttonRow; FT.C(button,7); Reg(button,"TextColor3","Text"); Reg(button,"BackgroundColor3","BgButton")
+            local conn=button.MouseButton1Click:Connect(function() if type(bc.Callback)=="function" then SafeCall("ParagraphButton:"..ts(idx),bc.Callback) end end)
+            Tk(conn); buttonHandles[#buttonHandles+1]=button
+        end
+    end
+    local E=RegEl(idx,"Paragraph",function() return content.Text end,function(v) content.Text=ts(v or ""); return true end,{Frame=root,Label=title})
+    E.Title=titleText; E.Description=content.Text; E.SetTitle=function(self,v) titleText=ts(v or ""); title.Text=titleText; title.Visible=titleText~=""; self.Title=titleText; return true end
+    E.SetDescription=function(self,v) content.Text=ts(v or ""); self.Description=content.Text; return true end
+    E.SetDesc=E.SetDescription; E.SetText=E.SetDescription
+    E.SetVisible=function(self,v) root.Visible=v==true; self.Visible=v==true; return true end
+    E._Cleanup=function() end
+    return E
+end
+
+function El.ProgressBar(parent,opts)
+    if not ValidParent(parent) then return nil end
+    opts=opts or {}
+    local range=type(opts.Value)=="table" and opts.Value or {}
+    local mn=tn(range.Min or opts.Min) or 0; local mx=tn(range.Max or opts.Max) or 100
+    if mx<mn then mn,mx=mx,mn end
+    if mx==mn then mx=mn+1 end
+    local v=cl(tn(range.Default or opts.Default or (type(opts.Value)=="number" and opts.Value)) or mn,mn,mx)
+    local idx=opts.Index or ("ProgressBar_"..ts(#ST.ElementOrder+1))
+    local show=opts.ShowValue~=false
+    local mode=opts.DisplayMode or "Percent"
+    local R2,RS=FT.Card(parent,60); if not R2 then return nil end
+    local L=FT.L(R2,opts.Title or opts.Text or "Progress",13,CFG.Text); L.Position=U3(14,3); L.Size=U2(1,-(show and 82 or 28),0,20); L.TextXAlignment=Enum.TextXAlignment.Left; Reg(L,"TextColor3","Text")
+    local VL=FT.L(R2,"",11,CFG.SubText); VL.AnchorPoint=V2(1,0); VL.Position=U2(1,-14,0,3); VL.Size=U3(68,20); VL.TextXAlignment=Enum.TextXAlignment.Right; VL.Visible=show; Reg(VL,"TextColor3","SubText")
+    local track=I("Frame"); track.Name="ProgressTrack"; track.BackgroundColor3=CFG.BgTrack; track.BackgroundTransparency=.15; track.BorderSizePixel=0; track.Position=U3(14,31); track.Size=U2(1,-28,0,8); track.Parent=R2; FT.C(track,4); Reg(track,"BackgroundColor3","BgTrack")
+    local fill=I("Frame"); fill.Name="ProgressFill"; fill.BackgroundColor3=CFG.Purple; fill.BorderSizePixel=0; fill.Size=U2(0,0,1,0); fill.Parent=track; FT.C(fill,4); Reg(fill,"BackgroundColor3","Purple")
+    local E
+    local function ratio() return cl((v-mn)/(mx-mn),0,1) end
+    local function refresh(animate)
+        local r=ratio(); local text
+        if type(opts.Format)=="function" then local ok,res=pcall(opts.Format,v,r*100,mn,mx); if ok and res~=nil then text=ts(res) end end
+        if not text then
+            if mode=="Value" then text=ts(v)
+            elseif mode=="Fraction" then text=ts(v).."/"..ts(mx)
+            else text=ts(math.floor(r*100+.5)).."%" end
+        end
+        VL.Text=text
+        local size=U2(r,0,1,0)
+        if animate and opts.Animate~=false then FT.T(fill,{Size=size},tn(opts.AnimationDuration) or .15) else fill.Size=size end
+    end
+    local function set(nv,silent)
+        nv=cl(tn(nv) or mn,mn,mx); if nv==v then return true end
+        local old=v; v=nv; refresh(true)
+        if not silent and type(opts.Callback)=="function" then local ok=SafeCall("ProgressBar:"..ts(idx),opts.Callback,v,ratio()); if not ok then v=old; refresh(false); return false end end
+        if E then E:_EmitChanged(v,ratio()) end
+        return true
+    end
+    E=RegEl(idx,"ProgressBar",function() return v end,function(n) return set(n,false) end,{Frame=R2,Label=L})
+    E.Min=mn; E.Max=mx; E.Value=v; E.ShowValue=show; E.Set=E.SetValue
+    E.SetValue=function(self,n) local ok=set(n,false); self.Value=v; return ok end
+    E.Set=E.SetValue
+    E.SetProgress=E.SetValue
+    E.GetValue=function() return v end
+    E.SetRange=function(self,a,b) a=tn(a); b=tn(b); if not a or not b or a==b then return false end; mn=math.min(a,b); mx=math.max(a,b); self.Min=mn; self.Max=mx; v=cl(v,mn,mx); self.Value=v; refresh(false); return true end
+    E.SetVisible=function(self,x) R2.Visible=x==true; self.Visible=x==true; return true end
+    E.SetText=function(self,x) L.Text=ts(x or ""); return true end
+    E._Cleanup=function() end
+    refresh(false); FT.H(R2,RS); R2.Visible=opts.Visible~=false; E.Visible=R2.Visible
+    return E
+end
+
+function El.Image(parent,opts)
+    if not ValidParent(parent) then return nil end
+    opts=opts or {}
+    local idx=opts.Index or ("Image_"..ts(#ST.ElementOrder+1))
+    local height=cl(tn(opts.Height or opts.ImageSize) or 156,40,600)
+    local card,stroke=FT.Card(parent,height+(opts.Title and 28 or 0)); if not card then return nil end
+    local title
+    if opts.Title then title=FT.L(card,opts.Title,12,CFG.Text); title.Position=U3(12,4); title.Size=U2(1,-24,0,20); Reg(title,"TextColor3","Text") end
+    local image
+    if opts.Interactive then image=I("ImageButton"); image.Text=""; image.AutoButtonColor=false else image=I("ImageLabel") end
+    image.Name="ContentImage"; image.BackgroundTransparency=1; image.BorderSizePixel=0; image.ScaleType=opts.ScaleType or Enum.ScaleType.Fit
+    image.Size=U2(1,-20,0,height-10); image.Position=U3(10,opts.Title and 28 or 5); image.Parent=card
+    if opts.CornerRadius then FT.C(image,opts.CornerRadius) end
+    local function normalizeImage(x)
+        if type(x)=="number" then return "rbxassetid://"..ts(x) end
+        x=ts(x or "")
+        if x:match("^%d+$") then return "rbxassetid://"..x end
+        return x
+    end
+    image.Image=normalizeImage(opts.Image or opts.Value)
+    if typeof(opts.Color)=="Color3" then image.ImageColor3=opts.Color end
+    image.ImageTransparency=cl(tn(opts.Transparency) or 0,0,1)
+    local E=RegEl(idx,"Image",function() return image.Image end,function(x) image.Image=normalizeImage(x); return true end,{Frame=card,Label=title})
+    E.ImageLabel=image; E.Instance=image; E.SetImage=function(self,x) image.Image=normalizeImage(x); return true end; E.SetValue=E.SetImage
+    E.SetVisible=function(self,x) card.Visible=x==true; self.Visible=x==true; return true end
+    if opts.Interactive and type(opts.Callback)=="function" then Tk(image.MouseButton1Click:Connect(function() SafeCall("Image:"..ts(idx),opts.Callback,E) end)) end
+    E._Cleanup=function() end
+    FT.H(card,stroke); card.Visible=opts.Visible~=false; E.Visible=card.Visible
+    return E
+end
+
 -- ============================================================
--- Obsidian-style Groupbox / Dependency / Tabbox compatibility layer
+-- Graphite Groupbox / Dependency / Tabbox compatibility layer
 local API={}
 local function ElementAPI(target)
     local api={}
@@ -4668,8 +4801,146 @@ local function ElementAPI(target)
     function api:AddKeybind(id,o) o=o or{}; o.Index=o.Index or id; return El.Keybind(target,o) end
     function api:AddSection(o) return El.Section(target,o) end
     function api:AddDivider(v) return El.Divider(target,v) end
+    function api:AddParagraph(id,o)
+        if type(id)=="table" then o=id else o=o or {}; o.Index=o.Index or id end
+        return El.Paragraph(target,o or {})
+    end
+    function api:AddProgressBar(id,o)
+        if type(id)=="table" then o=id else o=o or {}; o.Index=o.Index or id end
+        return El.ProgressBar(target,o or {})
+    end
+    function api:AddImage(id,o)
+        if type(id)=="table" then o=id else o=o or {}; o.Index=o.Index or id end
+        return El.Image(target,o or {})
+    end
+    function api:AddCode(id,o)
+        if type(id)=="table" then o=id else o=o or {}; o.Index=o.Index or id end
+        return El.Code(target,o or {})
+    end
+    function api:AddSpace(id,o)
+        if type(id)=="table" then o=id else o=o or {}; o.Index=o.Index or id end
+        return El.Space(target,o or {})
+    end
+    function api:AddHStack(id,o)
+        if type(id)=="table" then o=id else o=o or {}; o.Index=o.Index or id end
+        return El.HStack(target,o or {})
+    end
+    function api:AddVStack(id,o)
+        if type(id)=="table" then o=id else o=o or {}; o.Index=o.Index or id end
+        return El.VStack(target,o or {})
+    end
+    function api:AddGroup(id,o)
+        if type(id)=="table" then o=id else o=o or {}; o.Index=o.Index or id end
+        return El.Group(target,o or {})
+    end
+    function api:AddViewport(id,o)
+        if type(id)=="table" then o=id else o=o or {}; o.Index=o.Index or id end
+        return El.Viewport(target,o or {})
+    end
     function api:GetContainer() return target end
     return api
+end
+
+local function SimpleContainer(parent,opts,name,direction)
+    if not ValidParent(parent) then return nil end
+    opts=opts or {}
+    local frame=I("Frame"); frame.Name=opts.Name or name; frame.BackgroundTransparency=1; frame.BorderSizePixel=0; frame.Size=U2(1,0,0,0); frame.AutomaticSize=Enum.AutomaticSize.Y; frame.Parent=parent
+    local layout=I("UIListLayout"); layout.SortOrder=Enum.SortOrder.LayoutOrder; layout.FillDirection=direction or Enum.FillDirection.Vertical; layout.HorizontalAlignment=opts.HorizontalAlignment or Enum.HorizontalAlignment.Left; layout.VerticalAlignment=opts.VerticalAlignment or Enum.VerticalAlignment.Top; layout.Padding=Un(0,tn(opts.Gap or opts.Padding) or 8); layout.Parent=frame
+    local api=ElementAPI(frame); api.ElementFrame=frame; api.Layout=layout; api.__type=name; api.GetContainer=function() return frame end
+    function api:SetGap(value) layout.Padding=Un(0,math.max(0,tn(value) or 0)); return true end
+    function api:SetVisible(value) frame.Visible=value==true; return true end
+    function api:Destroy() if frame.Parent then frame:Destroy() end; return true end
+    return api
+end
+function El.VStack(parent,opts) return SimpleContainer(parent,opts,"VStack",Enum.FillDirection.Vertical) end
+function El.HStack(parent,opts)
+    local api=SimpleContainer(parent,opts,"HStack",Enum.FillDirection.Horizontal)
+    if api then api.AutoSpace=opts and opts.AutoSpace==true; api._CompatColumns={}; api._CompatGap=tn(opts and opts.Gap) or 8 end
+    return api
+end
+function El.Group(parent,opts) return El.HStack(parent,opts) end
+function El.Space(parent,opts)
+    if not ValidParent(parent) then return nil end
+    if type(opts)=="number" then opts={Size=opts} elseif type(opts)=="string" then opts={Size=tonumber(opts)} else opts=opts or {} end
+    local amount=math.max(0,tn(opts.Size or opts.Height or opts.Width or opts.Columns) or 8)
+    local horizontal=opts.Orientation=="Horizontal" or opts.Horizontal==true
+    local frame=I("Frame"); frame.Name=opts.Name or "Space"; frame.BackgroundTransparency=1; frame.BorderSizePixel=0
+    if horizontal then frame.Size=U3(amount,1) else frame.Size=U2(1,0,0,amount) end
+    frame.Parent=parent
+    return {__type="Space",ElementFrame=frame,Instance=frame,Destroy=function() if frame.Parent then frame:Destroy() end; return true end,SetSize=function(_,v) v=math.max(0,tn(v) or amount); amount=v; if horizontal then frame.Size=U3(v,1) else frame.Size=U2(1,0,0,v) end; return true end}
+end
+function El.Code(parent,opts)
+    if not ValidParent(parent) then return nil end
+    opts=opts or {}
+    local idx=opts.Index or ("Code_"..ts(#ST.ElementOrder+1)); local code=ts(opts.Code or opts.Value or ""); local height=cl(tn(opts.Height) or 172,72,700)
+    local card,stroke=FT.Card(parent,height+(opts.Title and 30 or 0)); if not card then return nil end
+    local title
+    if opts.Title then title=FT.L(card,opts.Title,12,CFG.Text); title.Position=U3(12,4); title.Size=U2(1,-88,0,20); title.Font=Enum.Font.GothamBold; Reg(title,"TextColor3","Text") end
+    local copy=I("TextButton"); copy.Name="CopyCode"; copy.Text=opts.CanCopied==false and "" or "Copy"; copy.Visible=opts.CanCopied~=false; copy.TextSize=10; copy.Font=Enum.Font.GothamBold; copy.TextColor3=CFG.SubText; copy.BackgroundColor3=CFG.BgButton; copy.BorderSizePixel=0; copy.AutoButtonColor=false; copy.Size=U3(54,24); copy.AnchorPoint=V2(1,0); copy.Position=U2(1,-10,0,3); copy.Parent=card; FT.C(copy,6); Reg(copy,"TextColor3","SubText"); Reg(copy,"BackgroundColor3","BgButton")
+    local editor=I("TextBox"); editor.Name="CodeText"; editor.BackgroundColor3=CFG.Field; editor.BackgroundTransparency=.1; editor.BorderSizePixel=0; editor.TextColor3=CFG.Text; editor.Text=code; editor.TextSize=cl(tn(opts.CodeSize) or 12,9,20); editor.Font=Enum.Font.Code; editor.ClearTextOnFocus=false; editor.MultiLine=true; editor.TextWrapped=false; editor.TextEditable=false; editor.TextXAlignment=Enum.TextXAlignment.Left; editor.TextYAlignment=Enum.TextYAlignment.Top; editor.Position=U3(8,opts.Title and 30 or 8); editor.Size=U2(1,-16,0,height-8); editor.Parent=card; FT.C(editor,7); Reg(editor,"BackgroundColor3","Field"); Reg(editor,"TextColor3","Text")
+    local E=RegEl(idx,"Code",function() return code end,function(v) code=ts(v or ""); editor.Text=code; return true end,{Frame=card,Label=title})
+    E.Code=code; E.TextBox=editor; E.SetCode=function(self,v) code=ts(v or ""); editor.Text=code; self.Code=code; return true end; E.Set=E.SetCode; E.SetValue=E.SetCode
+    E.SetVisible=function(self,v) card.Visible=v==true; self.Visible=v==true; return true end
+    Tk(copy.MouseButton1Click:Connect(function()
+        if opts.CanCopied==false then return end
+        local ok=false
+        pcall(function() if setclipboard then setclipboard(code); ok=true elseif toclipboard then toclipboard(code); ok=true end end)
+        if type(opts.OnCopy)=="function" then SafeCall("Code.OnCopy",opts.OnCopy) end
+        if not ok then LuaNotify.Warning("Clipboard access is unavailable in this client.","Code",3) end
+    end))
+    E._Cleanup=function() end; FT.H(card,stroke); return E
+end
+function El.Viewport(parent,opts)
+    if not ValidParent(parent) then return nil end
+    opts=opts or {}
+    local idx=opts.Index or ("Viewport_"..ts(#ST.ElementOrder+1)); local height=cl(tn(opts.Height) or 200,80,650)
+    local card,stroke=FT.Card(parent,height+(opts.Title and 28 or 0)); if not card then return nil end
+    local title
+    if opts.Title then title=FT.L(card,opts.Title,12,CFG.Text); title.Position=U3(12,3); title.Size=U2(1,-24,0,20); Reg(title,"TextColor3","Text") end
+    local viewport=I("ViewportFrame"); viewport.Name="Viewport"; viewport.BackgroundColor3=CFG.Field; viewport.BackgroundTransparency=.25; viewport.BorderSizePixel=0; viewport.Position=U3(8,opts.Title and 26 or 8); viewport.Size=U2(1,-16,0,height-8); viewport.Active=opts.Interactive==true; viewport.Parent=card; FT.C(viewport,8); Reg(viewport,"BackgroundColor3","Field")
+    local camera=opts.Camera
+    if typeof(camera)~="Instance" or not camera:IsA("Camera") then camera=Instance.new("Camera"); camera.Name="LuaInterfaceViewportCamera"; camera.Parent=viewport end
+    viewport.CurrentCamera=camera
+    local object=nil; local ownObject=false; local connections={}; local dragging=false; local lastPosition=nil
+    local function focus()
+        if not object or not object.Parent then return false end
+        local center,size
+        if object:IsA("BasePart") then center=object.Position; size=object.Size else local ok,cf,sz=pcall(function() return object:GetBoundingBox() end); if not ok then return false end; center=cf.Position; size=sz end
+        local maxAxis=math.max(size.X,size.Y,size.Z); local distance=math.max(1,maxAxis*2.2)
+        camera.CFrame=CFrame.new(center+Vector3.new(0,maxAxis*.3,distance),center); return true
+    end
+    local function setObject(source,clone)
+        if object and ownObject and object.Parent then object:Destroy() end
+        object=nil; ownObject=false
+        if not source then return true end
+        if typeof(source)~="Instance" then return false end
+        local shouldClone=clone~=false
+        if shouldClone then local ok,result=pcall(function() return source:Clone() end); if not ok or not result then return false end; object=result; ownObject=true else object=source end
+        object.Parent=viewport
+        if opts.Focused~=false then task.defer(focus) end
+        return true
+    end
+    if opts.Object then setObject(opts.Object,opts.Clone~=false) end
+    if opts.Interactive then
+        connections[#connections+1]=viewport.InputBegan:Connect(function(input)
+            if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then dragging=true; lastPosition=input.Position end
+        end)
+        connections[#connections+1]=S.U.InputChanged:Connect(function(input)
+            if dragging and lastPosition and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then
+                local delta=input.Position-lastPosition; lastPosition=input.Position
+                local pivot=object and object.Parent and (object:IsA("BasePart") and object.Position or select(1,object:GetBoundingBox()).Position) or camera.CFrame.Position+camera.CFrame.LookVector
+                camera.CFrame=CFrame.new(pivot)*CFrame.fromAxisAngle(Vector3.new(0,1,0),-delta.X*.01)*CFrame.new(-pivot)*camera.CFrame
+            elseif input.UserInputType==Enum.UserInputType.MouseWheel and viewport.Parent then camera.CFrame=CFrame.new(camera.CFrame.Position+camera.CFrame.LookVector*input.Position.Z*2,camera.CFrame.Position+camera.CFrame.LookVector*8) end
+        end)
+        connections[#connections+1]=S.U.InputEnded:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then dragging=false; lastPosition=nil end end)
+    end
+    local E=RegEl(idx,"Viewport",function() return object end,function(source) return setObject(source,true) end,{Frame=card,Label=title})
+    E.Viewport=viewport; E.Camera=camera; E.SetObject=function(self,source,clone) return setObject(source,clone) end; E.SetCamera=function(self,c) if typeof(c)~="Instance" or not c:IsA("Camera") then return false end; camera=c; viewport.CurrentCamera=c; if not c.Parent then c.Parent=viewport end; self.Camera=c; return true end
+    E.SetHeight=function(self,n) n=cl(tn(n) or height,80,650); height=n; card.Size=U2(1,0,0,height+(opts.Title and 28 or 0)); viewport.Size=U2(1,-16,0,height-8); return true end
+    E.Focus=function() return focus() end; E.SetInteractive=function(self,v) viewport.Active=v==true; self.Interactive=v==true; return true end
+    E.SetVisible=function(self,v) card.Visible=v==true; self.Visible=v==true; return true end
+    E._Cleanup=function() for _,conn in ipairs(connections) do pcall(function() conn:Disconnect() end) end; if object and ownObject and object.Parent then object:Destroy() end; if camera and camera.Parent==viewport then camera:Destroy() end end
+    FT.H(card,stroke); return E
 end
 local function DependencyMatches(dep)
     if type(dep)~="table" then return true end
@@ -4802,7 +5073,7 @@ function MakeGroupbox(parent,cfg)
     local key=parent.Name or tostring(parent); ST.Groupboxes[key]=ST.Groupboxes[key] or {Left=0,Right=0}; ST.Groupboxes[key][side]=ST.Groupboxes[key][side]+1
     local idx=ST.Groupboxes[key][side]; local root=I("Frame") root.Name=cfg.Name and ts(cfg.Name) or (side.."Groupbox") root.BackgroundColor3=CFG.Card root.BorderSizePixel=0 root.Size=U2(1,0,0,0) root.AutomaticSize=Enum.AutomaticSize.Y root.Position=U2(0,0,0,0) root.LayoutOrder=idx root.ZIndex=4 root.Visible=cfg.Visible~=false root.Parent=GetGroupColumn(parent,side) FT.C(root,10) Reg(root,"BackgroundColor3","Card") local stroke=FT.S(root,CFG.Stroke,1) Reg(stroke,"Color","Stroke")
     local descOn=cfg.Description~=nil and ts(cfg.Description)~=""; local header=I("TextButton") header.BackgroundTransparency=1 header.Text="" header.AutoButtonColor=false header.Size=U2(1,0,0,descOn and 60 or 42) header.Parent=root
-    if cfg.IconName then local ic=I("Frame") ic.BackgroundColor3=CFG.IconBg ic.Size=U3(28,28) ic.Position=U3(10,7) ic.Parent=header FT.C(ic,7) Reg(ic,"BackgroundColor3","IconBg") if API.IconManager then API.IconManager:Create(ic,cfg.IconName,{Size=18,Color="Accent"}) else IC.Render(ic,18,cfg.IconName,CFG.Purple) end end
+    if cfg.IconName then local ic=I("Frame") ic.BackgroundColor3=CFG.IconBg ic.Size=U3(28,28) ic.Position=U3(10,7) ic.Parent=header FT.C(ic,7) Reg(ic,"BackgroundColor3","IconBg") if API.IconManager then API.IconManager:Create(ic,cfg.IconName,{Size=18,Color="Accent",AnchorPoint=V2(.5,.5),Position=Uv(.5,.5)}) else IC.Render(ic,18,cfg.IconName,CFG.Purple) end end
     local title=FT.L(header,cfg.Name or "Groupbox",14,CFG.Text) title.Position=U3(cfg.IconName and 46 or 12,2) title.Size=U2(1,-(cfg.IconName and 90 or 50),0,22) title.Font=Enum.Font.GothamBold title.Parent=header Reg(title,"TextColor3","Text")
     local desc=FT.L(header,descOn and cfg.Description or "",10,CFG.SubText) desc.Position=U3(cfg.IconName and 46 or 12,25) desc.Size=U2(1,-(cfg.IconName and 90 or 50),0,20) desc.Visible=descOn desc.Parent=header Reg(desc,"TextColor3","SubText")
     local arrow=FT.L(header,cfg.DisableCollapsing and "" or "▾",16,CFG.SubText) arrow.AnchorPoint=V2(1,.5) arrow.Position=U2(1,-10,.5,0) arrow.Size=U3(24,24) arrow.TextXAlignment=Enum.TextXAlignment.Center arrow.Parent=header Reg(arrow,"TextColor3","SubText")
@@ -4880,7 +5151,7 @@ function SM:Load(name)
     if not readfile or type(name)~="string" or name=="" then return false,"filesystem unavailable or invalid name" end
     local ok,raw=pcall(readfile,self:_Path(name)); if not ok then return false,raw end
     local dok,data=pcall(function() return S.H:JSONDecode(raw) end); if not dok or type(data)~="table" then return false,"invalid config" end
-    if data.Theme and not self.IgnoreTheme and Themes[data.Theme] then ApplyTheme(data.Theme) end
+    if data.Theme and not self.IgnoreTheme and Themes[resolveThemeName(data.Theme)] then ApplyTheme(data.Theme) end
     for id,v in pairs(data.Elements or {}) do local e=ST.Elements[id] if e and e.Set and not self.IgnoreIndexes[id] then SafeCall("Load:"..id,e.Set,v) end end
     return true
 end
@@ -4953,12 +5224,13 @@ function API:Popup(cfg) return NewDialog(cfg) end
 function API:Confirm(cfg) return Confirm(cfg) end
 function API:Choice(cfg) return Choice(cfg) end
 function API:ApplyTheme(name)
+    name=resolveThemeName(name)
     if not Themes[name] then name="Dark" end
     ApplyTheme(name)
 end
 function API:GetTheme() return ST.CurrentTheme end
 function API:GetThemeData(name)
-    name=name or ST.CurrentTheme
+    name=resolveThemeName(name or ST.CurrentTheme)
     local t=Themes[name]
     if not t then return nil,"tema inválido" end
     local out={}
@@ -5294,7 +5566,7 @@ API.Window=ST.Window
 -- large number of chunk-level locals. Runtime state lives in ST.
 -- ============================================================
 ST.Framework=ST.Framework or {}
-ST.Framework.Version="1.0.0-beta"
+ST.Framework.Version="1.1.0-beta"
 ST.Framework.KeepDefaultTabs=false
 ST.Framework.UserTabsStarted=false
 ST.Framework.Modules=ST.Framework.Modules or {}
@@ -5408,6 +5680,8 @@ function ST.Framework.IconManager:Get(name)
         local packed=ST.Framework.IconPacks[pack][icon]
         if packed then return packed end
     end
+    local defaultPack=self.Default and ST.Framework.IconPacks[self:_Norm(self.Default)]
+    if defaultPack and defaultPack[n] then return defaultPack[n] end
     local fn=IC.ByName[n]
     if fn then return {Renderer=fn,BuiltIn=true,Name=n} end
     return ST.Framework.IconRegistry[self.Default] or {Renderer=IC.Dots,BuiltIn=true,Name="dots"}
@@ -5452,7 +5726,9 @@ function ST.Framework.IconManager:Create(parent,name,opts)
     if not parent then return nil,"parent inválido" end
     opts=opts or {}
     local resolved,spec
-    if type(name)=="string" and sm(name,"^%s*<svg") then
+    if type(name)=="table" then
+        spec=name; resolved=opts.Name or name.Name or name.Key or "inline-icon"
+    elseif type(name)=="string" and sm(name,"^%s*<svg") then
         resolved=opts.Name or "custom-svg"
         spec={SVG=name}
     else
@@ -5474,20 +5750,39 @@ function ST.Framework.IconManager:Create(parent,name,opts)
         im.Name="Icon"
         im.BackgroundTransparency=1
         im.Image=spec.Image
+        local rectSize=spec.ImageRectSize or spec.RectSize
+        local rectPos=spec.ImageRectPosition or spec.ImageRectOffset or spec.RectPosition
+        if typeof(rectSize)=="Vector2" then im.ImageRectSize=rectSize elseif type(rectSize)=="table" and rectSize.X and rectSize.Y then im.ImageRectSize=V2(rectSize.X,rectSize.Y) end
+        if typeof(rectPos)=="Vector2" then im.ImageRectOffset=rectPos elseif type(rectPos)=="table" and rectPos.X and rectPos.Y then im.ImageRectOffset=V2(rectPos.X,rectPos.Y) end
         im.ImageColor3=color
-        im.ScaleType=opts.ScaleType or Enum.ScaleType.Fit
+        im.ScaleType=opts.ScaleType or (rectSize and Enum.ScaleType.Crop or Enum.ScaleType.Fit)
         im.Size=U3(size,size)
         im.AnchorPoint=V2(.5,.5)
         im.Position=opts.Position or Uv(.5,.5)
         im.Parent=holder
         root=im
+        if type(spec.Parts)=="table" then
+            local partColors=type(opts.PartsColors)=="table" and opts.PartsColors or {}
+            for partIndex,partName in ipairs(spec.Parts) do
+                local partSpec=type(partName)=="table" and partName or self:Get(partName)
+                if type(partSpec)=="table" and partSpec.Image then
+                    local layer=I("ImageLabel"); layer.Name="IconPart"..partIndex; layer.BackgroundTransparency=1; layer.Image=partSpec.Image; layer.Size=Uv(1,1); layer.Position=U3(0,0); layer.AnchorPoint=V2(0,0); layer.ZIndex=im.ZIndex+partIndex; layer.ImageColor3=typeof(partColors[partIndex])=="Color3" and partColors[partIndex] or color
+                    local psz=partSpec.ImageRectSize or partSpec.RectSize; local ppos=partSpec.ImageRectPosition or partSpec.ImageRectOffset or partSpec.RectPosition
+                    if typeof(psz)=="Vector2" then layer.ImageRectSize=psz end
+                    if typeof(ppos)=="Vector2" then layer.ImageRectOffset=ppos end
+                    layer.Parent=holder
+                end
+            end
+        end
     else
         root=IC.Dots(holder,size)
     end
     if root then
         root.Name=opts.Name or "Icon"
-        if opts.AnchorPoint then root.AnchorPoint=opts.AnchorPoint end
-        if opts.Position then root.Position=opts.Position end
+        if root:IsA("GuiObject") then
+            root.AnchorPoint=opts.AnchorPoint or V2(.5,.5)
+            root.Position=opts.Position or Uv(.5,.5)
+        end
         if opts.Size and (root:IsA("ImageLabel") or root:IsA("ImageButton")) then root.Size=U3(size,size) end
         self:_Tint(root,color)
         ST.Framework.IconInstances[root]={Name=resolved,Color=color,ThemeKey=colorKey,Size=size}
@@ -5851,6 +6146,7 @@ function API:AddTab(name,cfg)
     local rawSvg=iconType=="string" and sm(iconSpec,"^%s*<svg")~=nil
     local namespaced=iconType=="string" and sm(iconSpec,"^%s*[%w_%-]+:")~=nil
     local assetIcon=iconType=="number" or (iconType=="string" and (sm(iconSpec,"^%s*%d+$")~=nil or sm(iconSpec,"^%s*rbxassetid://%d+")~=nil))
+    local tableIcon=iconType=="table"
     local namedIcon=iconType=="string" and API.IconManager and API.IconManager:Exists(iconSpec)
     if iconType=="function" then
         local holder=I("Frame"); holder.Name="Icon"; holder.BackgroundTransparency=1; holder.Size=U3(30,30); holder.Position=U3(6,9); holder.Parent=b
@@ -5858,9 +6154,9 @@ function API:AddTab(name,cfg)
         if not ok or not ico then ico=IC.Dots(holder,iconSize) end
         ico.AnchorPoint=V2(.5,.5); ico.Position=Uv(.5,.5); IC.T(ico,CFG.SubText)
         ST.ButtonIcons[name]=IC.CT(ico); ST.ButtonIcons[name][#ST.ButtonIcons[name]+1]=ico
-    elseif API.IconManager and (namedIcon or rawSvg or namespaced or assetIcon) then
+    elseif API.IconManager and (namedIcon or rawSvg or namespaced or assetIcon or tableIcon) then
         local holder=I("Frame"); holder.Name="Icon"; holder.BackgroundTransparency=1; holder.Size=U3(30,30); holder.Position=U3(6,9); holder.Parent=b
-        local ico=API.IconManager:Create(holder,iconSpec,{Size=iconSize,Color="SubText",AnchorPoint=V2(.5,.5),Position=Uv(.5,.5)})
+        local ico=API.IconManager:Create(holder,iconSpec,{Size=iconSize,Color=cfg.IconColor or "SubText",AnchorPoint=V2(.5,.5),Position=Uv(.5,.5)})
         if ico then
             ST.ButtonIcons[name]=IC.CT(ico)
             ST.ButtonIcons[name][#ST.ButtonIcons[name]+1]=ico
@@ -6077,9 +6373,9 @@ end
 
 -- ---------- Theme manager ----------
 function API:RegisterTheme(name,data,base)
-    name=ts(name or "")
+    name=resolveThemeName(name or "")
     if name=="" or type(data)~="table" then return false,"tema inválido" end
-    local source=Themes[base or ST.CurrentTheme] or Themes.Dark
+    local source=Themes[resolveThemeName(base or ST.CurrentTheme)] or Themes.Dark
     local t={}
     for k,v in pairs(source) do t[k]=v end
     for k,v in pairs(data) do t[k]=v end
@@ -6106,7 +6402,7 @@ function API:GetThemeRegistry()
     return ST.Themed
 end
 function API:ValidateTheme(name)
-    local t=Themes[ts(name or "")]
+    local t=Themes[resolveThemeName(name or "")]
     if not t then return false,{Missing="theme"} end
     local required={"Background","Sidebar","Card","Purple","Text","SubText","Stroke","IconBg","BgButton","BgTrack","NavActive","PopupBg","DangerBg","DangerText"}
     local miss={}
@@ -6156,7 +6452,7 @@ function SM:Import(raw,applyNow)
     local ok,data=pcall(function() return S.H:JSONDecode(raw) end)
     if not ok or type(data)~="table" then return false,"json inválido" end
     if applyNow~=false then
-        if data.Theme and Themes[data.Theme] and not self.IgnoreTheme then API:ApplyTheme(data.Theme) end
+        if data.Theme and Themes[resolveThemeName(data.Theme)] and not self.IgnoreTheme then API:ApplyTheme(data.Theme) end
         if tn(data.Scale) then API:SetScale(data.Scale) end
         for id,v in pairs(data.Elements or {}) do local e=ST.Elements[id]; if e and e.Set then SafeCall("Import:"..id,e.Set,v) end end
         if type(data.Window)=="table" then
@@ -6247,7 +6543,7 @@ function SM:Load(name)
         if type(v)~="table" then return nil end
         return U2(tn(v.XS) or 0,tn(v.XO) or 0,tn(v.YS) or 0,tn(v.YO) or 0)
     end
-    if data.Theme and not self.IgnoreTheme and Themes[data.Theme] then API:ApplyTheme(data.Theme) end
+    if data.Theme and not self.IgnoreTheme and Themes[resolveThemeName(data.Theme)] then API:ApplyTheme(data.Theme) end
     if tn(data.Scale) then API:SetScale(data.Scale) end
     if data.Language then API:SetLanguage(data.Language) end
     for id,v in pairs(data.Elements or {}) do
@@ -6817,6 +7113,563 @@ API.Framework={
     Registry=API,
     Icons=API.IconManager,
 }
+
+
+-- ---------- WindUI-shaped compatibility facade (local implementation; no remote loaders) ----------
+local Compat={Version="1.1.0-beta",Source="LuaInterface",RemoteAssets=false}
+local function copyOpts(value)
+    local out={}
+    if type(value)=="table" then for k,v in pairs(value) do out[k]=v end end
+    return out
+end
+local function titleOf(cfg)
+    return cfg.Title or cfg.Name or cfg.Text or cfg.Id or "Control"
+end
+local function commonElementOptions(cfg,kind)
+    local out=copyOpts(cfg)
+    out.Index=out.Index or out.Flag or out.Id
+    out.Name=out.Name or titleOf(cfg)
+    out.Text=out.Text or titleOf(cfg)
+    out.Tooltip=out.Tooltip or out.Desc or out.Description
+    if kind=="Button" then out.Text=titleOf(cfg); out.Callback=out.Callback or out.Func
+    elseif kind=="Toggle" or kind=="Checkbox" then out.Default=out.Default; if out.Default==nil then out.Default=out.Value end; out.Callback=out.Callback or out.Func
+    elseif kind=="Slider" then
+        local value=type(cfg.Value)=="table" and cfg.Value or {}
+        out.Min=tn(out.Min or value.Min) or 0; out.Max=tn(out.Max or value.Max) or 100
+        if out.Default==nil then out.Default=value.Default or (type(cfg.Value)=="number" and cfg.Value) or out.Min end
+        out.Step=out.Step or cfg.Step
+        out.Rounding=out.Rounding or cfg.Decimals
+        out.Callback=out.Callback or out.Func
+    elseif kind=="Dropdown" then
+        out.Values=out.Values or out.Options or {}
+        if out.Default==nil then out.Default=out.Value end
+        out.AllowNull=out.AllowNull==true or out.AllowNone==true
+        out.Multi=out.Multi==true or out.MultiSelect==true
+        out.Callback=out.Callback or out.Func
+    elseif kind=="Input" then
+        if out.Default==nil then out.Default=out.Value end
+        out.Placeholder=out.Placeholder or out.PlaceholderText
+    elseif kind=="Keybind" then
+        if out.Default==nil then out.Default=out.Key or out.Value end
+        out.Mode=out.Mode or "Toggle"
+        out.Callback=out.Callback or out.Func
+    elseif kind=="Colorpicker" then
+        if out.Default==nil then out.Default=out.Value end
+        out.Callback=out.Callback or out.Func
+    end
+    return out
+end
+local function elementBuilder(container,method,cfg)
+    if type(cfg)=="string" then cfg={Title=cfg} else cfg=copyOpts(cfg) end
+    local label=titleOf(cfg)
+    if method=="Button" then return ElementAPI(container):AddButton({Index=cfg.Index or cfg.Flag or cfg.Id,Text=label,Callback=cfg.Callback or cfg.Func,Tooltip=cfg.Tooltip or cfg.Desc or cfg.Description,Disabled=cfg.Disabled,Risky=cfg.Risky,Cooldown=cfg.Cooldown}) end
+    if method=="Toggle" then return ElementAPI(container):AddToggle(cfg.Index or cfg.Flag or cfg.Id,commonElementOptions(cfg,"Toggle")) end
+    if method=="Checkbox" then return ElementAPI(container):AddCheckbox(cfg.Index or cfg.Flag or cfg.Id,commonElementOptions(cfg,"Checkbox")) end
+    if method=="Slider" then return ElementAPI(container):AddSlider(cfg.Index or cfg.Flag or cfg.Id,commonElementOptions(cfg,"Slider")) end
+    if method=="Dropdown" then
+        local options=commonElementOptions(cfg,"Dropdown")
+        local callback=options.Callback
+        if options.Multi and type(callback)=="function" then
+            options.Callback=function(value)
+                local selected={}
+                if type(value)=="table" then
+                    for key,item in pairs(value) do
+                        if type(key)=="number" then selected[#selected+1]=item elseif item==true then selected[#selected+1]=key end
+                    end
+                elseif value~=nil then selected[1]=value end
+                callback(selected)
+            end
+        end
+        return ElementAPI(container):AddDropdown(cfg.Index or cfg.Flag or cfg.Id,options)
+    end
+    if method=="Input" then
+        local c=commonElementOptions(cfg,"Input"); local cb=c.Callback; c.Callback=nil
+        local el=ElementAPI(container):AddInput(c.Index,c)
+        if el and type(cb)=="function" and el.OnChanged then el:OnChanged(cb) end
+        return el
+    end
+    if method=="Keybind" then return ElementAPI(container):AddKeybind(cfg.Index or cfg.Flag or cfg.Id,commonElementOptions(cfg,"Keybind")) end
+    if method=="Colorpicker" then return ElementAPI(container):AddColorPicker(cfg.Index or cfg.Flag or cfg.Id,commonElementOptions(cfg,"Colorpicker")) end
+    if method=="Paragraph" then return El.Paragraph(container,cfg) end
+    if method=="ProgressBar" then return El.ProgressBar(container,commonElementOptions(cfg,"ProgressBar")) end
+    if method=="Image" then return El.Image(container,cfg) end
+    if method=="Code" then return El.Code(container,cfg) end
+    if method=="Space" then return El.Space(container,cfg) end
+    if method=="Viewport" then return El.Viewport(container,cfg) end
+    if method=="Divider" then return El.Divider(container,cfg) end
+    return nil,"unsupported control: "..ts(method)
+end
+local function compatContainerAdd(container,method,cfg)
+    local target=container.GetContainer and container:GetContainer() or container.Container
+    if not target then return nil,"container is unavailable" end
+    if type(cfg)=="string" then cfg={Title=cfg} else cfg=copyOpts(cfg) end
+    if method=="Space" and container._CompatColumns then return El.Space(target,{Orientation="Horizontal",Size=cfg.Size or cfg.Width or 8}) end
+    if method=="Space" then return El.Space(target,cfg) end
+    if method=="Divider" and container._CompatColumns then return El.Divider(target,cfg) end
+    local host=target
+    if container._CompatColumns then
+        local columns=container._CompatColumns
+        local column=I("Frame"); column.Name="HStackColumn"; column.BackgroundTransparency=1; column.BorderSizePixel=0; column.AutomaticSize=Enum.AutomaticSize.Y; column.Parent=target
+        local columnLayout=I("UIListLayout"); columnLayout.SortOrder=Enum.SortOrder.LayoutOrder; columnLayout.Padding=Un(0,6); columnLayout.Parent=column
+        columns[#columns+1]=column
+        local n=#columns; local gap=tn(container._CompatGap) or 8
+        for _,item in ipairs(columns) do item.Size=U2(1/n,-gap*(n-1)/n,0,0) end
+        host=column
+    end
+    return elementBuilder(host,method,cfg)
+end
+local CompatElementMethods={Button="Button",Toggle="Toggle",Checkbox="Checkbox",Slider="Slider",Dropdown="Dropdown",Input="Input",Keybind="Keybind",Colorpicker="Colorpicker",Paragraph="Paragraph",ProgressBar="ProgressBar",Image="Image",Code="Code",Divider="Divider",Space="Space",Viewport="Viewport"}
+local function compatGroupbox(parent,cfg)
+    if type(cfg)=="string" then cfg={Title=cfg} else cfg=copyOpts(cfg) end
+    cfg.Name=cfg.Name or cfg.Title
+    cfg.Description=cfg.Description or cfg.Desc
+    cfg.IconName=cfg.IconName or cfg.Icon
+    return installContainerCompat(MakeGroupbox(parent,cfg))
+end
+local function installContainerCompat(container)
+    if not container or container._LuaInterfaceWindCompat then return container end
+    container._LuaInterfaceWindCompat=true
+    for publicName,method in pairs(CompatElementMethods) do
+        container[publicName]=function(self,cfg) return compatContainerAdd(self,method,cfg) end
+        local legacy=({Button="AddButton",Toggle="AddToggle",Checkbox="AddCheckbox",Slider="AddSlider",Dropdown="AddDropdown",Input="AddInput",Keybind="AddKeybind",Colorpicker="AddColorPicker",Image="AddImage",Code="AddCode",Divider="AddDivider",Space="AddSpace",Viewport="AddViewport"})[publicName]
+        if legacy then container[legacy]=function(self,cfg) return compatContainerAdd(self,method,cfg) end end
+    end
+    container.Group=function(self,cfg) return compatGroupbox(self:GetContainer(),cfg) end
+    container.HStack=function(self,cfg) return installContainerCompat(El.HStack(self:GetContainer(),cfg or {})) end
+    container.VStack=function(self,cfg) return installContainerCompat(El.VStack(self:GetContainer(),cfg or {})) end
+    container.GetContainer=container.GetContainer or function(self) return self.Container or self.ElementFrame end
+    return container
+end
+local function installTabCompat(tab)
+    if not tab or tab._LuaInterfaceWindCompat then return tab end
+    tab._LuaInterfaceWindCompat=true
+    tab.Select=function(self) return API:SelectTab(self.Name) end
+    tab.SetVisible=function(self,v) return API:SetTabVisible(self.Name,v) end
+    for publicName,method in pairs(CompatElementMethods) do
+        if publicName=="Space" then tab[publicName]=function(self,cfg) return El.Space(self.Container,cfg or {}) end
+        else tab[publicName]=function(self,cfg) return elementBuilder(self.Container,method,cfg) end end
+    end
+    tab.Group=function(self,cfg) return compatGroupbox(self.Container,cfg) end
+    tab.Groupbox=tab.Group
+    tab.Section=tab.Group
+    tab.HStack=function(self,cfg) return installContainerCompat(El.HStack(self.Container,cfg or {})) end
+    tab.VStack=function(self,cfg) return installContainerCompat(El.VStack(self.Container,cfg or {})) end
+    return tab
+end
+
+-- WindUI-style sidebar section labels separate groups of tabs without changing page behavior.
+ST.Framework.WindUISections=ST.Framework.WindUISections or {}
+ST.Framework.WindUISectionCount=ST.Framework.WindUISectionCount or 0
+function API:Section(cfg)
+    if type(cfg)=="string" then cfg={Title=cfg} else cfg=cfg or {} end
+    ST.Framework.WindUISectionCount=ST.Framework.WindUISectionCount+1
+    local sectionName=ts(cfg.Title or cfg.Name or ("Section "..ST.Framework.WindUISectionCount))
+    local order=1000*ST.Framework.WindUISectionCount
+    local heading=FT.L(UI.Nav,ts(cfg.Title or cfg.Name or "SECTION"),10,CFG.SubText)
+    heading.Name="TabSection_"..ts(ST.Framework.WindUISectionCount); heading.Size=U2(1,-18,0,22); heading.Position=U3(9,0); heading.TextXAlignment=Enum.TextXAlignment.Left; heading.Font=Enum.Font.GothamBold; heading.LayoutOrder=order; heading.TextTransparency=.18
+    local section={Name=sectionName,Label=heading,Order=order,Tabs={},Visible=true}
+    function section:Tab(tabCfg)
+        if type(tabCfg)=="string" then tabCfg={Title=tabCfg} else tabCfg=copyOpts(tabCfg) end
+        tabCfg.Order=tabCfg.Order or (self.Order+#self.Tabs+1); tabCfg.Section=self.Name
+        local t,err=API:Tab(tabCfg)
+        if t then self.Tabs[#self.Tabs+1]=t.Name end
+        return t,err
+    end
+    function section:SetVisible(v)
+        self.Visible=v==true; if self.Label and self.Label.Parent then self.Label.Visible=self.Visible end
+        for _,n in ipairs(self.Tabs) do API:SetTabVisible(n,self.Visible) end
+        return true
+    end
+    function section:Destroy(removeTabs)
+        if self.Label and self.Label.Parent then self.Label:Destroy() end
+        if removeTabs then for i=#self.Tabs,1,-1 do API:RemoveTab(self.Tabs[i],true) end end
+        return true
+    end
+    function section:SelectTab(index) local n=self.Tabs[index or 1]; if n then return API:SelectTab(n) end return false end
+    ST.Framework.WindUISections[#ST.Framework.WindUISections+1]=section
+    return section
+end
+function API:Tab(cfg)
+    if type(cfg)=="string" then cfg={Title=cfg} else cfg=copyOpts(cfg) end
+    local name=ts(cfg.Title or cfg.Name or "Tab")
+    local icon=cfg.Icon or cfg.IconName
+    if type(icon)=="string" and icon~="" and not sm(icon,"^%s*<svg") and not sm(icon,"^[%w_%-]+:") and API.IconManager and not API.IconManager:Exists(icon) then
+        local pack=cfg.IconPack or "lucide"
+        if API.IconManager:Exists(pack..":"..icon) then icon=pack..":"..icon end
+    end
+    local options={Name=name,Title=name,Description=cfg.Desc or cfg.Description or "",Icon=icon,IconSize=cfg.IconSize,IconColor=cfg.IconColor,Visible=cfg.Visible,Order=cfg.Order,Select=cfg.Select,Locked=cfg.Locked,IconThemed=cfg.IconThemed}
+    local tab,err=self:AddTab(name,options)
+    if tab and ST.Framework.TabMeta[name] then ST.Framework.TabMeta[name].Locked=cfg.Locked==true; ST.Framework.TabMeta[name].IconThemed=cfg.IconThemed~=false end
+    return tab,err
+end
+local _GetTabWindCompat=API.GetTab
+function API:GetTab(name)
+    local tab,err=_GetTabWindCompat(self,name)
+    if tab then installTabCompat(tab) end
+    return tab,err
+end
+local _AddTabWindCompat=API.AddTab
+function API:AddTab(name,cfg)
+    local tab,err=_AddTabWindCompat(self,name,cfg)
+    if tab then installTabCompat(tab) end
+    return tab,err
+end
+function API:SelectTab(indexOrName)
+    local name=indexOrName
+    if type(name)=="number" then
+        local all=self:GetTabs(); local item=all[name]; name=item and item.Name
+    elseif type(name)=="table" then name=name.Name or name.Title end
+    if not name then return false end
+    return SetTab(ts(name),true)
+end
+local tabChangeCallbacks={}
+local _SetTabWindCompat=SetTab
+SetTab=function(name,force)
+    local before=ST.CurrentPage
+    local meta=ST.Framework.TabMeta and ST.Framework.TabMeta[name]
+    if meta and meta.Locked and not force then return false end
+    local ok=_SetTabWindCompat(name,force)
+    if ok and before~=ST.CurrentPage then
+        for id,fn in pairs(tabChangeCallbacks) do SafeCall("WindUICompat.TabChanged:"..ts(id),fn,ST.CurrentPage,before) end
+    end
+    return ok
+end
+function API:OnTabChange(fn)
+    if type(fn)~="function" then return nil end
+    ST.Framework.NextCompatCallback=(ST.Framework.NextCompatCallback or 0)+1
+    local id=ST.Framework.NextCompatCallback; tabChangeCallbacks[id]=fn
+    return {Disconnect=function() tabChangeCallbacks[id]=nil end,Destroy=function() tabChangeCallbacks[id]=nil end}
+end
+
+-- Theme bridge: maps common WindUI token names to LuaInterface palette tokens.
+local ThemeAliases={Accent="Purple",Primary="Purple",Background="Bg",Window="Bg",Main="Bg",Topbar="Sidebar",Dialog="Card",Surface="Card",Secondary="BgButton",Tertiary="Field",Hover="CardHover",Tab="NavActive",TabActive="NavActive",Outline="Stroke",Border="Stroke",Placeholder="SubText",Icon="IconBg",ProgressBar="Purple",ProgressBarTrack="BgTrack",ProgressBarText="Text",Danger="Red",Error="Red"}
+local ThemeTags=setmetatable({}, {__mode="k"})
+local ThemeCallbacks={}
+local function themeValue(name)
+    local t=Themes[ST.CurrentTheme] or Themes.Graphite or Themes.Dark
+    return t and (t[name]~=nil and t[name] or CFG[name])
+end
+local function applyThemeTag(object,mapping)
+    if not object or not object.Parent then return end
+    for property,token in pairs(mapping) do
+        local value=token
+        if type(token)=="string" then value=themeValue(token) or themeValue(ThemeAliases[token] or token) end
+        if value~=nil then pcall(function() object[property]=value end) end
+    end
+end
+function API:SetThemeTag(object,mapping)
+    if not object or type(mapping)~="table" then return false end
+    ThemeTags[object]=mapping; applyThemeTag(object,mapping); return true
+end
+function API:ClearThemeTag(object) ThemeTags[object]=nil; return true end
+function API:OnThemeChange(fn)
+    if type(fn)~="function" then return nil end
+    ST.Framework.NextCompatCallback=(ST.Framework.NextCompatCallback or 0)+1
+    local id=ST.Framework.NextCompatCallback; ThemeCallbacks[id]=fn
+    return {Disconnect=function() ThemeCallbacks[id]=nil end,Destroy=function() ThemeCallbacks[id]=nil end}
+end
+function API:AddTheme(nameOrConfig,data,base)
+    local name=nameOrConfig
+    local source=data
+    if type(nameOrConfig)=="table" then
+        local config=nameOrConfig; name=config.Name or config.Title; source=config.Colors or config.Theme or config; base=config.BaseTheme or config.Base or base
+    end
+    if type(source)~="table" then return false,"theme colors must be a table" end
+    local normalized={}
+    for key,value in pairs(source) do
+        if key~="Name" and key~="Title" and key~="Base" and key~="BaseTheme" and key~="Colors" and key~="Theme" then
+            local target=ThemeAliases[key] or key
+            normalized[target]=value
+        end
+    end
+    for key,value in pairs(normalized) do
+        if type(value)=="string" and (normalized[value]~=nil or normalized[ThemeAliases[value]]~=nil) then normalized[key]=normalized[value] or normalized[ThemeAliases[value]]
+        elseif type(value)=="string" and value:match("^#?%x%x%x%x%x%x$") then
+            local hex=value:gsub("^#",""); local ok,color=pcall(function() return Color3.fromHex(hex) end); if ok then normalized[key]=color end
+        end
+    end
+    return self:RegisterTheme(name,normalized,base or "Graphite")
+end
+local _ApplyThemeWindCompat=API.ApplyTheme
+function API:ApplyTheme(name)
+    local before=ST.CurrentTheme
+    local result=_ApplyThemeWindCompat(self,name)
+    for object,mapping in pairs(ThemeTags) do applyThemeTag(object,mapping) end
+    if ST.CurrentTheme~=before then
+        for id,fn in pairs(ThemeCallbacks) do SafeCall("WindUICompat.ThemeChanged:"..ts(id),fn,ST.CurrentTheme,before,Themes[ST.CurrentTheme]) end
+    end
+    return result
+end
+API.ThemeManager.Add=function(_,name,data,base) return API:AddTheme(name,data,base) end
+API.ThemeManager.SetTag=function(_,object,mapping) return API:SetThemeTag(object,mapping) end
+API.ThemeManager.OnChange=function(_,fn) return API:OnThemeChange(fn) end
+
+-- WindUI icon records (Image/ImageRectSize/ImageRectPosition/Parts) are handled by the local IconManager.
+function API:AddIconPack(name,icons) return ST.Framework.IconManager:RegisterPack(name,icons) end
+function API:RegisterIcon(name,spec) return ST.Framework.IconManager:Register(name,spec) end
+function API:RegisterIconAlias(alias,target) return ST.Framework.IconManager:RegisterAlias(alias,target) end
+function API:SetIconsType(pack) ST.Framework.IconManager.Default=ts(pack or "lucide"); return true end
+function API:GetIcon(name) return ST.Framework.IconManager:Get(name) end
+function API:CreateIcon(parent,name,opts) return ST.Framework.IconManager:Create(parent,name,opts) end
+API.Icons=ST.Framework.IconManager
+API.IconManager=ST.Framework.IconManager
+API.Icon=function(a,b) return ST.Framework.IconManager:Get(b or a) end
+
+-- Shape sprite sheets from the supplied reference, kept local as Roblox asset IDs.
+local ShapeData={
+    Circle={Image="rbxassetid://111665032676235",Rect=Rect.new(512,512,512,512),Radius=512},
+    CircleOutline={Image="rbxassetid://108556680453287",Rect=Rect.new(512,512,512,512),Radius=512},
+    CircleGlass={Image="rbxassetid://95600044758841",Rect=Rect.new(512,512,512,512),Radius=512},
+    SquircleH={Image="rbxassetid://125083578015333",Rect=Rect.new(512,325,512,325),Radius=325},
+    SquircleHOutline={Image="rbxassetid://107043713170567",Rect=Rect.new(512,325,512,325),Radius=325},
+    SquircleHGlass={Image="rbxassetid://84819521201001",Rect=Rect.new(512,325,512,325),Radius=325},
+    ["SquircleH-TL-TR"]={Image="rbxassetid://90680657206619",Rect=Rect.new(807,512,807,512),Radius=325,AutoChange=false},
+    ["SquircleH-BL-BR"]={Image="rbxassetid://99216342056719",Rect=Rect.new(0,512,0,512),Radius=325,AutoChange=false},
+    SquircleV={Image="rbxassetid://124965260437653",Rect=Rect.new(325,512,325,512),Radius=325},
+    SquircleVOutline={Image="rbxassetid://88808835404198",Rect=Rect.new(325,512,325,512),Radius=325},
+    SquircleVGlass={Image="rbxassetid://124982801466667",Rect=Rect.new(325,512,325,512),Radius=325},
+    Squircle={Image="rbxassetid://89641024074289",Rect=Rect.new(460,460,460,460),Radius=310},
+    SquircleOutline={Image="rbxassetid://74029063732681",Rect=Rect.new(512,512,512,512),Radius=310},
+    SquircleGlass={Image="rbxassetid://131126436897551",Rect=Rect.new(512,512,512,512),Radius=310},
+    ["Squircle-TL-TR"]={Image="rbxassetid://75712142040725",Rect=Rect.new(512,512,512,512),Radius=310,AutoChange=false},
+    ["Squircle-BL-BR"]={Image="rbxassetid://83676684425544",Rect=Rect.new(512,0,512,0),Radius=310,AutoChange=false},
+    Square={Image="rbxassetid://82909646051652",Rect=Rect.new(512,512,512,512),Radius=512,AutoChange=false},
+}
+local ShapeAliases={["Glass-0.7"]="SquircleGlass",["Glass-1"]="SquircleGlass",["Glass-1.4"]="SquircleGlass",["Squircle-Outline"]="SquircleOutline"}
+local function shapeFamily(name)
+    local suffix=ts(name):find("Outline",1,true) and "Outline" or (ts(name):find("Glass",1,true) and "Glass" or "")
+    return suffix
+end
+local function createShape(parent,radius,shapeType,properties,asButton,autoChange)
+    if not parent then return nil,nil end
+    properties=copyOpts(properties)
+    shapeType=ShapeAliases[shapeType] or shapeType or "Circle"
+    if not ShapeData[shapeType] then shapeType="Circle" end
+    local obj=I(asButton and "ImageButton" or "ImageLabel")
+    obj.Name=properties.Name or "Shape"; obj.BackgroundTransparency=1; obj.BorderSizePixel=0
+    obj.ScaleType=Enum.ScaleType.Slice; obj.Image=ShapeData[shapeType].Image; obj.SliceCenter=ShapeData[shapeType].Rect; obj.SliceScale=1
+    if asButton then obj.Text=""; obj.AutoButtonColor=false end
+    local themeTag=properties.ThemeTag; properties.ThemeTag=nil
+    for k,v in pairs(properties) do pcall(function() obj[k]=v end) end
+    obj.Parent=parent
+    local handle={Object=obj,Radius=tn(radius) or 0,Type=shapeType,AutoChange=autoChange~=false}
+    local function updateShape()
+        local item=ShapeData[handle.Type] or ShapeData.Circle
+        handle.Radius=math.max(0,tn(handle.Radius) or 0)
+        obj.SliceScale=math.max(handle.Radius/(item.Radius or 512),0.0001)
+    end
+    function handle:SetRadius(n) n=tn(n); if not n then return false end; self.Radius=n; updateShape(); return self end
+    function handle:GetRadius() return self.Radius end
+    function handle:SetType(n)
+        n=ShapeAliases[n] or n
+        if not ShapeData[n] then return false,"unknown shape" end
+        self.Type=n; obj.Image=ShapeData[n].Image; obj.SliceCenter=ShapeData[n].Rect; updateShape(); return self
+    end
+    function handle:GetType() return self.Type end
+    function handle:SetImageColor(color) if typeof(color)~="Color3" then return false end; obj.ImageColor3=color; return true end
+    function handle:SetTransparency(value) obj.ImageTransparency=cl(tn(value) or 0,0,1); return true end
+    function handle:Destroy() if self._sizeConn then self._sizeConn:Disconnect(); self._sizeConn=nil end; if obj.Parent then obj:Destroy() end; return true end
+    if handle.AutoChange and ts(shapeType):find("Squircle",1,true) then
+        handle._sizeConn=obj:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+            if not obj.Parent then return end
+            local width,height=obj.AbsoluteSize.X,obj.AbsoluteSize.Y
+            if width<=0 or height<=0 then return end
+            local suffix=shapeFamily(handle.Type); local minDim=math.min(width,height); local ratio=handle.Radius>0 and handle.Radius/minDim or .5
+            local base
+            if width>height and ratio>=310/1024 then base="SquircleH"
+            elseif width<height and ratio>=310/1024 then base="SquircleV"
+            elseif math.abs(width-height)<1 and ratio>=310/1024 then base="Circle"
+            else base="Squircle" end
+            if base=="Circle" and suffix~="" then base="Circle"..suffix elseif suffix~="" and base~="Circle" then base=base..suffix end
+            if ShapeData[base] and base~=handle.Type then handle:SetType(base) end
+        end)
+    end
+    updateShape()
+    if themeTag then API:SetThemeTag(obj,themeTag) end
+    return obj,handle
+end
+API.Shapes={Data=ShapeData,Aliases=ShapeAliases,New=function(_,parent,radius,shapeType,properties,themeTag,asButton,autoChange)
+    properties=copyOpts(properties); if themeTag then properties.ThemeTag=themeTag end
+    return createShape(parent,radius,shapeType,properties,asButton,autoChange)
+end,Get=function(_,name) return ShapeData[ShapeAliases[name] or name] end}
+API.CreateShape=function(self,parent,cfg)
+    if type(cfg)=="string" then cfg={Type=cfg} elseif type(cfg)=="number" then cfg={Radius=cfg} else cfg=cfg or {} end
+    return createShape(parent,cfg.Radius,cfg.Type or cfg.Shape,cfg.Properties or cfg,cfg.AsButton,cfg.AutoChange)
+end
+API.NewRoundFrame=function(self,radius,shapeType,properties,parent,asButton,autoChange)
+    return createShape(parent,radius,shapeType,properties,asButton,autoChange)
+end
+API.ShapeManager=API.Shapes
+
+-- Acrylic is opt-in. A camera-facing, non-collidable glass mesh and temporary depth-of-field effect are
+-- created only while requested; existing DepthOfFieldEffect.Enabled values are restored on disable/unload.
+local Acrylic={Enabled=false,Visible=UI.Main.Visible,Distance=.75,Connections={},SavedEffects={},SavedSurfaces={}}
+local RunService=game:GetService("RunService")
+local Lighting=game:GetService("Lighting")
+local currentCamera=nil
+local glassPart=nil
+local glassMesh=nil
+local ownDof=nil
+local function rememberEffect(effect)
+    if effect and effect:IsA("DepthOfFieldEffect") and effect~=ownDof and Acrylic.SavedEffects[effect]==nil then Acrylic.SavedEffects[effect]=effect.Enabled end
+end
+local function applyDof()
+    if not Acrylic.Enabled or not Acrylic.Visible then
+        if ownDof then ownDof.Enabled=false; ownDof.Parent=nil end
+        for effect,enabled in pairs(Acrylic.SavedEffects) do if effect and effect.Parent then pcall(function() effect.Enabled=enabled end) end end
+        table.clear(Acrylic.SavedEffects)
+        return
+    end
+    for _,effect in ipairs(Lighting:GetChildren()) do rememberEffect(effect) end
+    if currentCamera then for _,effect in ipairs(currentCamera:GetChildren()) do rememberEffect(effect) end end
+    for effect in pairs(Acrylic.SavedEffects) do if effect and effect.Parent then pcall(function() effect.Enabled=false end) end end
+    if not ownDof then
+        ownDof=Instance.new("DepthOfFieldEffect"); ownDof.Name="LuaInterfaceAcrylicDepthOfField"; ownDof.FocusDistance=0; ownDof.InFocusRadius=.1; ownDof.NearIntensity=1; ownDof.FarIntensity=1
+    end
+    ownDof.Enabled=true; ownDof.Parent=Lighting
+end
+local function updateGlass()
+    if not Acrylic.Enabled or not Acrylic.Visible or not glassPart then return end
+    local camera=workspace.CurrentCamera
+    if not camera then glassPart.Transparency=1; return end
+    if currentCamera~=camera then currentCamera=camera; glassPart.Parent=camera end
+    local viewport=camera.ViewportSize
+    if viewport.X<=0 or viewport.Y<=0 then glassPart.Transparency=1; return end
+    local p=UI.Main.AbsolutePosition; local size=UI.Main.AbsoluteSize
+    if size.X<=0 or size.Y<=0 then glassPart.Transparency=1; return end
+    local depth=Acrylic.Distance
+    local fov=math.rad(camera.FieldOfView)
+    local vertical=2*depth*math.tan(fov/2)
+    local horizontal=vertical*(viewport.X/viewport.Y)
+    local scale=vertical/viewport.Y
+    local centerX=((p.X+size.X/2)/viewport.X-.5)*horizontal
+    local centerY=(.5-(p.Y+size.Y/2)/viewport.Y)*vertical
+    local center=camera.CFrame.Position+camera.CFrame.LookVector*depth+camera.CFrame.RightVector*centerX+camera.CFrame.UpVector*centerY
+    glassPart.CFrame=CFrame.fromMatrix(center,camera.CFrame.RightVector,camera.CFrame.UpVector,-camera.CFrame.LookVector)
+    glassMesh.Scale=Vector3.new(size.X*scale,size.Y*scale,1)
+    glassPart.Transparency=.985
+end
+local function ensureGlass()
+    if glassPart then return end
+    glassPart=Instance.new("Part"); glassPart.Name="LuaInterfaceAcrylicSurface"; glassPart.Anchored=true; glassPart.CanCollide=false; glassPart.CanTouch=false; glassPart.CanQuery=false; glassPart.CastShadow=false; glassPart.Locked=true; glassPart.Material=Enum.Material.Glass; glassPart.Transparency=1; glassPart.Size=Vector3.new(1,1,.002)
+    glassMesh=Instance.new("SpecialMesh"); glassMesh.MeshType=Enum.MeshType.Brick; glassMesh.Scale=Vector3.new(1,1,.002); glassMesh.Parent=glassPart
+    if workspace.CurrentCamera then currentCamera=workspace.CurrentCamera; glassPart.Parent=currentCamera end
+end
+local function setSurfaces(active)
+    local surfaces={UI.Main,UI.Sidebar}
+    if active then
+        for _,obj in ipairs(surfaces) do if obj and obj.Parent and Acrylic.SavedSurfaces[obj]==nil then Acrylic.SavedSurfaces[obj]=obj.BackgroundTransparency end end
+        if UI.Main and UI.Main.Parent then UI.Main.BackgroundTransparency=.24 end
+        if UI.Sidebar and UI.Sidebar.Parent then UI.Sidebar.BackgroundTransparency=.34 end
+    else
+        for obj,value in pairs(Acrylic.SavedSurfaces) do if obj and obj.Parent then pcall(function() obj.BackgroundTransparency=value end) end end
+        table.clear(Acrylic.SavedSurfaces)
+    end
+end
+function Acrylic:SetVisible(value)
+    self.Visible=value==true
+    if glassPart then glassPart.Transparency=(self.Enabled and self.Visible) and .985 or 1 end
+    if self.Enabled and self.Visible then setSurfaces(true); applyDof(); updateGlass() else setSurfaces(false); applyDof() end
+    return true
+end
+function Acrylic:SetEnabled(value)
+    self.Enabled=value==true; ST.Window.Acrylic=self.Enabled; ST.Window.UseAcrylic=self.Enabled
+    if self.Enabled then
+        ensureGlass(); setSurfaces(true); applyDof()
+        if not self.RenderConnection then self.RenderConnection=RunService.RenderStepped:Connect(updateGlass) end
+        self:SetVisible(UI.Main.Visible)
+    else
+        if self.RenderConnection then self.RenderConnection:Disconnect(); self.RenderConnection=nil end
+        setSurfaces(false); applyDof(); if glassPart then glassPart.Transparency=1; glassPart:Destroy(); glassPart=nil; glassMesh=nil; currentCamera=nil end
+    end
+    return true
+end
+function Acrylic:SetDistance(value) value=tn(value); if not value then return false end; self.Distance=cl(value,.6,3); updateGlass(); return true end
+function Acrylic:GetState() return {Enabled=self.Enabled,Visible=self.Visible,Distance=self.Distance} end
+function Acrylic.Destroy(self) self=self or Acrylic; self:SetEnabled(false); for _,conn in ipairs(self.Connections) do pcall(function() conn:Disconnect() end) end; self.Connections={}; if ownDof then ownDof:Destroy(); ownDof=nil end; return true end
+Acrylic.RenderConnection=nil
+Acrylic.Connections[#Acrylic.Connections+1]=Lighting.ChildAdded:Connect(function(child) if Acrylic.Enabled and Acrylic.Visible then rememberEffect(child); if child:IsA("DepthOfFieldEffect") and child~=ownDof then child.Enabled=false end end end)
+Acrylic.Connections[#Acrylic.Connections+1]=workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function() currentCamera=workspace.CurrentCamera; if glassPart and currentCamera then glassPart.Parent=currentCamera end; task.defer(updateGlass); applyDof() end)
+Acrylic.Connections[#Acrylic.Connections+1]=UI.Main:GetPropertyChangedSignal("Visible"):Connect(function() Acrylic:SetVisible(UI.Main.Visible) end)
+Acrylic.Connections[#Acrylic.Connections+1]=UI.Main:GetPropertyChangedSignal("AbsolutePosition"):Connect(updateGlass)
+Acrylic.Connections[#Acrylic.Connections+1]=UI.Main:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateGlass)
+ST.Framework.Modules.Acrylic=Acrylic
+API.Acrylic=Acrylic
+API.Framework.Acrylic=Acrylic
+function API:SetAcrylic(value) return Acrylic:SetEnabled(value) end
+function API:ToggleAcrylic(value) if value==nil then value=not Acrylic.Enabled end return Acrylic:SetEnabled(value) end
+function API:GetAcrylicState() return Acrylic:GetState() end
+
+-- Notification aliases, placement controls, and the reference's lower-edge setting.
+function API:WindNotify(cfg)
+    if type(cfg)=="string" then return LuaNotify({Content=cfg}) end
+    cfg=copyOpts(cfg)
+    cfg.Title=cfg.Title or cfg.Heading; cfg.Content=cfg.Content or cfg.Message or cfg.Description
+    cfg.Actions=cfg.Actions or cfg.Buttons
+    return LuaNotify(cfg)
+end
+local function notifyCompat(a,b)
+    local cfg=(a==API or a==API.NotificationManager) and b or a
+    return API:WindNotify(cfg)
+end
+API.Notify=notifyCompat
+API.NotificationManager.Notify=notifyCompat
+API.NotificationManager.NotifyWindow=notifyCompat
+function API:SetNotificationPosition(position)
+    local map={TopRight={V2(1,0),U2(1,-16,0,16),Enum.HorizontalAlignment.Right,Enum.VerticalAlignment.Top},TopLeft={V2(0,0),U2(0,16,0,16),Enum.HorizontalAlignment.Left,Enum.VerticalAlignment.Top},BottomRight={V2(1,1),U2(1,-16,1,-16),Enum.HorizontalAlignment.Right,Enum.VerticalAlignment.Bottom},BottomLeft={V2(0,1),U2(0,16,1,-16),Enum.HorizontalAlignment.Left,Enum.VerticalAlignment.Bottom},TopCenter={V2(.5,0),U2(.5,0,0,16),Enum.HorizontalAlignment.Center,Enum.VerticalAlignment.Top},BottomCenter={V2(.5,1),U2(.5,0,1,-16),Enum.HorizontalAlignment.Center,Enum.VerticalAlignment.Bottom}}
+    local item=map[ts(position or "TopRight")]; if not item then return false,"unknown notification position" end
+    UI.NH.AnchorPoint=item[1]; UI.NH.Position=item[2]; UI.NL.HorizontalAlignment=item[3]; UI.NL.VerticalAlignment=item[4]; return true
+end
+function API:SetNotificationLower(value) return self:SetNotificationPosition(value==false and "TopRight" or "BottomRight") end
+
+-- Normalize Window/Tab fields while keeping the existing API and defaults intact.
+ST.Window.Acrylic=false
+ST.Window.UseAcrylic=false
+local _CreateWindowWindCompat=API.CreateWindow
+local windowIconHandle=nil
+function API:CreateWindow(config)
+    local cfg=copyOpts(config)
+    local acrylic=cfg.Acrylic; if acrylic==nil then acrylic=cfg.UseAcrylic end
+    local theme=cfg.Theme or cfg.ThemeName
+    local customIcon=cfg.Icon or ST.Window.Icon
+    if cfg.Footer==nil and cfg.Author~=nil then cfg.Footer=ts(cfg.Author) end
+    if cfg.ToggleKeybind==nil and cfg.ToggleKey~=nil then cfg.ToggleKeybind=cfg.ToggleKey end
+    cfg.Acrylic=nil; cfg.UseAcrylic=nil; cfg.Theme=nil; cfg.ThemeName=nil; cfg.Author=nil; cfg.ToggleKey=nil
+    local result,err=_CreateWindowWindCompat(self,cfg)
+    if type(theme)=="table" then
+        local themeName=theme.Name or theme.Title
+        self:AddTheme(theme)
+        if themeName then self:SetTheme(themeName) end
+    elseif theme~=nil then self:SetTheme(theme) end
+    if cfg.Folder and SM and SM.SetFolder then pcall(function() SM:SetFolder(cfg.Folder) end) end
+    if windowIconHandle and windowIconHandle.Parent then windowIconHandle:Destroy(); windowIconHandle=nil end
+    if UI.LogoImg then UI.LogoImg.Visible=true end
+    local isAsset=type(customIcon)=="number" or (type(customIcon)=="string" and (customIcon:match("^%d+$") or customIcon:match("^rbxassetid://") or customIcon:match("^https?://")))
+    if customIcon~=nil and not isAsset and ST.Framework.IconManager and UI.LogoIco then
+        local iconSpec=customIcon
+        if type(iconSpec)=="string" and not iconSpec:match("^%s*<svg") and not iconSpec:match("^[%w_%-]+:") and not ST.Framework.IconManager:Exists(iconSpec) and ST.Framework.IconManager:Exists("lucide:"..iconSpec) then iconSpec="lucide:"..iconSpec end
+        UI.LogoImg.Visible=false
+        windowIconHandle=ST.Framework.IconManager:Create(UI.LogoIco,iconSpec,{Size=24,Color="Text",AnchorPoint=V2(.5,.5),Position=Uv(.5,.5)})
+        if not windowIconHandle then UI.LogoImg.Visible=true end
+    end
+    if acrylic~=nil then Acrylic:SetEnabled(acrylic) end
+    return result,err
+end
+function ST.Window:Tab(cfg) return API:Tab(cfg) end
+function ST.Window:Section(cfg) return API:Section(cfg) end
+function ST.Window:Notify(cfg) return API:WindNotify(cfg) end
+function ST.Window:SetAcrylic(value) return API:SetAcrylic(value) end
+function ST.Window:SetNotificationPosition(value) return API:SetNotificationPosition(value) end
+
+-- Existing built-in pages receive the same direct control methods as newly created tabs.
+for _,item in ipairs(API:GetTabs()) do installTabCompat(API:GetTab(item.Name)) end
+API.Framework.Sections=ST.Framework.WindUISections
+API.Framework.Shapes=API.Shapes
+API.Framework.Icons=API.IconManager
+API.Framework.Compat=Compat
+API.Framework.ThemeManager=API.ThemeManager
+API.Framework.NotificationManager=API.NotificationManager
+API.Compat={WindUI=Compat,SupportedElements={"Button","Toggle","Checkbox","Slider","Dropdown","Input","Keybind","Colorpicker","Paragraph","ProgressBar","Image","Code","Space","Divider","Group","HStack","VStack","Viewport","Groupbox","Section"}}
 
 -- ---------- safer Destroy wrapper for framework-owned tasks/objects ----------
 ST._FrameworkOriginalDestroy=ST._FrameworkOriginalDestroy or API.Destroy

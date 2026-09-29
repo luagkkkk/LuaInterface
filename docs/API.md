@@ -18,7 +18,7 @@ local Window = LuaInterface:CreateWindow({
 })
 ```
 
-`CreateWindow(config)` configures the window and returns the window API. Obsidian is the default theme. The config can include `Center`, `Position`, `ToggleKeybind`, `AutoShow`, and `KeepDefaultTabs`. By default, the first custom tab is selected and the built-in pages are removed.
+`CreateWindow(config)` configures the window and returns the window API. Graphite is the default theme (`Obsidian` remains a legacy alias). The config can include `Center`, `Position`, `ToggleKeybind`, `AutoShow`, and `KeepDefaultTabs`. By default, the first custom tab is selected and the built-in pages are removed.
 
 Common window methods:
 
@@ -29,7 +29,7 @@ Window:Toggle()
 Window:Minimize()
 Window:SetPosition(UDim2.fromScale(0.5, 0.5))
 Window:SetScale(0.9)
-Window:SetTheme("Obsidian")
+Window:SetTheme("Graphite")
 ```
 
 `RightShift` is the default global menu key. Do not reuse it for a component callback that also calls `Window:Toggle()`.

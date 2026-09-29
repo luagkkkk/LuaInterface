@@ -10,7 +10,7 @@ local Window = LuaInterface:CreateWindow({
     Title = "LuaInterface Example",
     Footer = "Basic example",
 })
-Window:SetTheme("Obsidian")
+Window:SetTheme("Graphite")
 
 -- This first user tab is selected automatically. Built-in Home/Theme pages
 -- are removed unless CreateWindow receives KeepDefaultTabs = true.

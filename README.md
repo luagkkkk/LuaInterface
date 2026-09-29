@@ -1,83 +1,52 @@
 # LuaInterface
 
-**Current version: `1.0.0-beta`** · A Roblox UI library written in Luau.
+**Current build:** `1.1.0-beta` · Roblox client UI library, written in Luau.
+**Compatibility:** WindUI v1.6.65-style API patterns mapped to LuaInterface components; see the credited adapter guide.
 
-LuaInterface provides a tabbed interface for Roblox client scripts: a responsive window, groupboxes, controls, themes, notifications, and vector icons rendered with Roblox GUI objects. The default theme is **Obsidian**, with graphite surfaces and a violet accent.
+LuaInterface's own window system, Graphite theme, tabs, groupboxes, controls, SVG icon manager, notification queue, and SaveManager remain the implementation. The adapter maps common window, tab, element, theme, shape, notification, and icon APIs onto those components. It does not bundle the reference library or run its remote loader. The compatibility guide credits the v1.6.65 reference bundle.
 
-## Load the library
+## Use the published build
 
-Run in a client environment that permits HTTP requests and `loadstring`:
+The following URL loads the published `main` build (`1.1.0-beta`):
 
 ```lua
 local source, err = loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/luagkkkk/LuaInterface/main/LuaInterface.lua"
 ))
 assert(source, err)
-
 local LuaInterface = source()
 assert(type(LuaInterface) == "table", "LuaInterface did not initialize")
-```
 
-The library needs `Players.LocalPlayer` and that player's `PlayerGui`. In a Roblox Studio project that does not allow `loadstring`, place the source in a trusted `ModuleScript` and require it from a `LocalScript`. Filesystem functions such as `readfile` and `writefile` are environment-dependent and are not needed to open the UI.
-
-## Quick start
-
-```lua
 local Window = LuaInterface:CreateWindow({
     Title = "My panel",
-    Footer = "LuaInterface 1.0.0-beta",
+    Footer = "LuaInterface",
     AutoShow = true,
 })
-
-local Reach = Window:AddTab("Reach", {
-    Icon = "lucide:target",
-    Description = "Reach controls",
-})
-
-local Controls = Reach:AddLeftGroupbox({Name = "Settings"})
-
-Controls:AddToggle("reach-enabled", {
-    Name = "Enabled",
-    Default = false,
-    Callback = function(enabled)
-        print("Reach:", enabled)
-    end,
-})
-
-Controls:AddSlider("reach-size", {
-    Name = "Size",
-    Min = 1,
-    Max = 20,
-    Default = 4,
-    Rounding = 1,
-    Callback = function(value)
-        print("Size:", value)
-    end,
-})
+local Tab = Window:AddTab("Dashboard", { Icon = "lucide:home" })
+local Group = Tab:AddLeftGroupbox({ Name = "Controls" })
+Group:AddToggle("enabled", { Name = "Enabled", Default = false })
 ```
 
-The first custom tab is selected automatically. The built-in `Home` and `Theme` pages are removed when custom tabs are added; pass `KeepDefaultTabs = true` to `CreateWindow` to keep them.
+The library needs `Players.LocalPlayer` and that player's `PlayerGui`. In Studio, put the source in a trusted `ModuleScript` and require it from a `LocalScript` if `loadstring` is unavailable. Filesystem functions are optional and only needed for SaveManager file operations.
 
-## Menu key
+## Try the compatibility example
 
-`RightShift` is the default global show/hide key. Do not bind a second action to `RightShift` that also calls `Window:Toggle()`, or one keypress can toggle the window twice. Use another key for a component keybind, or set `ToggleKeybind` when creating the window.
+1. Run `LuaInterface.lua` in a trusted Roblox client context.
+2. Run [`examples/WindUICompat.lua`](examples/WindUICompat.lua).
+3. Check navigation, spacing, components, icons, notifications, and Acrylic on the target device.
 
-## Icons and themes
+See [WindUI compatibility](docs/WINDUI-COMPATIBILITY.md) for the API mapping, reference credit, and boundaries.
 
-Tabs accept built-in names such as `lucide:target`, Roblox image IDs, simple inline SVG strings, or renderer functions. The `lucide:`, `tabler:`, and `phosphor:` prefixes map to the subset included in this repository; they are not the full upstream collections. See [Icons](docs/ICONS.md) and [Themes](docs/THEMES.md).
-
-## Guides and examples
+## Existing library guides
 
 - [Window, tabs, and controls](docs/API.md)
 - [Icons](docs/ICONS.md)
 - [Themes](docs/THEMES.md)
-- [Saving and loading configurations](docs/CONFIG.md)
-- [Lua examples](examples/): [basic UI](examples/Basic.lua), [combined controls](examples/Full.lua), [icons](examples/Icons.lua), and [notifications](examples/Notifications.lua)
+- [SaveManager](docs/CONFIG.md)
+- [Lua examples](examples/)
 
-## Project status
+## Status and license
 
-This is a beta release. Lua files are checked for syntax before updates; visual and interaction testing should be done in Roblox Studio or the target client. When reporting an issue, include the version and the full console message.
+The `1.1.0-beta` build is published on `main`. Syntax and static structure were checked locally; visual behavior, input, Acrylic blur, and Roblox asset availability still require testing in the target client/Studio.
 
-## License
-
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE). The sprite-sheet images used by the shape helper are separate Roblox-hosted assets; the source bundle's MIT notice does not establish a license for those assets.

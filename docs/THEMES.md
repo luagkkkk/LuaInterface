@@ -1,8 +1,8 @@
 # Themes
 
-LuaInterface starts with **Obsidian**: graphite surfaces, quiet borders, and a violet accent. A saved theme loaded by your script can override this default.
+LuaInterface starts with **Graphite**: dark neutral surfaces, quiet borders, and a violet accent. A saved theme loaded by your script can override this default. The legacy key `Obsidian` resolves to Graphite for compatibility.
 
-Included themes: `Obsidian`, `Dark`, `Light`, `Darker`, `Amoled`, `Rose`, `Indigo`, `Blue`, `Green`, `Red`, `Purple`, `Mellowsi`, `Ocean`, `Amber`, `Emerald`, and `Violet`.
+Included themes: `Graphite`, `Dark`, `Light`, `Darker`, `Amoled`, `Rose`, `Indigo`, `Blue`, `Green`, `Red`, `Purple`, `Mellowsi`, `Ocean`, `Amber`, `Emerald`, and `Violet`.
 
 ## Change the theme
 

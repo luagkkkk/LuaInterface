@@ -11,7 +11,7 @@ local Window = LuaInterface:CreateWindow({
     Resizable = true,
 })
 
-Window:SetTheme("Obsidian")
+Window:SetTheme("Graphite")
 
 local Tab = Window:AddTab("Settings", {
     Icon = "lucide:settings",

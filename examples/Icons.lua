@@ -6,7 +6,7 @@ local LuaInterface = source()
 assert(type(LuaInterface) == "table", "LuaInterface did not initialize")
 
 local Window = LuaInterface:CreateWindow({Title = "Icon examples"})
-Window:SetTheme("Obsidian")
+Window:SetTheme("Graphite")
 local Tab = Window:AddTab("Icons", {Icon = "lucide:settings", IconSize = 18})
 local Group = Tab:AddLeftGroupbox({Name = "IconManager", IconName = "sliders"})
 local Icons = LuaInterface.IconManager
