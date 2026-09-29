@@ -1,9 +1,4 @@
---!nonstrict
--- ============================================================
--- LUA INTERFACE v1.1.0-beta
--- Client-safe bootstrap, clean tab-first startup, Graphite theme,
--- vector/SVG tab icons, resilient selection and cleanup.
--- ============================================================
+-- LuaInterface v1.1.1-beta
 if _G.LuaInterface and _G.LuaInterface.Destroy then pcall(function()_G.LuaInterface:Destroy()end)end
 _G.LuaInterface=(function()
 local S={P=game:GetService("Players"),R=game:GetService("RunService"),U=game:GetService("UserInputService"),T=game:GetService("TweenService"),St=game:GetService("Stats"),M=game:GetService("MarketplaceService"),H=game:GetService("HttpService"),D=game:GetService("Debris"),TP=game:GetService("TeleportService"),G=game:GetService("GuiService"),CP=game:GetService("ContentProvider")}
@@ -36,7 +31,7 @@ local ty,ts,tn=typeof,tostring,tonumber
 local trem,tins=table.remove,table.insert
 local I=Instance.new
 
-local CFG={Name="LuaInterface",Version="v1.1.0-beta",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
+local CFG={Name="LuaInterface",Version="v1.1.1-beta",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
 local IMA={FPS="88339611171447",Ping="126112532632455",Home="107671250314081",Keybind="126112532632455",Lua="104650551286971"}
 
 -- Tema normalizado: os campos públicos seguem a estrutura Accent/Background/Outline/Text/Placeholder/Button/Icon,
@@ -57,7 +52,7 @@ local function MakeTheme(bg,sidebar,card,hover,field,accent,accentSoft,text,sub,
     local Icon=c3hex(icon)
     return {
         E="●",
-        -- Estrutura de tema compatível com o modelo WindUI-compatible
+        -- Estrutura de tema compatível com o modelo reference-compatible
         Accent=Accent, Background=Background, Outline=Outline, Text=Text, Placeholder=Placeholder, Button=Button, Icon=Icon,
         -- Superfícies
         Bg=Background, Sidebar=c3hex(sidebar), Card=Panel, CardHover=c3hex(hover), Field=c3hex(field),
@@ -104,7 +99,7 @@ local Themes={
     ["Violet"]=MakeTheme("#0E0917","#08050E","#1B1029","#29183E","#120B1C","#9A6BFF","#B695FF","#F5EEFF","#BDAAD4","#37234D","#29183E","#C19BFF","#3F1427","#FF9FBC")
 }
 
-local ThemeNameAliases={Obsidian="Graphite"}
+local ThemeNameAliases={}
 local function resolveThemeName(name)
     name=ts(name or "")
     return ThemeNameAliases[name] or name
@@ -497,6 +492,12 @@ function FT.H(F,st)
 end
 
 local IC={}
+local ICON_SVG={
+    Open=[=[<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/><path d="m21 3-9 9"/><path d="M15 3h6v6"/></svg>]=],
+    Close=[=[<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 21h6a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6"/><path d="m3 21 9-9"/><path d="M9 21H3v-6"/></svg>]=],
+    Bell=[=[<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>]=],
+    Maximize=[=[<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>]=],
+}
 local function IL(p,t,x1,y1,x2,y2)
     local dx,dy=x2-x1,y2-y1
     local l=sq(dx*dx+dy*dy)
@@ -537,7 +538,19 @@ local function ID(p,cx,cy,d)
     local c=I("UICorner") c.CornerRadius=Un(1,0) c.Parent=f
     return f
 end
-local function ICo(p,sz) local c=I("Frame") c.Name="VectorIcon" c.BackgroundTransparency=1 c.Size=U3(sz,sz) c.Parent=p return c end
+local function ICo(p,sz)
+    local c=I("Frame")
+    c.Name="VectorIcon"
+    c.BackgroundTransparency=1
+    c.Size=U3(sz,sz)
+    c.AnchorPoint=V2(.5,.5)
+    c.Position=Uv(.5,.5)
+    local parentZ=1
+    if p and p:IsA("GuiObject") then parentZ=p.ZIndex end
+    c.ZIndex=parentZ+1
+    c.Parent=p
+    return c
+end
 
 function IC.Home(p,sz)
     local c=ICo(p,sz) local s,t=sz/24,ma(1.4,sz*.08)
@@ -547,12 +560,10 @@ function IC.Home(p,sz)
     IL(c,t,15*s,21*s,15*s,14*s) IL(c,t,9*s,14*s,15*s,14*s)
     return c
 end
-function IC.Bell(p,sz)
-    local c=ICo(p,sz) local s,t=sz/24,ma(1.4,sz*.08)
-    IL(c,t,12*s,2.5*s,12*s,5*s) IR(c,t,5*s,4.5*s,14*s,12.5*s,7*s)
-    IL(c,t,3*s,17*s,21*s,17*s) ID(c,12*s,20*s,2.4*s)
-    return c
-end
+function IC.Bell(p,sz) return IC.SVG(p,sz,ICON_SVG.Bell) end
+function IC.OpenMenu(p,sz) return IC.SVG(p,sz,ICON_SVG.Open) end
+function IC.CloseMenu(p,sz) return IC.SVG(p,sz,ICON_SVG.Close) end
+function IC.Maximize(p,sz) return IC.SVG(p,sz,ICON_SVG.Maximize) end
 function IC.Alert(p,sz)
     local c=ICo(p,sz) local s,t=sz/24,ma(1.4,sz*.08)
     IL(c,t,12*s,3*s,2*s,19.5*s) IL(c,t,12*s,3*s,22*s,19.5*s)
@@ -1094,21 +1105,31 @@ function IC.SVG(parent,size,markup,options)
         end
     end
     if tagCount==0 or #root:GetChildren()==0 then root:Destroy(); return nil end
+    local iconZ=root.ZIndex
+    for _,node in ipairs(root:GetDescendants()) do
+        if node:IsA("GuiObject") then node.ZIndex=iconZ end
+    end
     return root
 end
 
 local SVGIcons={
     home='<svg viewBox="0 0 24 24"><path d="M3 10 L12 3 L21 10 V21 H14 V15 H10 V21 H3 Z"/></svg>',
-    bell='<svg viewBox="0 0 24 24"><path d="M18 8 A6 6 0 0 0 6 8 C6 15 3 15 3 17 H21 C21 15 18 15 18 8 M10 21 H14"/></svg>',
+    bell=ICON_SVG.Bell,
+    boxes='<svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5M3 16l9 5 9-5M12 13v8"/></svg>',
+    monitor='<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+    wrench='<svg viewBox="0 0 24 24"><path d="M14.7 6.3a6 6 0 0 0-7.8 7.8L3.5 17.5a2.1 2.1 0 0 0 3 3l3.4-3.4a6 6 0 0 0 7.8-7.8l-3.4 3.4-4-4z"/></svg>',
     activity='<svg viewBox="0 0 24 24"><path d="M2 12 H6 L9 4 L15 20 L18 12 H22"/></svg>',
     user='<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21 C4 16 7 14 12 14 C17 14 20 16 20 21"/></svg>',
     keyboard='<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9 H6.1 M10 9 H10.1 M14 9 H14.1 M18 9 H18.1 M7 13 H17 M9 16 H15"/></svg>',
     server='<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="8" rx="2"/><rect x="3" y="13" width="18" height="8" rx="2"/><path d="M7 7 H7.1 M7 17 H7.1 M11 7 H17 M11 17 H17"/></svg>',
-    save='<svg viewBox="0 0 24 24"><path d="M4 3 H18 L21 6 V21 H3 V3 Z M7 3 V9 H16 V3 M7 21 V13 H17 V21"/></svg>',
+    save='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>',
     settings='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15 A8 8 0 0 0 20 12 L22 10 L20 6 L17 7 A8 8 0 0 0 15 6 L14 3 H10 L9 6 A8 8 0 0 0 7 7 L4 6 L2 10 L4 12 A8 8 0 0 0 4.6 15 L3 18 L7 21 L9 19 A8 8 0 0 0 12 20 L14 22 L18 20 L17 17 Z"/></svg>',
     info='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 11 V17 M12 7 H12.1"/></svg>',
     trash='<svg viewBox="0 0 24 24"><path d="M3 6 H21 M8 6 V4 H16 V6 M6 6 L7 21 H17 L18 6 M10 10 V17 M14 10 V17"/></svg>',
     ['arrow-right']='<svg viewBox="0 0 24 24"><path d="M5 12 H19 M12 5 L19 12 L12 19"/></svg>',
+    ['square-arrow-out-up-right']=ICON_SVG.Open,
+    ['square-arrow-out-down-left']=ICON_SVG.Close,
+    maximize=ICON_SVG.Maximize,
     x='<svg viewBox="0 0 24 24"><path d="M18 6 L6 18 M6 6 L18 18"/></svg>',
     alert='<svg viewBox="0 0 24 24"><path d="M12 3 L22 21 H2 Z M12 9 V14 M12 17 H12.1"/></svg>',
     ['alert-circle']='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8 V13 M12 17 H12.1"/></svg>',
@@ -1135,6 +1156,9 @@ local function MakeSVGRenderer(markup)
 end
 
 IC.ByName={home=IC.Home,bell=IC.Bell,alert=IC.Alert,activity=IC.Activity,user=IC.User,keyboard=IC.Keyboard,ping=IC.Ping,server=IC.Server,save=IC.Save,settings=IC.Settings,info=IC.Info,trash=IC.Trash,["trash-2"]=IC.Trash,["arrow-right"]=IC.ArrowR,x=IC.X,["alert-circle"]=IC.Alert,monitor=IC.Settings,boxes=IC.Settings,wrench=IC.Settings,dots=IC.Dots,moon=IC.Moon,plus=IC.Plus,minus=IC.Minus,check=IC.Check,search=IC.Search,menu=IC.Menu,eye=IC.Eye,["eye-off"]=IC.EyeOff,shield=IC.Shield,sword=IC.Sword,swords=IC.Swords,target=IC.Target,crosshair=IC.Crosshair,zap=IC.Zap,play=IC.Play,pause=IC.Pause,["chevron-down"]=IC.ChevronDown,["chevron-up"]=IC.ChevronUp,["chevron-left"]=IC.ChevronLeft,["chevron-right"]=IC.ChevronRight,refresh=IC.Refresh,download=IC.Download,upload=IC.Upload,copy=IC.Copy,edit=IC.Edit,folder=IC.Folder,lock=IC.Lock,unlock=IC.Unlock,star=IC.Star,heart=IC.Heart,palette=IC.Palette,sliders=IC.Sliders,filter=IC.Filter,list=IC.List,grid=IC.Grid,smartphone=IC.Smartphone,gamepad=IC.Gamepad,globe=IC.Globe,clock=IC.Clock,volume=IC.Volume,mic=IC.Mic,trophy=IC.Trophy,users=IC.Users,package=IC.Package,database=IC.Database,terminal=IC.Terminal,code=IC.Code,help=IC.Help,sparkles=IC.Sparkles}
+IC.ByName.open=IC.OpenMenu
+IC.ByName.close=IC.CloseMenu
+IC.ByName.maximize=IC.Maximize
 
 for svgName,svgMarkup in pairs(SVGIcons) do
     IC.ByName[svgName]=MakeSVGRenderer(svgMarkup)
@@ -1587,50 +1611,51 @@ Reg(UI.GStroke,"Color","Stroke")
 UI.Avatar=I("ImageLabel")
 UI.Avatar.Size=U3(55,55)
 UI.Avatar.Position=U3(18,17)
-UI.Avatar.BackgroundColor3=CFG.AvatarBg
+UI.Avatar.BackgroundTransparency=1
 UI.Avatar.BorderSizePixel=0
+UI.Avatar.ImageTransparency=1
+UI.Avatar.ScaleType=Enum.ScaleType.Crop
+UI.Avatar.ClipsDescendants=true
+UI.Avatar.ZIndex=5
 UI.Avatar.Parent=UI.Greet
 FT.C(UI.Avatar,14)
-Reg(UI.Avatar,"BackgroundColor3","AvatarBg")
+UI.AvatarFallback=I("Frame")
+UI.AvatarFallback.Name="AvatarFallback"
+UI.AvatarFallback.Size=Uv(1,1)
+UI.AvatarFallback.Position=U3(0,0)
+UI.AvatarFallback.BackgroundColor3=CFG.AvatarBg
+UI.AvatarFallback.BorderSizePixel=0
+UI.AvatarFallback.ZIndex=6
+UI.AvatarFallback.Parent=UI.Avatar
+FT.C(UI.AvatarFallback,14)
+Reg(UI.AvatarFallback,"BackgroundColor3","AvatarBg")
+local avatarGlyph=IC.User(UI.AvatarFallback,24)
+if avatarGlyph then
+    avatarGlyph.ZIndex=7
+    for _,node in ipairs(avatarGlyph:GetDescendants()) do if node:IsA("GuiObject") then node.ZIndex=7 end end
+    IC.T(avatarGlyph,CFG.SubText)
+end
+local function revealAvatar()
+    if UI.Avatar and UI.Avatar.Parent and UI.Avatar.IsLoaded then
+        UI.Avatar.ImageTransparency=0
+        if UI.AvatarFallback then UI.AvatarFallback.Visible=false end
+        return true
+    end
+    return false
+end
+Tk(UI.Avatar:GetPropertyChangedSignal("IsLoaded"):Connect(revealAvatar))
+UI.Avatar.Image="rbxthumb://type=AvatarHeadShot&id="..ts(S.LP.UserId).."&w=100&h=100"
 task.spawn(function()
-    local ok,av=pcall(function()
-        return S.P:GetUserThumbnailAsync(S.LP.UserId,Enum.ThumbnailType.HeadShot,Enum.ThumbnailSize.Size100x100)
-    end)
-    if not UI.Avatar or not UI.Avatar.Parent then return end
-    if ok and av then
-        UI.Avatar.Image=av
-        Tk(UI.Avatar:GetPropertyChangedSignal("IsLoaded"):Connect(function()
-            if not UI.Avatar or not UI.Avatar.Parent then return end
-            if not UI.Avatar.IsLoaded then
-                UI.Avatar.Visible=false
-                local dn0=S.LP.DisplayName or S.LP.Name or "P"
-                local initials=ss(dn0,1,2)
-                local fb=FT.L(UI.Greet,string.upper(initials),20,CFG.Text)
-                fb.Position=U3(18,17)
-                fb.Size=U3(55,55)
-                fb.TextXAlignment=Enum.TextXAlignment.Center
-                fb.Font=Enum.Font.GothamBold
-            end
-        end))
-    else
-        UI.Avatar.Visible=false
-        local dn0=S.LP.DisplayName or S.LP.Name or "P"
-        local initials=ss(dn0,1,2)
-        local fb=FT.L(UI.Greet,string.upper(initials),20,CFG.Text)
-        fb.Position=U3(18,17)
-        fb.Size=U3(55,55)
-        fb.TextXAlignment=Enum.TextXAlignment.Center
-        fb.Font=Enum.Font.GothamBold
+    for attempt=1,8 do
+        if not UI.Avatar or not UI.Avatar.Parent then return end
+        local ok,uri,isReady=pcall(function()
+            return S.P:GetUserThumbnailAsync(S.LP.UserId,Enum.ThumbnailType.HeadShot,Enum.ThumbnailSize.Size100x100)
+        end)
+        if ok and type(uri)=="string" and uri~="" then UI.Avatar.Image=uri end
+        if revealAvatar() then return end
+        task.wait(isReady==true and .35 or .65)
     end
-end)
-task.delay(6,function()
-    if UI.Avatar and UI.Avatar.Parent and not UI.Avatar.IsLoaded and UI.Avatar.Image~="" then
-        UI.Avatar.Visible=false
-        local dn0=S.LP.DisplayName or S.LP.Name or "P"
-        local initials=string.upper(ss(dn0,1,2))
-        local fb=FT.L(UI.Greet,initials,20,CFG.Text)
-        fb.Position=U3(18,17); fb.Size=U3(55,55); fb.TextXAlignment=Enum.TextXAlignment.Center; fb.Font=Enum.Font.GothamBold
-    end
+    revealAvatar()
 end)
 local dnSafe=S.LP.DisplayName
 if not dnSafe or dnSafe=="" then dnSafe=S.LP.Name or "Player" end
@@ -1973,15 +1998,19 @@ local function HdrBtn(txt,sz)
     return B
 end
 UI.MinB=HdrBtn("—",22)
-UI.FSB=HdrBtn("⛶",20)
-UI.Close=HdrBtn("×",28)
+UI.FSB=HdrBtn("",20)
+UI.Close=HdrBtn("",28)
+UI.FSIcon=IC.Maximize(UI.FSB,17)
+UI.CloseIcon=IC.CloseMenu(UI.Close,17)
+if UI.FSIcon then UI.FSIcon.ZIndex=52; IC.T(UI.FSIcon,CFG.SubText) end
+if UI.CloseIcon then UI.CloseIcon.ZIndex=52; IC.T(UI.CloseIcon,CFG.SubText) end
 UI.Close.ZIndex=51
 Tk(UI.MinB.MouseEnter:Connect(function() FT.T(UI.MinB,{TextColor3=CFG.Text},.15) end))
 Tk(UI.MinB.MouseLeave:Connect(function() FT.T(UI.MinB,{TextColor3=CFG.SubText},.15) end))
-Tk(UI.FSB.MouseEnter:Connect(function() FT.T(UI.FSB,{TextColor3=CFG.Text},.15) end))
-Tk(UI.FSB.MouseLeave:Connect(function() FT.T(UI.FSB,{TextColor3=CFG.SubText},.15) end))
-Tk(UI.Close.MouseEnter:Connect(function() FT.T(UI.Close,{TextColor3=CFG.Text,Rotation=90},.2) end))
-Tk(UI.Close.MouseLeave:Connect(function() FT.T(UI.Close,{TextColor3=CFG.SubText,Rotation=0},.2) end))
+Tk(UI.FSB.MouseEnter:Connect(function() FT.T(UI.FSB,{TextColor3=CFG.Text},.15); IC.T(UI.FSIcon,CFG.Text) end))
+Tk(UI.FSB.MouseLeave:Connect(function() FT.T(UI.FSB,{TextColor3=CFG.SubText},.15); IC.T(UI.FSIcon,CFG.SubText) end))
+Tk(UI.Close.MouseEnter:Connect(function() FT.T(UI.Close,{TextColor3=CFG.Text},.2); IC.T(UI.CloseIcon,CFG.Text) end))
+Tk(UI.Close.MouseLeave:Connect(function() FT.T(UI.Close,{TextColor3=CFG.SubText},.2); IC.T(UI.CloseIcon,CFG.SubText) end))
 
 UI.OpenB=I("TextButton")
 UI.OpenB.Name="LuaOpenButton"
@@ -2007,17 +2036,9 @@ UI.OpenBGL.ZIndex=1
 UI.OpenBGL.Parent=UI.OpenB
 FT.C(UI.OpenBGL,21)
 Reg(UI.OpenBGL,"BackgroundColor3","IconBg")
-UI.OpenBL=I("ImageLabel")
-UI.OpenBL.BackgroundTransparency=1
-UI.OpenBL.Size=U3(30,30)
-UI.OpenBL.Position=U3(32,29)
-UI.OpenBL.AnchorPoint=V2(.5,.5)
-UI.OpenBL.Image="rbxassetid://"..IMA.Lua
-UI.OpenBL.ImageColor3=CFG.Purple
-UI.OpenBL.ScaleType=Enum.ScaleType.Fit
-UI.OpenBL.ZIndex=2
-UI.OpenBL.Parent=UI.OpenB
-Reg(UI.OpenBL,"ImageColor3","Purple")
+UI.OpenBGL.ClipsDescendants=true
+UI.OpenIcon=IC.OpenMenu(UI.OpenBGL,22)
+if UI.OpenIcon then UI.OpenIcon.ZIndex=2; IC.T(UI.OpenIcon,WH) end
 UI.OpenBT=FT.L(UI.OpenB,CFG.Name or "Lua",16,CFG.Text)
 UI.OpenBT.Position=U3(60,0)
 UI.OpenBT.Size=U2(1,-72,1,0)
@@ -2025,17 +2046,6 @@ UI.OpenBT.TextXAlignment=Enum.TextXAlignment.Center
 UI.OpenBT.Font=Enum.Font.GothamBold
 UI.OpenBT.ZIndex=2
 Reg(UI.OpenBT,"TextColor3","Text")
-Tk(UI.OpenBL:GetPropertyChangedSignal("IsLoaded"):Connect(function()
-    if UI.OpenBL.Parent and not UI.OpenBL.IsLoaded then
-        UI.OpenBL.Visible=false
-        local fb=FT.L(UI.OpenB,"L",22,CFG.Purple)
-        fb.Size=U3(42,42)
-        fb.Position=U3(11,8)
-        fb.TextXAlignment=Enum.TextXAlignment.Center
-        fb.Font=Enum.Font.GothamBold
-        fb.ZIndex=3
-    end
-end))
 
 local CachedVP=V2(800,600)
 local function GetVP()
@@ -2950,8 +2960,12 @@ local function LuaNotifyImpl(cfg)
     local title=cfg.Title or cfg.Heading or (ntype=="Success" and "Sucesso" or ntype=="Warning" and "Aviso" or ntype=="Error" and "Erro" or CFG.Name)
     local content=cfg.Content or cfg.Description or cfg.Message or ""
     local time=ma(0,tn(cfg.Duration or cfg.Time) or CFG.NotifyDur)
-    local ic=cfg.IconColor
-    if ty(ic)~="Color3" then ic=typeColors[ntype] or CFG.Purple end
+    local iconSpec=cfg.Icon
+    local defaultBell=iconSpec==nil
+    if defaultBell then iconSpec=ICON_SVG.Bell end
+    local customIconColor=ty(cfg.IconColor)=="Color3" and cfg.IconColor or nil
+    local ic=customIconColor or typeColors[ntype] or CFG.Purple
+    local glyphColor=customIconColor or (defaultBell and WH or ic)
     local persist=cfg.Persist or false
     local Actions=cfg.Actions or cfg.Buttons
     local dedupe=cfg.DedupeKey
@@ -3026,9 +3040,9 @@ local function LuaNotifyImpl(cfg)
     Dsc.Parent=C
     Reg(Dsc,"TextColor3","SubText")
     local notificationIconHolder=nil
-    if cfg.Icon and ST.Framework.IconManager then
+    if iconSpec and ST.Framework.IconManager then
         notificationIconHolder=I("Frame"); notificationIconHolder.Name="NotificationIcon"; notificationIconHolder.BackgroundTransparency=1; notificationIconHolder.Size=U3(22,22); notificationIconHolder.Position=U3(12,11); notificationIconHolder.ZIndex=3; notificationIconHolder.Parent=C
-        local icon=ST.Framework.IconManager:Create(notificationIconHolder,cfg.Icon,{Size=18,Color=ic,AnchorPoint=V2(.5,.5),Position=Uv(.5,.5)})
+        local icon=ST.Framework.IconManager:Create(notificationIconHolder,iconSpec,{Size=18,Color=glyphColor,AnchorPoint=V2(.5,.5),Position=Uv(.5,.5)})
         if icon then TL.Position=U3(40,12); TL.Size=U2(1,-88,0,20); Dsc.Position=U3(40,34); Dsc.Size=U2(1,-52,0,20) else notificationIconHolder:Destroy(); notificationIconHolder=nil end
     end
     local Pad=I("Frame")
@@ -5566,7 +5580,7 @@ API.Window=ST.Window
 -- large number of chunk-level locals. Runtime state lives in ST.
 -- ============================================================
 ST.Framework=ST.Framework or {}
-ST.Framework.Version="1.1.0-beta"
+ST.Framework.Version="1.1.1-beta"
 ST.Framework.KeepDefaultTabs=false
 ST.Framework.UserTabsStarted=false
 ST.Framework.Modules=ST.Framework.Modules or {}
@@ -7115,8 +7129,8 @@ API.Framework={
 }
 
 
--- ---------- WindUI-shaped compatibility facade (local implementation; no remote loaders) ----------
-local Compat={Version="1.1.0-beta",Source="LuaInterface",RemoteAssets=false}
+-- ---------- API compatibility facade ----------
+local Compat={Version="1.1.1-beta",Source="LuaInterface",RemoteAssets=false}
 local function copyOpts(value)
     local out={}
     if type(value)=="table" then for k,v in pairs(value) do out[k]=v end end
@@ -7257,16 +7271,16 @@ local function installTabCompat(tab)
     return tab
 end
 
--- WindUI-style sidebar section labels separate groups of tabs without changing page behavior.
-ST.Framework.WindUISections=ST.Framework.WindUISections or {}
-ST.Framework.WindUISectionCount=ST.Framework.WindUISectionCount or 0
+-- Sidebar section labels separate groups of tabs without changing page behavior.
+ST.Framework.CompatSections=ST.Framework.CompatSections or {}
+ST.Framework.CompatSectionCount=ST.Framework.CompatSectionCount or 0
 function API:Section(cfg)
     if type(cfg)=="string" then cfg={Title=cfg} else cfg=cfg or {} end
-    ST.Framework.WindUISectionCount=ST.Framework.WindUISectionCount+1
-    local sectionName=ts(cfg.Title or cfg.Name or ("Section "..ST.Framework.WindUISectionCount))
-    local order=1000*ST.Framework.WindUISectionCount
+    ST.Framework.CompatSectionCount=ST.Framework.CompatSectionCount+1
+    local sectionName=ts(cfg.Title or cfg.Name or ("Section "..ST.Framework.CompatSectionCount))
+    local order=1000*ST.Framework.CompatSectionCount
     local heading=FT.L(UI.Nav,ts(cfg.Title or cfg.Name or "SECTION"),10,CFG.SubText)
-    heading.Name="TabSection_"..ts(ST.Framework.WindUISectionCount); heading.Size=U2(1,-18,0,22); heading.Position=U3(9,0); heading.TextXAlignment=Enum.TextXAlignment.Left; heading.Font=Enum.Font.GothamBold; heading.LayoutOrder=order; heading.TextTransparency=.18
+    heading.Name="TabSection_"..ts(ST.Framework.CompatSectionCount); heading.Size=U2(1,-18,0,22); heading.Position=U3(9,0); heading.TextXAlignment=Enum.TextXAlignment.Left; heading.Font=Enum.Font.GothamBold; heading.LayoutOrder=order; heading.TextTransparency=.18
     local section={Name=sectionName,Label=heading,Order=order,Tabs={},Visible=true}
     function section:Tab(tabCfg)
         if type(tabCfg)=="string" then tabCfg={Title=tabCfg} else tabCfg=copyOpts(tabCfg) end
@@ -7286,7 +7300,7 @@ function API:Section(cfg)
         return true
     end
     function section:SelectTab(index) local n=self.Tabs[index or 1]; if n then return API:SelectTab(n) end return false end
-    ST.Framework.WindUISections[#ST.Framework.WindUISections+1]=section
+    ST.Framework.CompatSections[#ST.Framework.CompatSections+1]=section
     return section
 end
 function API:Tab(cfg)
@@ -7330,7 +7344,7 @@ SetTab=function(name,force)
     if meta and meta.Locked and not force then return false end
     local ok=_SetTabWindCompat(name,force)
     if ok and before~=ST.CurrentPage then
-        for id,fn in pairs(tabChangeCallbacks) do SafeCall("WindUICompat.TabChanged:"..ts(id),fn,ST.CurrentPage,before) end
+        for id,fn in pairs(tabChangeCallbacks) do SafeCall("Compat.TabChanged:"..ts(id),fn,ST.CurrentPage,before) end
     end
     return ok
 end
@@ -7341,7 +7355,7 @@ function API:OnTabChange(fn)
     return {Disconnect=function() tabChangeCallbacks[id]=nil end,Destroy=function() tabChangeCallbacks[id]=nil end}
 end
 
--- Theme bridge: maps common WindUI token names to LuaInterface palette tokens.
+-- Theme bridge: maps adapter token names to LuaInterface palette tokens.
 local ThemeAliases={Accent="Purple",Primary="Purple",Background="Bg",Window="Bg",Main="Bg",Topbar="Sidebar",Dialog="Card",Surface="Card",Secondary="BgButton",Tertiary="Field",Hover="CardHover",Tab="NavActive",TabActive="NavActive",Outline="Stroke",Border="Stroke",Placeholder="SubText",Icon="IconBg",ProgressBar="Purple",ProgressBarTrack="BgTrack",ProgressBarText="Text",Danger="Red",Error="Red"}
 local ThemeTags=setmetatable({}, {__mode="k"})
 local ThemeCallbacks={}
@@ -7390,13 +7404,13 @@ function API:AddTheme(nameOrConfig,data,base)
     end
     return self:RegisterTheme(name,normalized,base or "Graphite")
 end
-local _ApplyThemeWindCompat=API.ApplyTheme
+local _ApplyThemeCompat=API.ApplyTheme
 function API:ApplyTheme(name)
     local before=ST.CurrentTheme
-    local result=_ApplyThemeWindCompat(self,name)
+    local result=_ApplyThemeCompat(self,name)
     for object,mapping in pairs(ThemeTags) do applyThemeTag(object,mapping) end
     if ST.CurrentTheme~=before then
-        for id,fn in pairs(ThemeCallbacks) do SafeCall("WindUICompat.ThemeChanged:"..ts(id),fn,ST.CurrentTheme,before,Themes[ST.CurrentTheme]) end
+        for id,fn in pairs(ThemeCallbacks) do SafeCall("Compat.ThemeChanged:"..ts(id),fn,ST.CurrentTheme,before,Themes[ST.CurrentTheme]) end
     end
     return result
 end
@@ -7404,7 +7418,7 @@ API.ThemeManager.Add=function(_,name,data,base) return API:AddTheme(name,data,ba
 API.ThemeManager.SetTag=function(_,object,mapping) return API:SetThemeTag(object,mapping) end
 API.ThemeManager.OnChange=function(_,fn) return API:OnThemeChange(fn) end
 
--- WindUI icon records (Image/ImageRectSize/ImageRectPosition/Parts) are handled by the local IconManager.
+-- Icon records (Image/ImageRectSize/ImageRectPosition/Parts) are handled by the local IconManager.
 function API:AddIconPack(name,icons) return ST.Framework.IconManager:RegisterPack(name,icons) end
 function API:RegisterIcon(name,spec) return ST.Framework.IconManager:Register(name,spec) end
 function API:RegisterIconAlias(alias,target) return ST.Framework.IconManager:RegisterAlias(alias,target) end
@@ -7601,7 +7615,7 @@ function API:ToggleAcrylic(value) if value==nil then value=not Acrylic.Enabled e
 function API:GetAcrylicState() return Acrylic:GetState() end
 
 -- Notification aliases, placement controls, and the reference's lower-edge setting.
-function API:WindNotify(cfg)
+function API:CompatNotify(cfg)
     if type(cfg)=="string" then return LuaNotify({Content=cfg}) end
     cfg=copyOpts(cfg)
     cfg.Title=cfg.Title or cfg.Heading; cfg.Content=cfg.Content or cfg.Message or cfg.Description
@@ -7610,7 +7624,7 @@ function API:WindNotify(cfg)
 end
 local function notifyCompat(a,b)
     local cfg=(a==API or a==API.NotificationManager) and b or a
-    return API:WindNotify(cfg)
+    return API:CompatNotify(cfg)
 end
 API.Notify=notifyCompat
 API.NotificationManager.Notify=notifyCompat
@@ -7625,7 +7639,7 @@ function API:SetNotificationLower(value) return self:SetNotificationPosition(val
 -- Normalize Window/Tab fields while keeping the existing API and defaults intact.
 ST.Window.Acrylic=false
 ST.Window.UseAcrylic=false
-local _CreateWindowWindCompat=API.CreateWindow
+local _CreateWindowCompat=API.CreateWindow
 local windowIconHandle=nil
 function API:CreateWindow(config)
     local cfg=copyOpts(config)
@@ -7635,7 +7649,7 @@ function API:CreateWindow(config)
     if cfg.Footer==nil and cfg.Author~=nil then cfg.Footer=ts(cfg.Author) end
     if cfg.ToggleKeybind==nil and cfg.ToggleKey~=nil then cfg.ToggleKeybind=cfg.ToggleKey end
     cfg.Acrylic=nil; cfg.UseAcrylic=nil; cfg.Theme=nil; cfg.ThemeName=nil; cfg.Author=nil; cfg.ToggleKey=nil
-    local result,err=_CreateWindowWindCompat(self,cfg)
+    local result,err=_CreateWindowCompat(self,cfg)
     if type(theme)=="table" then
         local themeName=theme.Name or theme.Title
         self:AddTheme(theme)
@@ -7657,19 +7671,19 @@ function API:CreateWindow(config)
 end
 function ST.Window:Tab(cfg) return API:Tab(cfg) end
 function ST.Window:Section(cfg) return API:Section(cfg) end
-function ST.Window:Notify(cfg) return API:WindNotify(cfg) end
+function ST.Window:Notify(cfg) return API:CompatNotify(cfg) end
 function ST.Window:SetAcrylic(value) return API:SetAcrylic(value) end
 function ST.Window:SetNotificationPosition(value) return API:SetNotificationPosition(value) end
 
 -- Existing built-in pages receive the same direct control methods as newly created tabs.
 for _,item in ipairs(API:GetTabs()) do installTabCompat(API:GetTab(item.Name)) end
-API.Framework.Sections=ST.Framework.WindUISections
+API.Framework.Sections=ST.Framework.CompatSections
 API.Framework.Shapes=API.Shapes
 API.Framework.Icons=API.IconManager
 API.Framework.Compat=Compat
 API.Framework.ThemeManager=API.ThemeManager
 API.Framework.NotificationManager=API.NotificationManager
-API.Compat={WindUI=Compat,SupportedElements={"Button","Toggle","Checkbox","Slider","Dropdown","Input","Keybind","Colorpicker","Paragraph","ProgressBar","Image","Code","Space","Divider","Group","HStack","VStack","Viewport","Groupbox","Section"}}
+API.Compat={Adapter=Compat,SupportedElements={"Button","Toggle","Checkbox","Slider","Dropdown","Input","Keybind","Colorpicker","Paragraph","ProgressBar","Image","Code","Space","Divider","Group","HStack","VStack","Viewport","Groupbox","Section"}}
 
 -- ---------- safer Destroy wrapper for framework-owned tasks/objects ----------
 ST._FrameworkOriginalDestroy=ST._FrameworkOriginalDestroy or API.Destroy

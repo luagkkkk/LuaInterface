@@ -1,30 +1,28 @@
--- Compatibility example for LuaInterface 1.1.0-beta.
--- Execute LuaInterface.lua in a trusted client context, then run this example.
--- This example targets the published LuaInterface 1.1.0-beta API.
+-- Load LuaInterface.lua in a trusted client context, then run this showcase.
 local LuaInterface = assert(_G.LuaInterface, "Run LuaInterface.lua in the client first")
 
 local Window = LuaInterface:CreateWindow({
-    Title = "Compatibility Preview",
-    Author = "LuaInterface 1.1.0-beta",
+    Title = "LuaInterface Showcase",
+    Author = "LuaInterface 1.1.1-beta",
     Icon = "boxes",
     Theme = "Graphite",
     Acrylic = false, -- turn on with the Acrylic tab after checking device performance
     AutoShow = true,
-    KeepDefaultTabs = true,
+    KeepDefaultTabs = false,
     Resizable = true,
     ToggleKeybind = Enum.KeyCode.RightShift,
     Size = UDim2.fromOffset(900, 620),
 })
 
--- CreateWindow returns the LuaInterface API with the compatibility methods installed.
-local general = Window:Section({ Title = "GENERAL" })
+local general = Window:Section({ Title = "EXAMPLES" })
 local controls = general:Tab({ Title = "Elements", Desc = "Control inventory", Icon = "sliders" })
 local layout = general:Tab({ Title = "Layout", Desc = "Group and stack layout", Icon = "grid" })
-local appearance = Window:Section({ Title = "APPEARANCE" })
+local appearance = Window:Section({ Title = "DISPLAY" })
 local visual = appearance:Tab({ Title = "Themes & Shapes", Icon = "palette" })
 local keyTab = appearance:Tab({ Title = "Icons & Keys", Icon = "keyboard" })
 local noticeTab = appearance:Tab({ Title = "Notifications", Icon = "bell" })
 local acrylicTab = appearance:Tab({ Title = "Acrylic", Icon = "shield" })
+local configTab = appearance:Tab({ Title = "SaveManager", Icon = "save" })
 
 local inputGroup = controls:Group({
     Title = "Common controls",
@@ -32,43 +30,43 @@ local inputGroup = controls:Group({
     Icon = "settings",
 })
 inputGroup:Paragraph({
-    Title = "Compatibility preview",
-    Desc = "This page exercises the compatibility APIs in the published build.",
+    Title = "Component examples",
+    Desc = "Buttons, inputs, values, and callbacks in one place.",
 })
 inputGroup:Button({
     Title = "Run callback",
-    Desc = "A LuaInterface button through the compatibility API",
+    Desc = "Runs a local callback.",
     Callback = function() print("Button callback ran") end,
 })
 inputGroup:Toggle({
     Title = "Enable sample",
-    Flag = "preview-enabled",
+    Flag = "showcase-enabled",
     Default = true,
     Callback = function(value) print("Toggle:", value) end,
 })
 inputGroup:Checkbox({
     Title = "Checkbox sample",
-    Flag = "preview-checkbox",
+    Flag = "showcase-checkbox",
     Default = false,
     Callback = function(value) print("Checkbox:", value) end,
 })
 inputGroup:Slider({
     Title = "Amount",
-    Flag = "preview-amount",
+    Flag = "showcase-amount",
     Value = { Min = 0, Max = 100, Default = 35 },
     Step = 5,
     Callback = function(value) print("Slider:", value) end,
 })
 inputGroup:Dropdown({
     Title = "Quality",
-    Flag = "preview-quality",
+    Flag = "showcase-quality",
     Values = { "Low", "Medium", "High" },
     Default = "Medium",
     Callback = function(value) print("Dropdown:", value) end,
 })
 inputGroup:Dropdown({
     Title = "Multiple values",
-    Flag = "preview-multi",
+    Flag = "showcase-multi",
     Values = { "Alpha", "Beta", "Gamma" },
     Multi = true,
     Default = { "Alpha" },
@@ -76,20 +74,20 @@ inputGroup:Dropdown({
 })
 inputGroup:Input({
     Title = "Text input",
-    Flag = "preview-input",
+    Flag = "showcase-input",
     PlaceholderText = "Type here",
     Default = "",
     Callback = function(value) print("Input:", value) end,
 })
 inputGroup:Keybind({
-    Title = "Preview key",
-    Flag = "preview-key",
+    Title = "Test key",
+    Flag = "showcase-key",
     Default = Enum.KeyCode.F6,
     Callback = function(value) print("Keybind:", value) end,
 })
 inputGroup:Colorpicker({
     Title = "Accent color",
-    Flag = "preview-color",
+    Flag = "showcase-color",
     Default = Color3.fromRGB(167, 139, 250),
     Callback = function(value) print("Color:", value) end,
 })
@@ -97,7 +95,7 @@ inputGroup:Colorpicker({
 local displayGroup = controls:Group({ Title = "Display elements", Desc = "Progress, image, code, and viewport" })
 local progress = displayGroup:ProgressBar({
     Title = "Download progress",
-    Flag = "preview-progress",
+    Flag = "showcase-progress",
     Min = 0,
     Max = 100,
     Value = 62,
@@ -113,17 +111,17 @@ displayGroup:Image({
 displayGroup:Code({
     Title = "Read-only code",
     Language = "lua",
-    Code = 'local window = UI:CreateWindow({ Title = "Preview" })',
+    Code = 'local window = UI:CreateWindow({ Title = "Showcase" })',
     Height = 92,
     CanCopied = true,
 })
-local previewPart = Instance.new("Part")
-previewPart.Name = "ViewportPreviewPart"
-previewPart.Anchored = true
-previewPart.Size = Vector3.new(3, 2, 1)
-previewPart.Color = Color3.fromRGB(167, 139, 250)
-displayGroup:Viewport({ Title = "Interactive viewport", Object = previewPart, Height = 180, Interactive = true })
-previewPart:Destroy()
+local showcasePart = Instance.new("Part")
+showcasePart.Name = "ShowcaseViewportPart"
+showcasePart.Anchored = true
+showcasePart.Size = Vector3.new(3, 2, 1)
+showcasePart.Color = Color3.fromRGB(167, 139, 250)
+displayGroup:Viewport({ Title = "Interactive viewport", Object = showcasePart, Height = 180, Interactive = true })
+showcasePart:Destroy()
 displayGroup:Divider({})
 displayGroup:Space({ Size = 6 })
 
@@ -138,7 +136,7 @@ vertical:Button({ Title = "VStack item one", Callback = function() end })
 vertical:Button({ Title = "VStack item two", Callback = function() end })
 
 local themeGroup = visual:Group({ Title = "Theme manager", Desc = "Custom palette and theme tags" })
-Window:AddTheme("Violet preview", {
+Window:AddTheme("Violet test", {
     Accent = "#A78BFA",
     Background = "#17171B",
     Outline = "#3A3744",
@@ -151,33 +149,33 @@ themeGroup:Dropdown({
     Default = Window:GetTheme(),
     Callback = function(name) Window:SetTheme(name) end,
 })
-themeGroup:Button({ Title = "Use custom theme", Callback = function() Window:SetTheme("Violet preview") end })
+themeGroup:Button({ Title = "Use custom theme", Callback = function() Window:SetTheme("Violet test") end })
 themeGroup:Button({ Title = "Restore Graphite", Callback = function() Window:SetTheme("Graphite") end })
 local themeConnection = Window:OnThemeChange(function(current, previous)
     print("Theme:", previous, "->", current)
 end)
 themeGroup:Button({ Title = "Disconnect theme listener", Callback = function() themeConnection:Disconnect() end })
 
-local shapeGroup = visual:Group({ Title = "Shape helper", Desc = "Sprite-sheet shapes from the supplied reference bundle" })
+local shapeGroup = visual:Group({ Title = "Shape helper", Desc = "Adjustable sprite-sheet shapes" })
 shapeGroup:Paragraph({
-    Title = "Shape assets",
-    Desc = "Use Window.Shapes:New(parent, radius, type, properties). The asset IDs are Roblox-hosted and should be checked for availability and permissions.",
+    Title = "Shape helper",
+    Desc = "Use Window.Shapes:New(parent, radius, type, properties). These Roblox-hosted assets should be checked for availability and permissions.",
 })
 local shapeSlot = Instance.new("Frame")
-shapeSlot.Name = "ShapePreviewSlot"
+shapeSlot.Name = "ShowcaseShapeSlot"
 shapeSlot.BackgroundTransparency = 1
 shapeSlot.Size = UDim2.new(1, 0, 0, 76)
 shapeSlot.LayoutOrder = 999
 shapeSlot.Parent = shapeGroup:GetContainer()
 local shapeImage, shapeHandle = Window.Shapes:New(shapeSlot, 12, "Squircle", {
-    Name = "ShapePreview",
+    Name = "ShowcaseShape",
     Size = UDim2.fromOffset(164, 54),
     Position = UDim2.fromOffset(8, 8),
     ImageColor3 = Color3.fromRGB(167, 139, 250),
 })
 shapeGroup:Button({ Title = "Increase corner radius", Callback = function() shapeHandle:SetRadius(18) end })
 
-local iconGroup = keyTab:Group({ Title = "Local icon manager", Desc = "No remote icon registry is used" })
+local iconGroup = keyTab:Group({ Title = "Local icon manager", Desc = "Local SVG and registered icons" })
 iconGroup:Paragraph({
     Title = "Icon sources",
     Desc = "Bundled names, namespaced packs, registered icons, inline SVG, and Roblox asset IDs are resolved by LuaInterface's IconManager.",
@@ -186,12 +184,12 @@ iconGroup:Button({ Title = "Test icon lookup", Callback = function()
     local icon = Window:GetIcon("lucide:keyboard")
     print("Icon lookup:", icon ~= nil)
 end })
-iconGroup:Keybind({ Title = "Key page test", Flag = "preview-key-page", Default = Enum.KeyCode.F7, Callback = function() print("F7") end })
+iconGroup:Keybind({ Title = "Key page test", Flag = "showcase-key-page", Default = Enum.KeyCode.F7, Callback = function() print("F7") end })
 
 local notificationGroup = noticeTab:Group({ Title = "Notification system", Desc = "Queue, icon, actions, and placement" })
 notificationGroup:Button({ Title = "Show icon notification", Callback = function()
     Window:Notify({
-        Title = "Preview notification",
+        Title = "Showcase notification",
         Message = "Icon, content, action, and positioning are being tested.",
         Type = "Success",
         Duration = 6,
@@ -200,14 +198,14 @@ notificationGroup:Button({ Title = "Show icon notification", Callback = function
     })
 end })
 notificationGroup:Button({ Title = "Move notifications to bottom", Callback = function() Window:SetNotificationPosition("BottomRight") end })
-notificationGroup:Button({ Title = "Show simple info", Callback = function() Window:Notify("This is the direct string form.") end })
+notificationGroup:Button({ Title = "Show simple info", Callback = function() Window:Notify("Direct-message notification test.") end })
 
 local acrylicGroup = acrylicTab:Group({ Title = "Acrylic / blur", Desc = "Opt-in projected glass and depth-of-field effect" })
 acrylicGroup:Paragraph({
     Title = "Performance note",
     Desc = "The blur is global to the 3D scene while active and may vary with graphics settings. Disable it if the client slows down.",
 })
-acrylicGroup:Toggle({ Title = "Enable Acrylic", Flag = "preview-acrylic", Default = false, Callback = function(value)
+acrylicGroup:Toggle({ Title = "Enable Acrylic", Flag = "showcase-acrylic", Default = false, Callback = function(value)
     Window:SetAcrylic(value)
     print("Acrylic:", value)
 end })
@@ -219,4 +217,30 @@ acrylicGroup:Button({ Title = "Show Acrylic state", Callback = function()
     print("Acrylic state:", state.Enabled, state.Visible, state.Distance)
 end })
 
-Window:Notify({ Title = "Local preview ready", Content = "Use this interface to check tabs, spacing, and controls.", Type = "Info", Duration = 5, Icon = "lucide:boxes" })
+local SaveManager = LuaInterface.SaveManager
+SaveManager:SetFolder("LuaInterfaceShowcase")
+local saveGroup = configTab:Group({ Title = "Configuration", Desc = "Theme and control values" })
+saveGroup:Paragraph({
+    Title = "Local storage",
+    Desc = "Save and load require filesystem functions supplied by the client environment.",
+})
+saveGroup:Button({ Title = "Save current values", Callback = function()
+    local ok, err = SaveManager:Save("showcase")
+    Window:Notify({
+        Title = ok and "Configuration saved" or "Save unavailable",
+        Message = ok and "Theme and control values were stored." or tostring(err),
+        Type = ok and "Success" or "Warning",
+        Duration = 4,
+    })
+end })
+saveGroup:Button({ Title = "Load saved values", Callback = function()
+    local ok, err = SaveManager:Load("showcase")
+    Window:Notify({
+        Title = ok and "Configuration loaded" or "Load unavailable",
+        Message = ok and "Theme and control values were restored." or tostring(err),
+        Type = ok and "Success" or "Warning",
+        Duration = 4,
+    })
+end })
+
+Window:Notify({ Title = "Showcase ready", Content = "Example tabs and controls are ready.", Type = "Info", Duration = 5, Icon = "lucide:boxes" })

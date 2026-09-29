@@ -1,6 +1,6 @@
 # API Reference
 
-This page covers the calls most scripts use with LuaInterface `1.0.0-beta`. For less common options, see [`LuaInterface.lua`](../LuaInterface.lua).
+This page covers the calls most scripts use with LuaInterface `1.1.1-beta`. For less common options, see [`LuaInterface.lua`](../LuaInterface.lua).
 
 ## Window
 
@@ -12,13 +12,13 @@ local LuaInterface = source()
 
 local Window = LuaInterface:CreateWindow({
     Title = "My panel",
-    Footer = "1.0.0-beta",
+    Footer = "1.1.1-beta",
     AutoShow = true,
     Resizable = true,
 })
 ```
 
-`CreateWindow(config)` configures the window and returns the window API. Graphite is the default theme (`Obsidian` remains a legacy alias). The config can include `Center`, `Position`, `ToggleKeybind`, `AutoShow`, and `KeepDefaultTabs`. By default, the first custom tab is selected and the built-in pages are removed.
+`CreateWindow(config)` configures the window and returns the window API. Graphite is the default theme. The config can include `Center`, `Position`, `ToggleKeybind`, `AutoShow`, and `KeepDefaultTabs`. By default, the first custom tab is selected and the built-in pages are removed.
 
 Common window methods:
 
@@ -37,13 +37,12 @@ Window:SetTheme("Graphite")
 ## Tabs and groupboxes
 
 ```lua
-local Reach = Window:AddTab("Reach", {
+local Controls = Window:AddTab("Controls", {
     Icon = "lucide:target",
-    Description = "Reach controls",
+    Description = "Dashboard controls",
 })
-
-local Left = Reach:AddLeftGroupbox({Name = "Settings"})
-local Right = Reach:AddRightGroupbox({Name = "Actions"})
+local Left = Controls:AddLeftGroupbox({Name = "Settings"})
+local Right = Controls:AddRightGroupbox({Name = "Actions"})
 ```
 
 A tab icon can be a built-in name, a `pack:name` identifier, an image ID, inline SVG, or a renderer function. `IconSize` changes its size. See [Icons](ICONS.md) for available names.

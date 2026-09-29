@@ -1,13 +1,12 @@
 # LuaInterface
 
-**Current build:** `1.1.0-beta` · Roblox client UI library, written in Luau.
-**Compatibility:** WindUI v1.6.65-style API patterns mapped to LuaInterface components; see the credited adapter guide.
+**Current build:** `1.1.1-beta` · Roblox client UI library, written in Luau.
 
-LuaInterface's own window system, Graphite theme, tabs, groupboxes, controls, SVG icon manager, notification queue, and SaveManager remain the implementation. The adapter maps common window, tab, element, theme, shape, notification, and icon APIs onto those components. It does not bundle the reference library or run its remote loader. The compatibility guide credits the v1.6.65 reference bundle.
+LuaInterface provides its own window, tabs, groupboxes, controls, Graphite theme, icon manager, notification queue, and SaveManager. The compatibility adapter is implemented on top of those components; it does not fetch a remote UI or icon registry. See the [compatibility guide](docs/COMPATIBILITY.md) and [third-party notices](docs/THIRD_PARTY_NOTICES.md).
 
-## Use the published build
+## Load the published build
 
-The following URL loads the published `main` build (`1.1.0-beta`):
+This URL loads the version published on `main` (`1.1.1-beta`):
 
 ```lua
 local source, err = loadstring(game:HttpGet(
@@ -29,17 +28,20 @@ Group:AddToggle("enabled", { Name = "Enabled", Default = false })
 
 The library needs `Players.LocalPlayer` and that player's `PlayerGui`. In Studio, put the source in a trusted `ModuleScript` and require it from a `LocalScript` if `loadstring` is unavailable. Filesystem functions are optional and only needed for SaveManager file operations.
 
-## Try the compatibility example
+## Run the examples
+
+Running the library alone starts with the built-in **Home** and **Theme** pages. The showcase is a separate script:
 
 1. Run `LuaInterface.lua` in a trusted Roblox client context.
-2. Run [`examples/WindUICompat.lua`](examples/WindUICompat.lua).
-3. Check navigation, spacing, components, icons, notifications, and Acrylic on the target device.
+2. Run [`examples/Showcase.lua`](examples/Showcase.lua).
+3. Check the component, layout, theme, icon, notification, SaveManager, and Acrylic pages on the target client.
 
-See [WindUI compatibility](docs/WINDUI-COMPATIBILITY.md) for the API mapping, reference credit, and boundaries.
+The showcase sets `KeepDefaultTabs = false`, so its example tabs replace the built-in pages. The library does not load demonstration pages automatically.
 
-## Existing library guides
+## Guides
 
 - [Window, tabs, and controls](docs/API.md)
+- [Compatibility adapter](docs/COMPATIBILITY.md)
 - [Icons](docs/ICONS.md)
 - [Themes](docs/THEMES.md)
 - [SaveManager](docs/CONFIG.md)
@@ -47,6 +49,6 @@ See [WindUI compatibility](docs/WINDUI-COMPATIBILITY.md) for the API mapping, re
 
 ## Status and license
 
-The `1.1.0-beta` build is published on `main`. Syntax and static structure were checked locally; visual behavior, input, Acrylic blur, and Roblox asset availability still require testing in the target client/Studio.
+The `1.1.1-beta` build is published on `main`. Static syntax and source checks pass, but Roblox client behavior, avatar thumbnails, input, Acrylic blur, and Roblox asset availability still need testing in the target client or Studio.
 
-MIT. See [LICENSE](LICENSE). The sprite-sheet images used by the shape helper are separate Roblox-hosted assets; the source bundle's MIT notice does not establish a license for those assets.
+MIT. See [LICENSE](LICENSE). Shape-helper images are separate Roblox-hosted assets; the library license does not establish rights to those assets. Check their availability and permissions before shipping.

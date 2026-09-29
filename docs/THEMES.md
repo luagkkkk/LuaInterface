@@ -1,6 +1,6 @@
 # Themes
 
-LuaInterface starts with **Graphite**: dark neutral surfaces, quiet borders, and a violet accent. A saved theme loaded by your script can override this default. The legacy key `Obsidian` resolves to Graphite for compatibility.
+LuaInterface starts with **Graphite**: dark neutral surfaces, quiet borders, and a violet accent. A theme loaded through the SaveManager or selected by a script can replace it.
 
 Included themes: `Graphite`, `Dark`, `Light`, `Darker`, `Amoled`, `Rose`, `Indigo`, `Blue`, `Green`, `Red`, `Purple`, `Mellowsi`, `Ocean`, `Amber`, `Emerald`, and `Violet`.
 
@@ -23,7 +23,7 @@ end
 
 ## Use theme colors
 
-Theme data includes tokens such as `Accent`, `Background`, `Outline`, `Text`, `Placeholder`, `Button`, and `Icon`. Compatibility aliases (`Purple`, `Bg`, `Stroke`, `SubText`) remain available for existing controls.
+Theme data includes tokens such as `Accent`, `Background`, `Outline`, `Text`, `Placeholder`, `Button`, and `Icon`. Existing control aliases (`Purple`, `Bg`, `Stroke`, `SubText`) remain available.
 
 Use a token when an icon should follow theme changes:
 

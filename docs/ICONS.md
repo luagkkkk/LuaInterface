@@ -5,7 +5,7 @@ Tabs and controls use LuaInterface's `IconManager`. Built-in vectors are drawn w
 ## Use an icon in a tab
 
 ```lua
-local Reach = Window:AddTab("Reach", {
+local Dashboard = Window:AddTab("Dashboard", {
     Icon = "lucide:target",
     IconSize = 18,
 })
@@ -15,7 +15,7 @@ You can also pass a plain built-in name (`"target"`), an `rbxassetid://` ID/URI,
 
 ## Included names
 
-`home`, `bell`, `alert`, `activity`, `user`, `keyboard`, `ping`, `server`, `save`, `settings`, `info`, `trash`, `arrow-right`, `x`, `dots`, `moon`, `plus`, `minus`, `check`, `search`, `menu`, `eye`, `eye-off`, `shield`, `sword`, `swords`, `target`, `crosshair`, `zap`, `play`, `pause`, `chevron-down`, `chevron-up`, `chevron-left`, `chevron-right`, `refresh`, `download`, `upload`, `copy`, `edit`, `folder`, `lock`, `unlock`, `star`, `heart`, `palette`, `sliders`, `filter`, `list`, `grid`, `smartphone`, `gamepad`, `globe`, `clock`, `volume`, `mic`, `trophy`, `users`, `package`, `database`, `terminal`, `code`, `help`, and `sparkles`.
+`home`, `bell`, `alert`, `activity`, `user`, `keyboard`, `ping`, `server`, `save`, `settings`, `info`, `trash`, `arrow-right`, `x`, `open`, `close`, `maximize`, `square-arrow-out-up-right`, `square-arrow-out-down-left`, `boxes`, `monitor`, `wrench`, `dots`, `moon`, `plus`, `minus`, `check`, `search`, `menu`, `eye`, `eye-off`, `shield`, `sword`, `swords`, `target`, `crosshair`, `zap`, `play`, `pause`, `chevron-down`, `chevron-up`, `chevron-left`, `chevron-right`, `refresh`, `download`, `upload`, `copy`, `edit`, `folder`, `lock`, `unlock`, `star`, `heart`, `palette`, `sliders`, `filter`, `list`, `grid`, `smartphone`, `gamepad`, `globe`, `clock`, `volume`, `mic`, `trophy`, `users`, `package`, `database`, `terminal`, `code`, `help`, and `sparkles`.
 
 Aliases: `gear` → `settings`, `magnify` → `search`, `warning` → `alert`, `delete` → `trash`, and `controls` → `sliders`.
 
