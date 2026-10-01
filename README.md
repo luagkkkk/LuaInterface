@@ -1,12 +1,12 @@
 # LuaInterface
 
-**Current build:** `1.1.1-beta` · Roblox client UI library, written in Luau.
+**Current release:** `1.1.2-beta` · Roblox client UI library, written in Luau.
 
 LuaInterface provides its own window, tabs, groupboxes, controls, Graphite theme, icon manager, notification queue, and SaveManager. The compatibility adapter is implemented on top of those components; it does not fetch a remote UI or icon registry. See the [compatibility guide](docs/COMPATIBILITY.md) and [third-party notices](docs/THIRD_PARTY_NOTICES.md).
 
 ## Load the published build
 
-This URL loads the version published on `main` (`1.1.1-beta`):
+This URL loads the version published on `main` (`1.1.2-beta`):
 
 ```lua
 local source, err = loadstring(game:HttpGet(
@@ -49,6 +49,6 @@ The showcase sets `KeepDefaultTabs = false`, so its example tabs replace the bui
 
 ## Status and license
 
-The `1.1.1-beta` build is published on `main`. Static syntax and source checks pass, but Roblox client behavior, avatar thumbnails, input, Acrylic blur, and Roblox asset availability still need testing in the target client or Studio.
+The `1.1.2-beta` build is published on `main`. Static syntax checks pass; Roblox input, avatar thumbnails, Acrylic blur, and asset rendering still need testing in the target client or Studio.
 
 MIT. See [LICENSE](LICENSE). Shape-helper images are separate Roblox-hosted assets; the library license does not establish rights to those assets. Check their availability and permissions before shipping.

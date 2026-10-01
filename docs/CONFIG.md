@@ -2,6 +2,8 @@
 
 `LuaInterface.SaveManager` stores registered control values and some window state. File operations require the runtime to expose compatible filesystem functions; standard Roblox Studio does not provide `readfile` or `writefile`.
 
+`Color3`, `EnumItem`, `Vector2`, `Vector3`, `UDim`, and `UDim2` values are encoded and restored as their Roblox types. Nested tables, numeric selection sets, mixed/sparse numeric maps, and JSON scalars are supported. Instances, functions, threads, and cyclic table references are skipped; keep those out of persistent control values.
+
 ## Save and load
 
 ```lua

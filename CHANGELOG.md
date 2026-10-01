@@ -1,5 +1,21 @@
 # Changelog
 
+## `1.1.2-beta` — published, 2026-10-01
+
+- Fixed vertical content flow for dynamic tabs and responsive groupbox columns; narrow layouts now stack instead of compressing two columns.
+- Kept the 40px mobile header controls within the title bar by tightening their spacing; the controls remain available by default.
+- Made tab animations and Home avatar thumbnail retries stop safely on page changes or library destruction.
+- Made element setters reject calls after destruction, and connected dependency rules to safe callbacks.
+- Reworked ColorPicker open/close state and callback timing; made Dropdown selection rollback transactional and corrected default/multi-select snapshots.
+- Added typed encoding for Roblox values and round-trip support for numeric/mixed selection maps in SaveManager configs.
+- Added compound keybind matching and per-control listener cleanup; hardened notification queues, action layout, dialog order, and teardown.
+- Made `VisibleWhen` and `DisabledWhen` compose with dependency state, detached event listeners immediately, and kept Dropdown drag-selection callbacks in sync.
+- Added Center/Left/Right notification placement aliases. The open launcher now shows the large Lua logo without an icon tile, the window close control is restored to `×`, and the maximize and bell icons remain vector-based.
+- Kept the top-left window position stable when `SetSize`, `SetScale`, responsive layout, or the resize grip changes dimensions; manual resizing now converts display pixels back to the logical size before applying UIScale.
+- Fullscreen now tweens both size and position through the shared TweenService manager, restores the saved window geometry, and respects the reduced-motion and window-animation settings.
+- Kept the full component inventory in `examples/Showcase.lua`; it is a separate test script and replaces Home/Theme only when run with `KeepDefaultTabs = false`.
+- Lua 5.3 parser and whitespace checks pass. Roblox-client rendering, input, Acrylic, thumbnails, and storage require in-client testing.
+
 ## `1.1.1-beta` — published, 2026-09-29
 
 - Added the requested open, close, bell, and maximize SVG icons to the window controls and default notifications.

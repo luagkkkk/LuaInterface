@@ -1,8 +1,10 @@
 # Compatibility adapter
 
-**Build:** LuaInterface `1.1.1-beta`. For source attribution, see [Third-party notices](THIRD_PARTY_NOTICES.md).
+**Release:** LuaInterface `1.1.2-beta`, published on `main`. For source attribution, see [Third-party notices](THIRD_PARTY_NOTICES.md).
 
 The adapter maps window, navigation, group, element, theme, icon, and notification options onto LuaInterface's existing Roblox UI system. Existing methods such as `CreateWindow`, `AddTab`, and the groupbox API remain available. No remote UI loader or icon registry is required.
+
+`SetScale` scales the window while keeping its top-left screen position stable. `SetSize` and the resize grip use the same logical-size convention when UIScale is active. Fullscreen animates size and position; the transition is skipped when reduced motion or the window-toggle animation is disabled.
 
 ## Run the Showcase
 

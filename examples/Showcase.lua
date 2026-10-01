@@ -3,7 +3,7 @@ local LuaInterface = assert(_G.LuaInterface, "Run LuaInterface.lua in the client
 
 local Window = LuaInterface:CreateWindow({
     Title = "LuaInterface Showcase",
-    Author = "LuaInterface 1.1.1-beta",
+    Author = "LuaInterface 1.1.2-beta",
     Icon = "boxes",
     Theme = "Graphite",
     Acrylic = false, -- turn on with the Acrylic tab after checking device performance
@@ -128,8 +128,8 @@ displayGroup:Space({ Size = 6 })
 local row = layout:HStack({ Name = "Button row", Gap = 12 })
 row:Button({ Title = "Left column", Callback = function() print("Left column") end })
 row:Button({ Title = "Right column", Callback = function() print("Right column") end })
-local groupRow = layout:Group({ Title = "Nested group / horizontal stack", Gap = 10 })
-groupRow:Paragraph({ Title = "Horizontal group", Desc = "Each added control occupies the next column." })
+local groupRow = layout:Group({ Title = "Nested groupbox", Gap = 10 })
+groupRow:Paragraph({ Title = "Groupbox content", Desc = "Controls inside this groupbox stack vertically." })
 groupRow:Button({ Title = "Next column", Callback = function() print("Group column") end })
 local vertical = layout:VStack({ Name = "Vertical stack", Gap = 6 })
 vertical:Button({ Title = "VStack item one", Callback = function() end })
@@ -243,4 +243,9 @@ saveGroup:Button({ Title = "Load saved values", Callback = function()
     })
 end })
 
-Window:Notify({ Title = "Showcase ready", Content = "Example tabs and controls are ready.", Type = "Info", Duration = 5, Icon = "lucide:boxes" })
+local expectedTabs = { "Elements", "Layout", "Themes & Shapes", "Icons & Keys", "Notifications", "Acrylic", "SaveManager" }
+for _, name in ipairs(expectedTabs) do
+    assert(Window:GetTab(name), "Showcase page was not created: " .. name)
+end
+assert(not Window:GetTab("Home") and not Window:GetTab("Theme"), "Set KeepDefaultTabs = false to replace the built-in pages")
+Window:Notify({ Title = "Showcase ready", Content = "All seven example pages are ready.", Type = "Info", Duration = 5, Icon = "lucide:boxes" })

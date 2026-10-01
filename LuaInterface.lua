@@ -1,4 +1,4 @@
--- LuaInterface v1.1.1-beta
+-- LuaInterface v1.1.2-beta
 if _G.LuaInterface and _G.LuaInterface.Destroy then pcall(function()_G.LuaInterface:Destroy()end)end
 _G.LuaInterface=(function()
 local S={P=game:GetService("Players"),R=game:GetService("RunService"),U=game:GetService("UserInputService"),T=game:GetService("TweenService"),St=game:GetService("Stats"),M=game:GetService("MarketplaceService"),H=game:GetService("HttpService"),D=game:GetService("Debris"),TP=game:GetService("TeleportService"),G=game:GetService("GuiService"),CP=game:GetService("ContentProvider")}
@@ -31,7 +31,7 @@ local ty,ts,tn=typeof,tostring,tonumber
 local trem,tins=table.remove,table.insert
 local I=Instance.new
 
-local CFG={Name="LuaInterface",Version="v1.1.1-beta",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
+local CFG={Name="LuaInterface",Version="v1.1.2-beta",Bg=c3hex("#1E1E1E"),Sidebar=c3hex("#18181B"),Card=c3hex("#242428"),CardHover=c3hex("#2D2D33"),Field=c3hex("#1B1B20"),Purple=c3hex("#A78BFA"),PurpleSoft=c3hex("#C4B5FD"),Red=c3rgb(255,90,110),Text=c3hex("#E7E5EA"),SubText=c3hex("#A7A4AE"),Stroke=c3hex("#39383F"),CardHoverBorder=c3hex("#A78BFA"),IconBg=c3hex("#2B2A31"),BgButton=c3hex("#2B2A31"),BgTrack=c3hex("#1B1B20"),NavActive=c3hex("#2D2D33"),AvatarBg=c3hex("#2B2A31"),DangerBg=c3hex("#3D1B25"),DangerText=c3hex("#FF9AAA"),PopupBg=c3hex("#242428"),ModalOverlay=c3hex("#000000"),MinW=320,MinH=360,MLW=.80,MLH=.86,MPW=.90,MPH=.68,TWR=.84,THR=.82,PartCount=22,ToggleKey=Enum.KeyCode.RightShift,NotifyDur=4,MaxNotify=6,Debug=false,ErrorMode="Notify",NotifyDedupeWindow=1.2,ButtonCooldown=.18,BaseSize=nil,LogoId="104650551286971",CornerRadius=15,Fullscreen=false,TextSizeMin=11,TextSizeMax=28,MaxTweenDur=10}
 local IMA={FPS="88339611171447",Ping="126112532632455",Home="107671250314081",Keybind="126112532632455",Lua="104650551286971"}
 
 -- Tema normalizado: os campos públicos seguem a estrutura Accent/Background/Outline/Text/Placeholder/Button/Icon,
@@ -432,6 +432,28 @@ function FT.ClearTweens(o)
     if bucket._DestroyConn then pcall(function() bucket._DestroyConn:Disconnect() end) end
     ST.ActiveTweens[o]=nil
 end
+function FT.Cancel(o,key)
+    if not o then return false end
+    local bucket=ST.ActiveTweens[o]
+    if not bucket then return false end
+    if key==nil then
+        local hadTween=false
+        for k in pairs(bucket) do if k~="_DestroyConn" then hadTween=true break end end
+        FT.ClearTweens(o)
+        return hadTween
+    end
+    local tw=bucket[key]
+    if not tw then return false end
+    bucket[key]=nil
+    pcall(function() tw:Cancel() end)
+    local hasTween=false
+    for k in pairs(bucket) do if k~="_DestroyConn" then hasTween=true break end end
+    if not hasTween then
+        if bucket._DestroyConn then pcall(function() bucket._DestroyConn:Disconnect() end) end
+        ST.ActiveTweens[o]=nil
+    end
+    return true
+end
 function FT.C(o,r)
     if not o then return nil end
     local c=o:FindFirstChildOfClass("UICorner")
@@ -459,6 +481,17 @@ local function ValidParent(p)
     local ok=p:IsA("GuiObject")
     return ok
 end
+local function NextLayoutOrder(parent)
+    local nextOrder=0
+    if not parent then return nextOrder end
+    local ok,children=pcall(function() return parent:GetChildren() end)
+    if ok and children then
+        for _,child in ipairs(children) do
+            if child:IsA("GuiObject") then nextOrder=math.max(nextOrder,(tn(child.LayoutOrder) or 0)+1) end
+        end
+    end
+    return nextOrder
+end
 function FT.Card(parent,h)
     if not ValidParent(parent) then return nil,nil end
     local F=I("Frame")
@@ -466,6 +499,7 @@ function FT.Card(parent,h)
     F.BorderSizePixel=0
     F.Size=U2(1,0,0,h or 50)
     F.BackgroundTransparency=1
+    F.LayoutOrder=NextLayoutOrder(parent)
     F.Parent=parent
     FT.C(F,10)
     local st=FT.S(F,CFG.Stroke,1)
@@ -1290,7 +1324,7 @@ UI.DGui.Name="LuaDialogs"
 UI.DGui.ResetOnSpawn=false
 UI.DGui.IgnoreGuiInset=true
 UI.DGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
-UI.DGui.DisplayOrder=175
+UI.DGui.DisplayOrder=300
 UI.DGui.Parent=S.PG
 UI.OGui=I("ScreenGui")
 UI.OGui.Name="LuaOpenButton"
@@ -1636,7 +1670,7 @@ if avatarGlyph then
     IC.T(avatarGlyph,CFG.SubText)
 end
 local function revealAvatar()
-    if UI.Avatar and UI.Avatar.Parent and UI.Avatar.IsLoaded then
+    if not ST.Destroyed and UI.Avatar and UI.Avatar.Parent and UI.Avatar.IsLoaded then
         UI.Avatar.ImageTransparency=0
         if UI.AvatarFallback then UI.AvatarFallback.Visible=false end
         return true
@@ -1645,18 +1679,20 @@ local function revealAvatar()
 end
 Tk(UI.Avatar:GetPropertyChangedSignal("IsLoaded"):Connect(revealAvatar))
 UI.Avatar.Image="rbxthumb://type=AvatarHeadShot&id="..ts(S.LP.UserId).."&w=100&h=100"
-task.spawn(function()
+local avatarTask=task.spawn(function()
     for attempt=1,8 do
-        if not UI.Avatar or not UI.Avatar.Parent then return end
+        if ST.Destroyed or not UI.Avatar or not UI.Avatar.Parent then return end
         local ok,uri,isReady=pcall(function()
             return S.P:GetUserThumbnailAsync(S.LP.UserId,Enum.ThumbnailType.HeadShot,Enum.ThumbnailSize.Size100x100)
         end)
+        if ST.Destroyed or not UI.Avatar or not UI.Avatar.Parent then return end
         if ok and type(uri)=="string" and uri~="" then UI.Avatar.Image=uri end
         if revealAvatar() then return end
         task.wait(isReady==true and .35 or .65)
     end
     revealAvatar()
 end)
+TrackTask(avatarTask)
 local dnSafe=S.LP.DisplayName
 if not dnSafe or dnSafe=="" then dnSafe=S.LP.Name or "Player" end
 UI.Hello=FT.L(UI.Greet,"Hello, "..dnSafe,18,CFG.Text)
@@ -1760,6 +1796,11 @@ local function CrtPg(Nm)
     pd.PaddingTop=Un(0,6)
     pd.PaddingBottom=Un(0,14)
     pd.Parent=Cn
+    local list=I("UIListLayout")
+    list.Name="ContentLayout"
+    list.SortOrder=Enum.SortOrder.LayoutOrder
+    list.Padding=Un(0,8)
+    list.Parent=Cn
     UI.PageCts[Nm]=Cn
     return Pg,Cn
 end
@@ -1869,12 +1910,13 @@ SetTab=function(Nm,force)
     SaveScrolls()
     ST.CurrentPage=Nm
     ST.PageToken=ST.PageToken+1
+    local pageToken=ST.PageToken
     -- v5.1.4: cancela tweens de página ao trocar
     for _,pgObj in pairs(ST.Pages) do
         FT.ClearTweens(pgObj)
     end
     for PN,Pg in pairs(ST.Pages) do Pg.Visible=(PN==Nm) end
-    if ST.Window.Animations.TabSwitch then task.defer(function() AnimPg(ST.Pages[Nm]) end) end
+    if ST.Window.Animations.TabSwitch then task.defer(function() if not ST.Destroyed and pageToken==ST.PageToken then AnimPg(ST.Pages[Nm]) end end) end
     for BN,B in pairs(ST.Buttons) do
         local A=(BN==Nm)
         local BG=B:FindFirstChild("Background")
@@ -1908,7 +1950,7 @@ SetTab=function(Nm,force)
     end
     FT.T(UI.PT,{TextTransparency=1},.12,"PTIn")
     task.delay(.12,function()
-        if not UI.PT.Parent then return end
+        if ST.Destroyed or pageToken~=ST.PageToken or not UI.PT.Parent then return end
         UI.PT.Text=Nm
         FT.T(UI.PT,{TextTransparency=0},.22,"PTIn")
     end)
@@ -1999,18 +2041,16 @@ local function HdrBtn(txt,sz)
 end
 UI.MinB=HdrBtn("—",22)
 UI.FSB=HdrBtn("",20)
-UI.Close=HdrBtn("",28)
+UI.Close=HdrBtn("×",28)
 UI.FSIcon=IC.Maximize(UI.FSB,17)
-UI.CloseIcon=IC.CloseMenu(UI.Close,17)
 if UI.FSIcon then UI.FSIcon.ZIndex=52; IC.T(UI.FSIcon,CFG.SubText) end
-if UI.CloseIcon then UI.CloseIcon.ZIndex=52; IC.T(UI.CloseIcon,CFG.SubText) end
 UI.Close.ZIndex=51
 Tk(UI.MinB.MouseEnter:Connect(function() FT.T(UI.MinB,{TextColor3=CFG.Text},.15) end))
 Tk(UI.MinB.MouseLeave:Connect(function() FT.T(UI.MinB,{TextColor3=CFG.SubText},.15) end))
 Tk(UI.FSB.MouseEnter:Connect(function() FT.T(UI.FSB,{TextColor3=CFG.Text},.15); IC.T(UI.FSIcon,CFG.Text) end))
 Tk(UI.FSB.MouseLeave:Connect(function() FT.T(UI.FSB,{TextColor3=CFG.SubText},.15); IC.T(UI.FSIcon,CFG.SubText) end))
-Tk(UI.Close.MouseEnter:Connect(function() FT.T(UI.Close,{TextColor3=CFG.Text},.2); IC.T(UI.CloseIcon,CFG.Text) end))
-Tk(UI.Close.MouseLeave:Connect(function() FT.T(UI.Close,{TextColor3=CFG.SubText},.2); IC.T(UI.CloseIcon,CFG.SubText) end))
+Tk(UI.Close.MouseEnter:Connect(function() FT.T(UI.Close,{TextColor3=CFG.Text},.2) end))
+Tk(UI.Close.MouseLeave:Connect(function() FT.T(UI.Close,{TextColor3=CFG.SubText},.2) end))
 
 UI.OpenB=I("TextButton")
 UI.OpenB.Name="LuaOpenButton"
@@ -2028,17 +2068,24 @@ Reg(UI.OpenB,"BackgroundColor3","Bg")
 UI.OpenBS=FT.S(UI.OpenB,CFG.CardHoverBorder,1.5)
 Reg(UI.OpenBS,"Color","CardHoverBorder")
 UI.OpenBGL=I("Frame")
-UI.OpenBGL.BackgroundColor3=CFG.IconBg
+UI.OpenBGL.BackgroundTransparency=1
 UI.OpenBGL.BorderSizePixel=0
-UI.OpenBGL.Size=U3(42,42)
-UI.OpenBGL.Position=U3(11,8)
+UI.OpenBGL.Size=U3(50,50)
+UI.OpenBGL.Position=U3(6,4)
 UI.OpenBGL.ZIndex=1
 UI.OpenBGL.Parent=UI.OpenB
-FT.C(UI.OpenBGL,21)
-Reg(UI.OpenBGL,"BackgroundColor3","IconBg")
 UI.OpenBGL.ClipsDescendants=true
-UI.OpenIcon=IC.OpenMenu(UI.OpenBGL,22)
-if UI.OpenIcon then UI.OpenIcon.ZIndex=2; IC.T(UI.OpenIcon,WH) end
+UI.OpenIcon=I("ImageLabel")
+UI.OpenIcon.Name="LuaLogo"
+UI.OpenIcon.BackgroundTransparency=1
+UI.OpenIcon.BorderSizePixel=0
+UI.OpenIcon.Size=U3(46,46)
+UI.OpenIcon.AnchorPoint=V2(.5,.5)
+UI.OpenIcon.Position=Uv(.5,.5)
+UI.OpenIcon.ScaleType=Enum.ScaleType.Fit
+UI.OpenIcon.Image=UI.LogoImg and UI.LogoImg.Image or "rbxassetid://"..ts(CFG.LogoId)
+UI.OpenIcon.ZIndex=2
+UI.OpenIcon.Parent=UI.OpenBGL
 UI.OpenBT=FT.L(UI.OpenB,CFG.Name or "Lua",16,CFG.Text)
 UI.OpenBT.Position=U3(60,0)
 UI.OpenBT.Size=U2(1,-72,1,0)
@@ -2056,10 +2103,44 @@ local function GetVP()
     end
     return CachedVP
 end
+local mainPositionToken=0
+local function WindowDisplayScale()
+    return ma(.01,tn(ST.Scale) or 1)
+end
+local function MainSizeAtScale(scale)
+    local vp=GetVP()
+    local size=UI.Main.Size
+    return V2((size.X.Scale*vp.X+size.X.Offset)*scale,(size.Y.Scale*vp.Y+size.Y.Offset)*scale)
+end
+local function SetMainTopLeft(topLeft,size)
+    if not topLeft or not UI.Main or not UI.Main.Parent then return end
+    local vp=GetVP()
+    size=size or UI.Main.AbsoluteSize
+    local anchor=UI.Main.AnchorPoint
+    local pos=UI.Main.Position
+    local x=topLeft.X+size.X*anchor.X
+    local y=topLeft.Y+size.Y*anchor.Y
+    x=cl(x,20-size.X*anchor.X,vp.X-20+size.X*anchor.X)
+    y=cl(y,20-size.Y*anchor.Y,vp.Y-20+size.Y*anchor.Y)
+    UI.Main.Position=U2(pos.X.Scale,x-vp.X*pos.X.Scale,pos.Y.Scale,y-vp.Y*pos.Y.Scale)
+    ST.Window.Position=UI.Main.Position
+end
+local function PreserveMainTopLeft(topLeft,size)
+    mainPositionToken=mainPositionToken+1
+    local token=mainPositionToken
+    SetMainTopLeft(topLeft,size)
+    task.defer(function()
+        if token==mainPositionToken and not ST.Destroyed and UI.Main and UI.Main.Parent then SetMainTopLeft(topLeft,UI.Main.AbsoluteSize) end
+    end)
+end
 local UpdateResp,ScheduleResp,ApplyVis,Minimize,TglFS
 
 -- v5.1.4: Open/Close com key "OpenClose" (cancela mutuamente)
 ApplyVis=function(show)
+    if ST.Destroyed or ST.State=="Destroying" then return false end
+    FT.Cancel(UI.Main,"Fullscreen")
+    if show and ST.MainVisible and UI.Main.Visible and not UI.OpenB.Visible then return true end
+    if not show and not ST.MainVisible and not UI.Main.Visible then UI.OpenB.Visible=true; return true end
     ST.toggleToken=ST.toggleToken+1
     local mt=ST.toggleToken
     ST.MainVisible=show
@@ -2074,6 +2155,8 @@ ApplyVis=function(show)
         UI.Main.BackgroundTransparency=.5
         FT.T(UI.Main,{Size=CFG.BaseSize,BackgroundTransparency=0},.24,Enum.EasingStyle.Back,nil,"OpenClose")
     else
+        CloseDropdowns()
+        if ST.ActiveDialog and ST.ActiveDialog.Close then pcall(function() ST.ActiveDialog:Close() end) end
         FT.T(UI.Main,{Size=UI.Main.Size-U3(40,40),BackgroundTransparency=1},.18,nil,nil,"OpenClose")
         task.delay(.18,function()
             if mt~=ST.toggleToken then return end
@@ -2084,9 +2167,14 @@ ApplyVis=function(show)
 end
 -- v5.1.4: Minimize com key "OpenClose" (não briga com Open)
 Minimize=function()
+    if ST.Destroyed or ST.State=="Destroying" then return false end
+    FT.Cancel(UI.Main,"Fullscreen")
+    if not ST.MainVisible then UI.OpenB.Visible=true; return true end
     ST.toggleToken=ST.toggleToken+1
     local mt=ST.toggleToken
     ST.MainVisible=false
+    CloseDropdowns()
+    if ST.ActiveDialog and ST.ActiveDialog.Close then pcall(function() ST.ActiveDialog:Close() end) end
     FT.T(UI.Main,{Size=UI.Main.Size-U3(40,40),BackgroundTransparency=1},.18,nil,nil,"OpenClose")
     task.delay(.18,function()
         if mt~=ST.toggleToken then return end
@@ -2095,10 +2183,14 @@ Minimize=function()
     end)
 end
 TglFS=function()
-    if not UI.Main.Parent then return end
+    if ST.Destroyed or not UI.Main.Parent or ST.Resizing or ST.Dragging then return false end
     CloseDropdowns()
-    if not CFG.Fullscreen then
-        -- Preserve the exact user window state so fullscreen is reversible.
+    FT.Cancel(UI.Main,"Fullscreen")
+    local fromSize=UI.Main.Size
+    local fromPosition=UI.Main.Position
+    local entering=not CFG.Fullscreen
+    local saved=ST.Window.FullscreenSaved
+    if entering then
         ST.Window.FullscreenSaved={
             Position=UI.Main.Position,
             Size=UI.Main.Size,
@@ -2107,21 +2199,34 @@ TglFS=function()
         }
         CFG.Fullscreen=true
         ST.UserMoved=false
-        UpdateResp()
     else
         CFG.Fullscreen=false
-        local saved=ST.Window.FullscreenSaved
+        saved=ST.Window.FullscreenSaved
         ST.Window.FullscreenSaved=nil
         if saved then
             ST.CustomSize=saved.CustomSize
-            UI.Main.Size=saved.Size
-            UI.Main.Position=saved.Position
-            ST.UserMoved=saved.UserMoved==true
         else
-            ST.UserMoved=true
+            ST.CustomSize=nil
         end
-        UpdateResp()
+        ST.UserMoved=false
     end
+    UpdateResp()
+    local targetSize=UI.Main.Size
+    local targetPosition=entering and Uv(.5,.5) or (saved and saved.Position or UI.Main.Position)
+    local reduced=ST.Framework and ST.Framework.Accessibility and ST.Framework.Accessibility.ReducedMotion==true
+    local animate=not reduced and (not ST.Window.Animations or ST.Window.Animations.ToggleWindow~=false)
+    local duration=animate and .34 or 0
+    if duration>0 then
+        UI.Main.Size=fromSize
+        UI.Main.Position=fromPosition
+        FT.T(UI.Main,{Size=targetSize,Position=targetPosition},duration,Enum.EasingStyle.Quint,Enum.EasingDirection.Out,"Fullscreen")
+    else
+        UI.Main.Size=targetSize
+        UI.Main.Position=targetPosition
+    end
+    if not entering and saved then ST.UserMoved=saved.UserMoved==true end
+    ST.Window.Position=targetPosition
+    return true
 end
 Tk(UI.MinB.MouseButton1Click:Connect(Minimize))
 Tk(UI.Close.MouseButton1Click:Connect(function() ApplyVis(false) end))
@@ -2143,8 +2248,9 @@ RegI(function(i)
     else return end
     local tl=opSP+opMouseOffset
     local v=GetVP(); local sz=opSize or UI.OpenB.AbsoluteSize
-    local cx=cl(tl.X+sz.X*.5,10,v.X-10)
-    local cy=cl(tl.Y+sz.Y*.5,10,v.Y-10)
+    local hx=sz.X*.5; local hy=sz.Y*.5
+    local cx=cl(tl.X+hx,hx,ma(hx,v.X-hx))
+    local cy=cl(tl.Y+hy,hy,ma(hy,v.Y-hy))
     UI.OpenB.Position=U3(cx,cy)
 end)
 RegE(function(i)
@@ -2204,12 +2310,15 @@ local function BeginRz(inp)
     if t~=Enum.UserInputType.MouseButton1 and t~=Enum.UserInputType.Touch then return end
     RC.active=true
     ST.Resizing=true
+    FT.Cancel(UI.Main,"Fullscreen")
     CFG.Fullscreen=false
+    ST.Window.FullscreenSaved=nil
     RC.input=inp
     RC.mouseDelta=V2(0,0)
     RC.start=V2(inp.Position.X,inp.Position.Y)
     RC.size=V2(UI.Main.AbsoluteSize.X,UI.Main.AbsoluteSize.Y)
     RC.tl=V2(UI.Main.AbsolutePosition.X,UI.Main.AbsolutePosition.Y)
+    RC.scale=WindowDisplayScale()
 end
 -- v5.1.4: resize aplica direto (sem tween por frame)
 local function UpdRz(inp)
@@ -2223,16 +2332,17 @@ local function UpdRz(inp)
         RC.mouseDelta=RC.mouseDelta+V2(inp.Delta.X,inp.Delta.Y)
         dl=RC.mouseDelta
     else return end
-    local maxW=ma(CFG.MinW,v.X-20); local maxH=ma(CFG.MinH,v.Y-20)
-    if ST.Framework and ST.Framework.MaxW then maxW=mi(maxW,ST.Framework.MaxW) end
-    if ST.Framework and ST.Framework.MaxH then maxH=mi(maxH,ST.Framework.MaxH) end
-    local nw=cl(RC.size.X+dl.X,CFG.MinW,maxW)
-    local nh=cl(RC.size.Y+dl.Y,CFG.MinH,maxH)
-    local ncx=RC.tl.X+nw*.5
-    local ncy=RC.tl.Y+nh*.5
-    UI.Main.Size=U3(nw,nh)
-    UI.Main.Position=U3(ncx,ncy)
-    ST.CustomSize=V2(nw,nh)
+    local scale=RC.scale or WindowDisplayScale()
+    local minW=CFG.MinW*scale; local minH=CFG.MinH*scale
+    local maxW=ma(minW,v.X-20); local maxH=ma(minH,v.Y-20)
+    if ST.Framework and ST.Framework.MaxW then maxW=mi(maxW,ma(minW,ST.Framework.MaxW*scale)) end
+    if ST.Framework and ST.Framework.MaxH then maxH=mi(maxH,ma(minH,ST.Framework.MaxH*scale)) end
+    local nw=cl(RC.size.X+dl.X,minW,maxW)
+    local nh=cl(RC.size.Y+dl.Y,minH,maxH)
+    local anchor=UI.Main.AnchorPoint
+    UI.Main.Size=U3(nw/scale,nh/scale)
+    UI.Main.Position=U3(RC.tl.X+nw*anchor.X,RC.tl.Y+nh*anchor.Y)
+    ST.CustomSize=V2(nw/scale,nh/scale)
 end
 local function EndRz()
     RC.active=false
@@ -2240,6 +2350,7 @@ local function EndRz()
     RC.size=nil
     RC.tl=nil
     RC.input=nil
+    RC.scale=nil
     RC.mouseDelta=V2(0,0)
     ST.Resizing=false
     ST.UserMoved=true
@@ -2428,36 +2539,48 @@ end
 
 UpdateResp=function()
     if not UI.Main.Parent then return end
+    FT.Cancel(UI.Main,"Fullscreen")
+    local priorTopLeft=UI.Main.AbsolutePosition
+    local priorUserMoved=ST.UserMoved
     local cam=workspace.CurrentCamera
     local rawVP=cam and cam.ViewportSize
     local viewportReady=rawVP~=nil and rawVP.X>0 and rawVP.Y>0
     local v=GetVP()
     local W,Hh=v.X,v.Y
+    local displayScale=WindowDisplayScale()
+    local baseW,baseH=W/displayScale,Hh/displayScale
     local mode=GetMode()
     local modeChanged=(ST.LastResizeMode~=mode)
     ST.LastResizeMode=mode
     ST.CurrentMode=mode
+    UI.HdrB.Visible=mode~="Mobile" or ST.Window.ShowMobileButtons==true
+    UI.SidebarResize.Visible=ST.Window.EnableSidebarResize==true and mode~="Mobile" and not ST.Window.SidebarCompacted
     local MW,MH,SW
     if CFG.Fullscreen then
-        MW,MH=W-16,Hh-16
+        MW,MH=(W-16)/displayScale,(Hh-16)/displayScale
     elseif ST.CustomSize then
-        MW=mi(ST.CustomSize.X,W-20)
-        MH=mi(ST.CustomSize.Y,Hh-20)
+        MW=mi(ST.CustomSize.X,ma(1,baseW-20))
+        MH=mi(ST.CustomSize.Y,ma(1,baseH-20))
     elseif mode=="Mobile" then
         local L=W>Hh
         local WR=L and CFG.MLW or CFG.MPW
         local HR=L and CFG.MLH or CFG.MPH
-        MW=cl(fl(W*WR),CFG.MinW,mi(L and 1080 or 900,ma(CFG.MinW,W-28)))
-        MH=cl(fl(Hh*HR),CFG.MinH,mi(L and 620 or 680,ma(CFG.MinH,Hh-28)))
+        MW=cl(fl(baseW*WR),CFG.MinW,mi(L and 1080 or 900,ma(CFG.MinW,baseW-28)))
+        MH=cl(fl(baseH*HR),CFG.MinH,mi(L and 620 or 680,ma(CFG.MinH,baseH-28)))
     elseif mode=="Tablet" then
-        MW=cl(fl(W*CFG.TWR),620,mi(1120,ma(620,W-36)))
-        MH=cl(fl(Hh*CFG.THR),450,mi(720,ma(450,Hh-36)))
+        MW=cl(fl(baseW*CFG.TWR),620,mi(1120,ma(620,baseW-36)))
+        MH=cl(fl(baseH*CFG.THR),450,mi(720,ma(450,baseH-36)))
     else
-        MW=mi(1280,ma(860,W-60))
-        MH=mi(780,ma(520,Hh-60))
-        MW=mi(MW,W-24)
-        MH=mi(MH,Hh-24)
+        MW=mi(1280,ma(860,baseW-60))
+        MH=mi(780,ma(520,baseH-60))
+        MW=mi(MW,baseW-24)
+        MH=mi(MH,baseH-24)
     end
+    local inset=CFG.Fullscreen and 16 or 20
+    local maxLogicalW=ma(1,(W-inset)/displayScale)
+    local maxLogicalH=ma(1,(Hh-inset)/displayScale)
+    MW=cl(MW,mi(CFG.MinW,maxLogicalW),maxLogicalW)
+    MH=cl(MH,mi(CFG.MinH,maxLogicalH),maxLogicalH)
     local hdrBtnSz
     if mode=="Mobile" then
         SW=cl(fl(MW*.115),68,84)
@@ -2474,8 +2597,6 @@ UpdateResp=function()
     elseif ST.Window.SidebarWidth then
         SW=cl(ST.Window.SidebarWidth,ST.Window.MinSidebarWidth,ma(ST.Window.MinSidebarWidth,MW-ST.Window.MinContainerWidth))
     end
-    MW=ma(CFG.MinW,MW)
-    MH=ma(CFG.MinH,MH)
     UI.Main.Size=U3(MW,MH)
     UI.Sidebar.Size=U2(0,SW,1,0)
     UI.Content.Position=U3(SW,0)
@@ -2499,16 +2620,16 @@ UpdateResp=function()
         local L=MW>MH
         UI.Header.Position=U3(14,10)
         UI.Header.Size=U2(1,-28,0,62)
-        UI.DragHandle.Size=U2(1,-150,1,0)
+        UI.DragHandle.Size=UI.HdrB.Visible and U2(1,-150,1,0) or U2(1,-30,1,0)
         UI.PT.Position=U3(0,0)
-        UI.PT.Size=U2(1,-140,0,30)
+        UI.PT.Size=UI.HdrB.Visible and U2(1,-140,0,30) or U2(1,-24,0,30)
         UI.PT.TextSize=ClampTextSize(MW<400 and 18 or 22)
         UI.Search.Visible=false
         UI.HdrB.Position=U2(1,-8,0,4)
-        UI.HdrB.Size=U3(3*hdrBtnSz+16,hdrBtnSz)
+        UI.HdrB.Size=U3(3*hdrBtnSz+8,hdrBtnSz)
         UI.MinB.Position=U3(0,0)
-        UI.FSB.Position=U3(hdrBtnSz+8,0)
-        UI.Close.Position=U3(2*(hdrBtnSz+8),0)
+        UI.FSB.Position=U3(hdrBtnSz+4,0)
+        UI.Close.Position=U3(2*(hdrBtnSz+4),0)
         UI.PageC.Position=U3(14,72)
         UI.PageC.Size=U2(1,-28,1,-84)
         UI.Logo.Size=U2(1,0,0,72)
@@ -2675,11 +2796,14 @@ UpdateResp=function()
         if not ST.UserMoved then UI.Main.Position=Uv(.5,.5) end
         ST.FirstLayout=false
     elseif viewportReady and modeChanged then
-        UI.Main.Position=Uv(.5,.5)
-        ST.UserMoved=false
+        if not ST.UserMoved then UI.Main.Position=Uv(.5,.5) end
     elseif viewportReady and not ST.UserMoved and not ST.Resizing and not ST.Dragging then
         -- Scale-based center is stable across UIScale and viewport coordinate changes.
         UI.Main.Position=Uv(.5,.5)
+    end
+    if viewportReady and priorUserMoved and not CFG.Fullscreen and not ST.Resizing and not ST.Dragging then
+        ST.UserMoved=true
+        PreserveMainTopLeft(priorTopLeft,MainSizeAtScale(displayScale))
     end
     SyncState()
     if viewportReady and mode=="Mobile" and not CFG.Fullscreen then
@@ -2940,6 +3064,7 @@ local function DetachN(s)
 end
 
 local function LuaNotifyImpl(cfg)
+    if ST.Destroyed or ST.State=="Destroying" then return nil,"LuaInterface destroyed" end
     if ty(cfg)=="string" then cfg={Content=cfg} end
     cfg=cfg or{}
     while ST.ActiveCount>=CFG.MaxNotify do
@@ -3047,8 +3172,8 @@ local function LuaNotifyImpl(cfg)
     end
     local Pad=I("Frame")
     Pad.BackgroundTransparency=1
-    Pad.Size=U2(1,0,0,14)
-    Pad.Position=U2(0,0,1,0)
+    Pad.Size=U2(1,0,0,1)
+    Pad.Position=U3(0,0)
     Pad.Parent=C
     C.BackgroundTransparency=1
     CS.Transparency=1
@@ -3066,10 +3191,12 @@ local function LuaNotifyImpl(cfg)
     FT.T(CS,{Transparency=0},.35,nil,nil,"Notify")
     for d,o in pairs(allT) do FT.T(d,{TextTransparency=o},.35,nil,nil,"Notify") end
     local N={_alive=true,_timerThread=nil,_closing=false,_type=ntype,_dedupe=dedupe,_createdAt=os.clock(),_wrapper=W2,_card=C}
+    local actionFrame=nil
     if type(Actions)=="table" and #Actions>0 then
         local AB=I("Frame")
+        actionFrame=AB
         AB.BackgroundTransparency=1
-        AB.Size=U2(1,-35,0,36)
+        AB.Size=U2(1,-70,0,36)
         AB.Position=U3(20,0)
         AB.Parent=C
         local AL=I("UIListLayout")
@@ -3097,6 +3224,19 @@ local function LuaNotifyImpl(cfg)
             end))
         end
     end
+    local function updateNotificationLayout()
+        if ST.Destroyed or not C.Parent then return end
+        local descriptionHeight=math.max(20,Dsc.AbsoluteSize.Y)
+        local descriptionBottom=34+descriptionHeight
+        if actionFrame then
+            actionFrame.Position=U3(20,descriptionBottom+8)
+            Pad.Position=U3(0,descriptionBottom+8+36+8)
+        else
+            Pad.Position=U3(0,descriptionBottom+8)
+        end
+    end
+    Tk(Dsc:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateNotificationLayout))
+    task.defer(updateNotificationLayout)
     function N:SetContent(v)
         if not self._alive then return self end
         Dsc.Text=ts(v or "")
@@ -3138,6 +3278,7 @@ local function LuaNotifyImpl(cfg)
         return true
     end
     function N:SetDuration(v)
+        if not self._alive or ST.Destroyed then return false end
         if self._timerThread then pcall(function() task.cancel(self._timerThread) end) end
         self._timerThread=nil
         local d=ma(0,tn(v) or 0)
@@ -3474,46 +3615,60 @@ local function RegEl(idx,t,g,s,ex)
     end
     local e={Type=t,Get=g,Set=s,Default=nil,_OnChanged={},_Destroyed=false}
     if ex then for k,v in pairs(ex) do e[k]=v end end
+    local root=e.Frame or e._Frame
+    if root and root.Parent and root.LayoutOrder==0 and root.Parent:FindFirstChildOfClass("UIListLayout") then root.LayoutOrder=NextLayoutOrder(root.Parent) end
     if e.Get then local ok,v=pcall(e.Get) if ok then e.Default=v end end
     function e:OnChanged(fn)
         if type(fn)~="function" or self._Destroyed then return {Disconnect=function() end} end
         local rec={Fn=fn,Active=true}
         self._OnChanged[#self._OnChanged+1]=rec
-        return {Disconnect=function() rec.Active=false end}
+        local owner=self
+        return {Disconnect=function()
+            if not rec.Active then return false end
+            rec.Active=false
+            for i=#owner._OnChanged,1,-1 do if owner._OnChanged[i]==rec then table.remove(owner._OnChanged,i); break end end
+            return true
+        end}
     end
     function e:_EmitChanged(...)
         if self._Destroyed then return end
-        for i=#self._OnChanged,1,-1 do
-            local rec=self._OnChanged[i]
-            if type(rec)=="table" and rec.Active and type(rec.Fn)=="function" then SafeCall("OnChanged:"..ts(idx),rec.Fn,...)
-            else table.remove(self._OnChanged,i) end
+        local listeners={}
+        for i=1,#self._OnChanged do listeners[i]=self._OnChanged[i] end
+        for i=#listeners,1,-1 do
+            if self._Destroyed then break end
+            local rec=listeners[i]
+            if type(rec)=="table" and rec.Active and type(rec.Fn)=="function" then SafeCall("OnChanged:"..ts(idx),rec.Fn,...) end
         end
-        if type(self._CallbackOverride)=="function" then SafeCall("Callback:"..ts(idx),self._CallbackOverride,...) end
+        for i=#self._OnChanged,1,-1 do local rec=self._OnChanged[i]; if type(rec)~="table" or not rec.Active then table.remove(self._OnChanged,i) end end
+        if not self._Destroyed and type(self._CallbackOverride)=="function" then SafeCall("Callback:"..ts(idx),self._CallbackOverride,...) end
     end
     function e:GetValue()
-        if self.Get then local ok,v=pcall(self.Get) if ok then return v end end
+        if self._Destroyed then return nil end
+        if self.Get then local ok,v=pcall(self.Get,self) if ok then return v end end
         return self.Value
     end
-    function e:SetValue(v) if self.Set then return self.Set(v) end end
+    function e:SetValue(v) if self._Destroyed or ST.Destroyed then return false end if self.Set then return self.Set(v) end end
     function e:GetTitle()
         if self._Label and self._Label.Parent then return self._Label.Text end
         return self.Name or self.Index or idx
     end
     function e:SetTitle(v) return self:SetText(v) end
-    function e:SetText(v) if self._Label and self._Label.Parent then self._Label.Text=ts(v or "") return true end self.Name=ts(v or "") return true end
-    function e:SetDescription(v) self.Description=ts(v or "") if self._Description and self._Description.Parent then self._Description.Text=self.Description end return true end
+    function e:SetText(v) if self._Destroyed or ST.Destroyed then return false end if self._Label and self._Label.Parent then self._Label.Text=ts(v or "") return true end self.Name=ts(v or "") return true end
+    function e:SetDescription(v) if self._Destroyed or ST.Destroyed then return false end self.Description=ts(v or "") if self._Description and self._Description.Parent then self._Description.Text=self.Description end return true end
     function e:GetState()
         return {Type=self.Type,Value=self:GetValue(),Visible=self.Visible~=false,Disabled=self.Disabled==true,Focused=self.Focused==true,Title=self:GetTitle(),Description=self.Description}
     end
     function e:SetCallback(fn)
+        if self._Destroyed or ST.Destroyed then return false,"element destroyed" end
         if fn~=nil and type(fn)~="function" then return false,"callback inválido" end
         self._CallbackOverride=fn
         return true
     end
-    function e:SetDisabled(v) self.Disabled=v==true if self._ApplyDisabled then self._ApplyDisabled(self.Disabled) end return true end
-    function e:SetVisible(v) self.Visible=v==true if self._Frame and self._Frame.Parent then self._Frame.Visible=self.Visible end return true end
+    function e:SetDisabled(v) if self._Destroyed or ST.Destroyed then return false end self.Disabled=v==true if self._ApplyDisabled then self._ApplyDisabled(self.Disabled) end return true end
+    function e:SetVisible(v) if self._Destroyed or ST.Destroyed then return false end self.Visible=v==true; local frame=self.Frame or self._Frame; if frame and frame.Parent then frame.Visible=self.Visible end; return true end
     function e:DependsOn(source,expected,mode,inverse)
-        if not source or type(source.Get)~="function" then return false end
+        if self._Destroyed or ST.Destroyed then return false end
+        if not source or (type(source.GetValue)~="function" and type(source.Get)~="function") then return false end
         self._RuleDeps=self._RuleDeps or {}
         self._RuleConns=self._RuleConns or {}
         self._RuleMode=mode or "AND"
@@ -3529,35 +3684,50 @@ local function RegEl(idx,t,g,s,ex)
         if deps and #deps>0 then
             local all=true; local any=false
             for i=1,#deps do
-                local d=deps[i]; local ok,v=pcall(d.Source.Get); local match=ok and (d.Expected==nil and v or v==d.Expected)
+                local d=deps[i]; local getter=d.Source.GetValue or d.Source.Get; local ok,v=false,nil
+                if type(getter)=="function" then ok,v=pcall(getter,d.Source) end
+                local match=ok and (d.Expected==nil and v or v==d.Expected)
                 if d.Inverse then match=not match end
                 if match then any=true else all=false end
             end
             local enabled=(self._RuleMode=="OR") and any or all
-            if self.SetVisible and self._RuleVisibility~=false then self:SetVisible(enabled) end
-            if self.SetDisabled and self._RuleDisabled~=false then self:SetDisabled(not enabled) end
+            self._RuleDependencyEnabled=enabled
+            if self.SetVisible and self._RuleVisibility~=false then
+                local visible=enabled
+                if type(self._VisibleWhen)=="function" then local ok,v=pcall(self._VisibleWhen,self); visible=visible and ok and v==true end
+                self:SetVisible(visible)
+            end
+            if self.SetDisabled and self._RuleDisabled~=false then
+                local disabled=not enabled
+                if type(self._DisabledWhen)=="function" then local ok,v=pcall(self._DisabledWhen,self); disabled=disabled or (ok and v==true) end
+                self:SetDisabled(disabled)
+            end
         end
-        if type(self._VisibleWhen)=="function" then local ok,v=pcall(self._VisibleWhen,self); self:SetVisible(ok and v==true) end
-        if type(self._DisabledWhen)=="function" then local ok,v=pcall(self._DisabledWhen,self); self:SetDisabled(ok and v==true) end
+        if (not deps or #deps==0) and type(self._VisibleWhen)=="function" then local ok,v=pcall(self._VisibleWhen,self); self:SetVisible(ok and v==true) end
+        if (not deps or #deps==0) and type(self._DisabledWhen)=="function" then local ok,v=pcall(self._DisabledWhen,self); self:SetDisabled(ok and v==true) end
         return true
     end
     function e:VisibleWhen(fn)
-        if type(fn)~="function" then return false end
+        if self._Destroyed or ST.Destroyed or type(fn)~="function" then return false end
         self._VisibleWhen=fn; self._RuleVisibility=true; self:RefreshRules(); return true
     end
     function e:DisabledWhen(fn)
-        if type(fn)~="function" then return false end
+        if self._Destroyed or ST.Destroyed or type(fn)~="function" then return false end
         self._DisabledWhen=fn; self._RuleDisabled=true; self:RefreshRules(); return true
     end
     function e:Destroy()
         if self._Destroyed then return false end
         self._Destroyed=true
         if self._RuleConns then for i=#self._RuleConns,1,-1 do pcall(function() self._RuleConns[i]:Disconnect() end); self._RuleConns[i]=nil end end
-        if self._Cleanup then pcall(self._Cleanup) end
-        if self._Frame and self._Frame.Parent then self._Frame:Destroy() end
+        if self._FrameworkRuleConns then for i=#self._FrameworkRuleConns,1,-1 do pcall(function() self._FrameworkRuleConns[i]:Disconnect() end); self._FrameworkRuleConns[i]=nil end end
+        for _,key in ipairs({"_FrameworkVisibleConn","_FrameworkDisabledConn"}) do local conn=self[key]; if conn and conn.Disconnect then pcall(function() conn:Disconnect() end); self[key]=nil end end
+        if self._Cleanup then pcall(self._Cleanup,self) end
+        local frame=self.Frame or self._Frame
+        if frame and frame.Parent then frame:Destroy() end
         if ST.Elements[idx]==self then ST.Elements[idx]=nil end
         for i=#ST.ElementOrder,1,-1 do if ST.ElementOrder[i]==idx then table.remove(ST.ElementOrder,i) break end end
         table.clear(self._OnChanged)
+        if self._ColorCallbacks then table.clear(self._ColorCallbacks) end
         return true
     end
     ST.Elements[idx]=e
@@ -3691,7 +3861,7 @@ function El.ColorPicker(parent,opts)
     local sw=I("TextButton"); sw.Text=""; sw.AutoButtonColor=false; sw.Size=U3(34,30); sw.AnchorPoint=V2(1,.5); sw.Position=U2(1,-14,.5,0); sw.Parent=R2; FT.C(sw,7)
     local function applySwatch() sw.BackgroundColor3=color; sw.BackgroundTransparency=transparency end
     applySwatch()
-    local popup=nil; local conns={}; local open=false
+    local popup=nil; local conns={}; local open=false; local swConn=nil
     local E=nil
     local function cleanup()
         for i=#conns,1,-1 do pcall(function() conns[i]:Disconnect() end); conns[i]=nil end
@@ -3700,6 +3870,7 @@ function El.ColorPicker(parent,opts)
     end
     local function emit()
         applySwatch()
+        if E then E.Value=color; E.Transparency=transparency end
         if cb then SafeCall("ColorPicker:"..ts(idx),cb,color,transparency) end
         if changed then SafeCall("ColorPickerChanged:"..ts(idx),changed,color,transparency) end
         local e=ST.Elements[idx]; if e and e._EmitChanged then e:_EmitChanged(color,transparency) end
@@ -3739,27 +3910,16 @@ function El.ColorPicker(parent,opts)
         local close=I("TextButton"); close.Text="Done"; close.TextColor3=CFG.Text; close.BackgroundColor3=CFG.BgButton; close.Size=U3(54,24); close.Position=U2(1,-66,1,-30); close.Parent=popup; FT.C(close,6); Reg(close,"BackgroundColor3","BgButton"); Reg(close,"TextColor3","Text")
         conns[#conns+1]=close.MouseButton1Click:Connect(cleanup)
     end
-    conns[#conns+1]=sw.MouseButton1Click:Connect(function() open=not open; build() end)
+    swConn=sw.MouseButton1Click:Connect(function() if E and E._Destroyed then return end; open=not open; build() end)
     E=RegEl(idx,"ColorPicker",function() local h,s2,v=Color3.toHSV(color); return {H=h,S=s2,V=v,Color=color,Transparency=transparency} end,function(v,t)
         if typeof(v)=="Color3" then color=v; if tn(t) then transparency=ma(0,ma(1,t)) end
         elseif type(v)=="table" then local h=v.H or 0; local ss=v.S or v.s or 0; local vv=v.V or v.v or 0; color=Color3.fromHSV(h,ss,vv); if tn(t) then transparency=ma(0,ma(1,t)) elseif tn(v.Transparency) then transparency=ma(0,ma(1,v.Transparency)) end end
         applySwatch(); emit(); return true
     end,{Frame=R2,Label=L})
     E.Value=color; E.Transparency=transparency; E.Resizable=resizable
-    E.SetValue=function(self,hsv,t) return self:SetValueRGB(Color3.fromHSV(hsv.H or 0,hsv.S or 0,hsv.V or 0),t) end
-    E.SetValueRGB=function(self,c,t) if typeof(c)~="Color3" then return false end; color=c; if tn(t) then transparency=ma(0,ma(1,t)) end; self.Value=color; self.Transparency=transparency; emit(); return true end
-    local baseOnChanged=E.OnChanged
-    E.OnChanged=function(self,fn)
-        if type(fn)=="function" then
-            local rec={Fn=fn,Active=true}; self._ColorCallbacks=self._ColorCallbacks or {}; table.insert(self._ColorCallbacks,rec)
-            local base=baseOnChanged(self,fn)
-            return {Disconnect=function() rec.Active=false; if base and base.Disconnect then base.Disconnect() end end}
-        end
-        return baseOnChanged(self,fn)
-    end
-    local oldEmit=E._EmitChanged; E._EmitChanged=function(self,...) oldEmit(self,...); for _,rec in ipairs(self._ColorCallbacks or {}) do if rec.Active then SafeCall("ColorPickerOnChanged:"..ts(idx),rec.Fn,self.Value,self.Transparency) end end end
+    E.SetValueRGB=function(self,c,t) if self._Destroyed or ST.Destroyed or typeof(c)~="Color3" then return false end; color=c; if tn(t) then transparency=ma(0,ma(1,t)) end; self.Value=color; self.Transparency=transparency; emit(); return true end
     E.SetText=function(self,v) L.Text=ts(v or ""); return true end
-    E._Cleanup=function() cleanup() end
+    E._Cleanup=function() cleanup(); if swConn then swConn:Disconnect(); swConn=nil end end
     FT.H(R2,RS)
     return E
 end
@@ -3884,19 +4044,21 @@ function El.Dropdown(parent,opts)
         end
         DT.Text=text
     end
+    local function cloneSelected()
+        local t={}; for k,v in pairs(selected) do t[k]=v end; return t
+    end
     local function emit(old)
-        if E then E:_EmitChanged(multi and selected or (selectedList()[1])) end
+        local value=multi and cloneSelected() or selectedList()[1]
         if cb then
-            local val=multi and selected or selectedList()[1]
-            local ok=SafeCall("Dropdown:"..ts(idx),cb,val)
+            local ok=SafeCall("Dropdown:"..ts(idx),cb,value)
             if not ok then
                 if old then selected=old end
                 refreshText()
+                return false
             end
         end
-    end
-    local function cloneSelected()
-        local t={}; for k,v in pairs(selected) do t[k]=v end; return t
+        if E then E:_EmitChanged(multi and cloneSelected() or selectedList()[1]) end
+        return true
     end
     local function setValueInternal(val,silent)
         local old=cloneSelected()
@@ -3921,7 +4083,7 @@ function El.Dropdown(parent,opts)
         end
         selected=nextSel; refreshText()
         local changed=false; for k in pairs(old) do if not selected[k] then changed=true end end for k in pairs(selected) do if not old[k] then changed=true end end
-        if changed and not silent then emit(old) end
+        if changed and not silent then return emit(old) end
         return true
     end
     local function createPopup()
@@ -3958,15 +4120,21 @@ function El.Dropdown(parent,opts)
                     local conn=row.MouseButton1Click:Connect(function()
                         if isDisabledValue(e.key,e.label) then return end
                         if multi then
+                            local old=cloneSelected()
                             if selected[e.key] then selected[e.key]=nil else selected[e.key]=true end
-                            refreshText(); rebuild(); emit(nil)
+                            refreshText(); emit(old); rebuild()
                         else
                             setValueInternal(e.key,false); close()
                         end
                     end)
                     popupConns[#popupConns+1]=conn
                     if dragSelect then
-                        popupConns[#popupConns+1]=row.MouseEnter:Connect(function() if dragDown and not isDisabledValue(e.key,e.label) then selected[e.key]=true; refreshText(); row.BackgroundColor3=CFG.NavActive end end)
+                        popupConns[#popupConns+1]=row.MouseEnter:Connect(function()
+                            if dragDown and not isDisabledValue(e.key,e.label) and not selected[e.key] then
+                                local old=cloneSelected(); selected[e.key]=true; refreshText()
+                                if emit(old) then row.BackgroundColor3=CFG.NavActive else row.BackgroundColor3=contains(e.key) and CFG.NavActive or CFG.Field end
+                            end
+                        end)
                     end
                 end
             end
@@ -3987,7 +4155,7 @@ function El.Dropdown(parent,opts)
     end
     Tk(D.MouseButton1Click:Connect(function() if disabled then return end; if open then close() else createPopup() end end))
     local function applyDisabled(v) disabled=v==true; D.Active=not disabled; R2.Active=not disabled; R2.BackgroundTransparency=disabled and .12 or 0; L.TextTransparency=disabled and .45 or 0 end
-    local E2=RegEl(idx,"Dropdown",function() return multi and selected or selectedList()[1] end,function(v) return setValueInternal(v,false) end,{Frame=R2,Label=L})
+    local E2=RegEl(idx,"Dropdown",function() return multi and cloneSelected() or selectedList()[1] end,function(v) return setValueInternal(v,false) end,{Frame=R2,Label=L})
     E=E2; E.Disabled=disabled; E.Visible=visible; E.Values=values; E.Multi=multi; E.AllowNull=allowNull; E.DragSelect=dragSelect
     E.SetValue=function(self,v) return setValueInternal(v,false) end
     E.SetValues=function(self,v)
@@ -3997,12 +4165,15 @@ function El.Dropdown(parent,opts)
         local before=cloneSelected()
         local valid={}
         for _,e in ipairs(entries()) do if selected[e.key] then valid[e.key]=true end end
+        if not allowNull and not multi and next(valid)==nil then
+            for _,e in ipairs(entries()) do if not isDisabledValue(e.key,e.label) then valid[e.key]=true; break end end
+        end
         selected=valid
         refreshText()
         local changed=false
         for k in pairs(before) do if not selected[k] then changed=true break end end
         if not changed then for k in pairs(selected) do if not before[k] then changed=true break end end end
-        if changed then self:_EmitChanged(multi and selected or selectedList()[1]) end
+        if changed then self:_EmitChanged(multi and cloneSelected() or selectedList()[1]) end
         if open then createPopup() end
         return true
     end
@@ -4021,13 +4192,14 @@ function El.Dropdown(parent,opts)
     E.SetDisabled=function(self,v) applyDisabled(v); self.Disabled=disabled; if disabled then close() end; return true end
     E.SetVisible=function(self,v) R2.Visible=v==true; self.Visible=v==true; if not self.Visible then close() end; return true end
     E.SetDragSelect=function(self,v) dragSelect=v==true and multi; self.DragSelect=dragSelect; return true end
-    E.GetActiveValues=function(self,count) if count then local n=0 for _ in pairs(selected) do n=n+1 end return n end return multi and selected or selectedList()[1] end
+    E.GetActiveValues=function(self,count) if count then local n=0 for _ in pairs(selected) do n=n+1 end return n end return multi and cloneSelected() or selectedList()[1] end
     E._Cleanup=function() close(); for i=#conns,1,-1 do pcall(function() conns[i]:Disconnect() end) end end
     local cleanupTip=AttachTooltip(R2,function() return disabled and opts.DisabledTooltip or opts.Tooltip end)
     local oldCleanup=E._Cleanup; E._Cleanup=function() cleanupTip(); oldCleanup() end
     applyDisabled(disabled); R2.Visible=visible; refreshText()
     -- initial default: index, identity, or table of identities
     if opts.Default~=nil then setValueInternal(opts.Default,true) end
+    E.Default=multi and cloneSelected() or selectedList()[1]
     local function refreshSpecialValues()
         if special=="Player" then
             local nv={}
@@ -4353,6 +4525,10 @@ function El.Keybind(parent,opts)
     local cur=opts.Default or Enum.KeyCode.Unknown
     local mode=opts.Mode or "Toggle"
     local modes=type(opts.Modes)=="table" and opts.Modes or {"Always","Toggle","Hold"}
+    if #modes==0 then modes={"Always","Toggle","Hold"} end
+    local modeAllowed=false
+    for _,candidate in ipairs(modes) do if candidate==mode then modeAllowed=true break end end
+    if not modeAllowed then mode=modes[1] end
     local st=false
     local syncToggle=opts.SyncToggleState==true
     local noUI=opts.NoUI==true
@@ -4387,6 +4563,23 @@ function El.Keybind(parent,opts)
     local function modifierName(k)
         local map={LeftAlt="LAlt",RightAlt="RAlt",LeftControl="LCtrl",RightControl="RCtrl",LeftShift="LShift",RightShift="RShift",Tab="Tab",CapsLock="CapsLock"}
         return map[k.Name] or k.Name
+    end
+    local modifierCodes={LAlt=Enum.KeyCode.LeftAlt,RAlt=Enum.KeyCode.RightAlt,LCtrl=Enum.KeyCode.LeftControl,RCtrl=Enum.KeyCode.RightControl,LShift=Enum.KeyCode.LeftShift,RShift=Enum.KeyCode.RightShift,Tab=Enum.KeyCode.Tab,CapsLock=Enum.KeyCode.CapsLock}
+    local function modifiersMatch()
+        local expected={}
+        for _,name in ipairs(modifiers) do
+            expected[name]=true
+            local code=modifierCodes[name]
+            if code then
+                local ok,down=pcall(function() return S.U:IsKeyDown(code) end)
+                if not ok or not down then return false end
+            end
+        end
+        for name,code in pairs(modifierCodes) do
+            local ok,down=pcall(function() return S.U:IsKeyDown(code) end)
+            if ok and down and not expected[name] then return false end
+        end
+        return true
     end
     local KB=nil
     local E=nil
@@ -4469,7 +4662,7 @@ function El.Keybind(parent,opts)
         cur=k
         ST.Keybinds[idx]=keyName
         if E then E.Value=cur; E.Modifiers=modifiers end
-        KB.Text=keyName
+        refreshKeyText()
     end
     local function fire(ns)
         if st==ns then return end
@@ -4530,8 +4723,9 @@ function El.Keybind(parent,opts)
             if listenConn then listenConn:Disconnect() listenConn=nil end
         end)
     end))
-    local function match(inp)
+    local function match(inp,checkModifiers)
         if not cur or cur==Enum.KeyCode.Unknown then return false end
+        if checkModifiers~=false and not modifiersMatch() then return false end
         -- The global menu shortcut is handled once by the window manager; do not
         -- fire a second keybind callback for the same key.
         if inp.UserInputType==Enum.UserInputType.Keyboard and inp.KeyCode==CFG.ToggleKey then return false end
@@ -4541,7 +4735,7 @@ function El.Keybind(parent,opts)
         if cur=="MouseButton3" then return inp.UserInputType==Enum.UserInputType.MouseButton3 end
         return false
     end
-    Tk(S.U.InputBegan:Connect(function(inp,gpe)
+    local keyDownConn=S.U.InputBegan:Connect(function(inp,gpe)
         if not E or E._Destroyed then return end
         if gpe or listen or keyBusy or mode=="Always" or ST.ListeningKeybind or S.U:GetFocusedTextBox() then return end
         if match(inp) then
@@ -4553,11 +4747,13 @@ function El.Keybind(parent,opts)
                 if now-lastPress<=.35 then lastPress=0; fire(true); if not waitCallback then fire(false) end else lastPress=now end
             end
         end
-    end))
-    Tk(S.U.InputEnded:Connect(function(inp)
-        if listen or ST.ListeningKeybind or S.U:GetFocusedTextBox() then return end
-        if mode=="Hold" and match(inp) then fire(false) end
-    end))
+    end)
+    Tk(keyDownConn)
+    local keyUpConn=S.U.InputEnded:Connect(function(inp)
+        if not E or E._Destroyed or listen or ST.ListeningKeybind then return end
+        if mode=="Hold" and match(inp,false) then fire(false) end
+    end)
+    Tk(keyUpConn)
     if mode=="Always" then fire(true) end
     E=RegEl(idx,"Keybind",function() return {Key=K2S(cur),Mode=mode,State=st} end,function(v)
         if type(v)=="table" then
@@ -4582,7 +4778,13 @@ function El.Keybind(parent,opts)
         changedCb=type(fn)=="function" and fn or nil
         return baseOnChanged(self,fn)
     end
-    E._Cleanup=function() if listenConn then listenConn:Disconnect(); listenConn=nil end; if ST.ListeningKeybind==idx then ST.ListeningKeybind=nil end; ST.Keybinds[idx]=nil end
+    E._Cleanup=function()
+        if listenConn then listenConn:Disconnect(); listenConn=nil end
+        if keyDownConn then keyDownConn:Disconnect(); keyDownConn=nil end
+        if keyUpConn then keyUpConn:Disconnect(); keyUpConn=nil end
+        if ST.ListeningKeybind==idx then ST.ListeningKeybind=nil end
+        ST.Keybinds[idx]=nil
+    end
     E._Label=L
     E._ApplyDisabled=function(v) R2.Active=v~=true; R2.BackgroundTransparency=v and .35 or 0 end
     refreshKeyText()
@@ -4787,9 +4989,16 @@ end
 local API={}
 local function ElementAPI(target)
     local api={}
+    if ValidParent(target) and not target:FindFirstChildOfClass("UIListLayout") then
+        local layout=I("UIListLayout")
+        layout.Name="__LuaElementLayout"
+        layout.SortOrder=Enum.SortOrder.LayoutOrder
+        layout.Padding=Un(0,8)
+        layout.Parent=target
+    end
     function api:AddLabel(textOrCfg)
         local cfg=type(textOrCfg)=="table" and textOrCfg or {Text=textOrCfg}
-        local row=I("Frame"); row.BackgroundTransparency=1; row.Size=U2(1,0,0,28); row.Parent=target
+        local row=I("Frame"); row.BackgroundTransparency=1; row.Size=U2(1,0,0,28); row.LayoutOrder=NextLayoutOrder(target); row.Parent=target
         local lbl=FT.L(row,ts(cfg.Text or cfg.Name or ""),cfg.TextSize or 13,CFG.Text); lbl.Position=U3(10,0); lbl.Size=U2(1,-20,1,0); Reg(lbl,"TextColor3","Text")
         local obj={Instance=row,Label=lbl,SetText=function(self,v) lbl.Text=ts(v or ""); return true end,Destroy=function(self) if row.Parent then row:Destroy() end end}
         function obj:AddColorPicker(id,cfg2) cfg2=cfg2 or {}; cfg2.Index=cfg2.Index or id; local h=El.ColorPicker(row.Parent,cfg2); self._ColorPicker=h; return h end
@@ -4858,7 +5067,7 @@ end
 local function SimpleContainer(parent,opts,name,direction)
     if not ValidParent(parent) then return nil end
     opts=opts or {}
-    local frame=I("Frame"); frame.Name=opts.Name or name; frame.BackgroundTransparency=1; frame.BorderSizePixel=0; frame.Size=U2(1,0,0,0); frame.AutomaticSize=Enum.AutomaticSize.Y; frame.Parent=parent
+    local frame=I("Frame"); frame.Name=opts.Name or name; frame.BackgroundTransparency=1; frame.BorderSizePixel=0; frame.Size=U2(1,0,0,0); frame.AutomaticSize=Enum.AutomaticSize.Y; frame.LayoutOrder=NextLayoutOrder(parent); frame.Parent=parent
     local layout=I("UIListLayout"); layout.SortOrder=Enum.SortOrder.LayoutOrder; layout.FillDirection=direction or Enum.FillDirection.Vertical; layout.HorizontalAlignment=opts.HorizontalAlignment or Enum.HorizontalAlignment.Left; layout.VerticalAlignment=opts.VerticalAlignment or Enum.VerticalAlignment.Top; layout.Padding=Un(0,tn(opts.Gap or opts.Padding) or 8); layout.Parent=frame
     local api=ElementAPI(frame); api.ElementFrame=frame; api.Layout=layout; api.__type=name; api.GetContainer=function() return frame end
     function api:SetGap(value) layout.Padding=Un(0,math.max(0,tn(value) or 0)); return true end
@@ -4878,7 +5087,7 @@ function El.Space(parent,opts)
     if type(opts)=="number" then opts={Size=opts} elseif type(opts)=="string" then opts={Size=tonumber(opts)} else opts=opts or {} end
     local amount=math.max(0,tn(opts.Size or opts.Height or opts.Width or opts.Columns) or 8)
     local horizontal=opts.Orientation=="Horizontal" or opts.Horizontal==true
-    local frame=I("Frame"); frame.Name=opts.Name or "Space"; frame.BackgroundTransparency=1; frame.BorderSizePixel=0
+    local frame=I("Frame"); frame.Name=opts.Name or "Space"; frame.BackgroundTransparency=1; frame.BorderSizePixel=0; frame.LayoutOrder=NextLayoutOrder(parent)
     if horizontal then frame.Size=U3(amount,1) else frame.Size=U2(1,0,0,amount) end
     frame.Parent=parent
     return {__type="Space",ElementFrame=frame,Instance=frame,Destroy=function() if frame.Parent then frame:Destroy() end; return true end,SetSize=function(_,v) v=math.max(0,tn(v) or amount); amount=v; if horizontal then frame.Size=U3(v,1) else frame.Size=U2(1,0,0,v) end; return true end}
@@ -5053,6 +5262,7 @@ GetGroupColumn=function(parent,side)
         layer.BackgroundTransparency=1
         layer.Size=U2(1,0,0,0)
         layer.AutomaticSize=Enum.AutomaticSize.Y
+        layer.LayoutOrder=NextLayoutOrder(parent)
         layer.Parent=parent
         local left=I("Frame")
         left.Name="Left"
@@ -5076,6 +5286,22 @@ GetGroupColumn=function(parent,side)
         rl.Padding=Un(0,10)
         rl.SortOrder=Enum.SortOrder.LayoutOrder
         rl.Parent=right
+        local function updateColumns()
+            if not parent.Parent then return end
+            local narrow=parent.AbsoluteSize.X<640
+            if narrow then
+                left.Size=U2(1,0,0,0); left.Position=U2(0,0,0,0)
+                right.Size=U2(1,0,0,0); right.Position=U2(0,0,0,left.AbsoluteSize.Y+10)
+            else
+                left.Size=U2(.5,-6,0,0); left.Position=U2(0,0,0,0)
+                right.Size=U2(.5,-6,0,0); right.Position=U2(.5,6,0,0)
+            end
+        end
+        Tk(parent:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateColumns))
+        Tk(left:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+            if parent.AbsoluteSize.X<640 then right.Position=U2(0,0,0,left.AbsoluteSize.Y+10) end
+        end))
+        updateColumns()
     end
     return layer:FindFirstChild(side) or parent
 end
@@ -5206,7 +5432,7 @@ function API:Toggle() if not ValidState() then return false end ApplyVis(not ST.
 function API:Open() if not ValidState() then return false end if not ST.MainVisible then ApplyVis(true) end return true end
 function API:Close() if not ValidState() then return false end if ST.MainVisible then ApplyVis(false) end return true end
 function API:Minimize() if not ValidState() then return false end Minimize() return true end
-function API:Fullscreen() if not ValidState() then return false end TglFS() return true end
+function API:Fullscreen() if not ValidState() then return false end return TglFS() end
 function API:GetMode() return ST.CurrentMode end
 function API:ChangeTitle(t) ST.Window.Title=ts(t or "") if UI.PT then UI.PT.Text=ST.Window.Title end if UI.OpenBT then UI.OpenBT.Text=ST.Window.Title end end
 function API:SetAlwaysOnTop(v)
@@ -5214,24 +5440,35 @@ function API:SetAlwaysOnTop(v)
     local d=ST.Window.AlwaysOnTop and 1000000 or nil
     if UI.Gui then UI.Gui.DisplayOrder=d and d+100 or 100 end
     if UI.PGui then UI.PGui.DisplayOrder=d and d+150 or 150 end
-    if UI.DGui then UI.DGui.DisplayOrder=d and d+175 or 175 end
+    if UI.DGui then UI.DGui.DisplayOrder=d and d+300 or 300 end
     if UI.OGui then UI.OGui.DisplayOrder=d and d+250 or 250 end
     if UI.NGui then UI.NGui.DisplayOrder=d and d+200 or 200 end
     return true
 end
 function API:GetGui() return UI.Gui end
 function API:GetCurrentPage() return ST.CurrentPage end
-function API:ResetSize() ST.CustomSize=nil ST.Window.Size=nil CFG.Fullscreen=false ST.UserMoved=false UpdateResp() end
+function API:ResetSize() FT.Cancel(UI.Main,"Fullscreen") ST.Window.FullscreenSaved=nil ST.CustomSize=nil ST.Window.Size=nil CFG.Fullscreen=false ST.UserMoved=false UpdateResp() return true end
 function API:SetSize(w,h)
     w=tn(w) h=tn(h)
-    if not w or not h then return end
+    if not w or not h then return false,"tamanho inválido" end
     local v=GetVP()
-    w=cl(w,CFG.MinW,ma(CFG.MinW,v.X-20)); if ST.Framework.MaxW then w=mi(w,ST.Framework.MaxW) end
-    h=cl(h,CFG.MinH,ma(CFG.MinH,v.Y-20)); if ST.Framework.MaxH then h=mi(h,ST.Framework.MaxH) end
+    local scale=WindowDisplayScale()
+    local topLeft=UI.Main.AbsolutePosition
+    local maxW=ma(1,(v.X-20)/scale); local maxH=ma(1,(v.Y-20)/scale)
+    local minW=mi(CFG.MinW,maxW); local minH=mi(CFG.MinH,maxH)
+    if ST.Framework.MaxW then maxW=mi(maxW,ma(minW,ST.Framework.MaxW)) end
+    if ST.Framework.MaxH then maxH=mi(maxH,ma(minH,ST.Framework.MaxH)) end
+    w=cl(w,minW,maxW)
+    h=cl(h,minH,maxH)
+    FT.Cancel(UI.Main,"Fullscreen")
     ST.CustomSize=V2(w,h)
     ST.Window.Size=U3(w,h)
     CFG.Fullscreen=false
+    ST.Window.FullscreenSaved=nil
+    ST.UserMoved=true
     UpdateResp()
+    PreserveMainTopLeft(topLeft,MainSizeAtScale(scale))
+    return true
 end
 function API:Dialog(cfg) return NewDialog(cfg) end
 function API:Popup(cfg) return NewDialog(cfg) end
@@ -5337,7 +5574,7 @@ local function ApplyWindowConfig(c)
     UI.Search.Visible=not W.DisableSearch and ST.CurrentMode~="Mobile"
     if typeof(W.SearchbarSize)=="UDim2" then UI.Search.Size=W.SearchbarSize end
     UI.RG.Visible=W.Resizable~=false
-    UI.HdrB.Visible=(W.ShowMobileButtons~=false) or ST.CurrentMode~="Mobile"
+    UI.HdrB.Visible=ST.CurrentMode~="Mobile" or W.ShowMobileButtons==true
     UI.SidebarResize.Visible=W.EnableSidebarResize and ST.CurrentMode~="Mobile" and not W.SidebarCompacted
     if W.NotifySide=="Left" then UI.NH.AnchorPoint=V2(0,0) UI.NH.Position=U2(0,16) UI.NL.HorizontalAlignment=Enum.HorizontalAlignment.Left else UI.NH.AnchorPoint=V2(1,0) UI.NH.Position=U2(1,-16) UI.NL.HorizontalAlignment=Enum.HorizontalAlignment.Right end
     UpdateResp()
@@ -5358,13 +5595,22 @@ end
 function API:SetScale(v)
     v=tn(v); if not v then return false,"escala inválida" end
     v=cl(v,.75,1.35)
+    local topLeft=UI.Main.AbsolutePosition
     -- Scale only the window GuiObject subtree, never the ScreenGui coordinate
     -- system; scaling the whole ScreenGui also scaled its pixel-centered Position.
     local legacy=UI.Gui:FindFirstChild("LuaInterfaceScale")
     if legacy and legacy:IsA("UIScale") then legacy:Destroy() end
     local sc=UI.Main:FindFirstChild("LuaInterfaceScale")
     if not sc then sc=I("UIScale"); sc.Name="LuaInterfaceScale"; sc.Parent=UI.Main end
-    sc.Scale=v; ST.Scale=v; return true
+    sc.Scale=v
+    ST.Scale=v
+    if CFG.Fullscreen then
+        UpdateResp()
+    else
+        ST.UserMoved=true
+        PreserveMainTopLeft(topLeft,MainSizeAtScale(v))
+    end
+    return true
 end
 function API:GetScale() return ST.Scale or 1 end
 function API:RegisterPlugin(name,plugin)
@@ -5494,6 +5740,8 @@ function API:Destroy()
     ST.State="Destroying"
     ST.Destroyed=true
     ST.ThemeToken=ST.ThemeToken+1
+    ST.toggleToken=(ST.toggleToken or 0)+1
+    ST.PageToken=(ST.PageToken or 0)+1
     -- Cancelar todos os tweens ativos ANTES de destruir objetos
     for obj,bucket in pairs(ST.ActiveTweens) do
         for _,tw in pairs(bucket) do
@@ -5509,6 +5757,16 @@ function API:Destroy()
     end
     table.clear(ST.ActiveNotif)
     ST.ActiveCount=0
+    if ST.Framework.NotifyQueue then table.clear(ST.Framework.NotifyQueue) end
+    local elementsToDestroy={}
+    for _,id in ipairs(ST.ElementOrder) do
+        local element=ST.Elements[id]
+        if element then elementsToDestroy[#elementsToDestroy+1]=element end
+    end
+    for i=#elementsToDestroy,1,-1 do
+        local element=elementsToDestroy[i]
+        if element and type(element.Destroy)=="function" then pcall(function() element:Destroy() end) end
+    end
     table.clear(IH)
     table.clear(EH)
     CleanHooks()
@@ -5533,7 +5791,8 @@ function API:Destroy()
     ST.ActiveDialog=nil
     ST.Dragging=false
     table.clear(ST.Pages)
-    for i=1,#ST.Framework.ViewportSignals do ST.Framework.ViewportSignals[i]=nil end
+    for _,conn in pairs(ST.Framework.ViewportSignals) do pcall(function() conn:Disconnect() end) end
+    table.clear(ST.Framework.ViewportSignals)
     table.clear(ST.Buttons)
     table.clear(ST.ButtonLowerNames)
     table.clear(ST.ButtonIcons)
@@ -5580,7 +5839,7 @@ API.Window=ST.Window
 -- large number of chunk-level locals. Runtime state lives in ST.
 -- ============================================================
 ST.Framework=ST.Framework or {}
-ST.Framework.Version="1.1.1-beta"
+ST.Framework.Version="1.1.2-beta"
 ST.Framework.KeepDefaultTabs=false
 ST.Framework.UserTabsStarted=false
 ST.Framework.Modules=ST.Framework.Modules or {}
@@ -5893,15 +6152,18 @@ function API:GiveSignal(signal)
 end
 function API:GiveInstance(obj)
     if not obj then return obj end
+    if ST.Destroyed or ST.State=="Destroying" then pcall(function() obj:Destroy() end); return nil end
     ST.Framework.ManagedInstances[obj]=true
     return obj
 end
 function API:GiveTask(thread)
+    if ST.Destroyed or ST.State=="Destroying" then if thread then pcall(function() task.cancel(thread) end) end; return nil end
     if thread then TrackTask(thread) end
     return thread
 end
 function API:OnUnload(fn)
     if type(fn)~="function" then return nil end
+    if ST.Destroyed or ST.State=="Destroying" then return nil end
     ST.Framework.UnloadCallbacks[#ST.Framework.UnloadCallbacks+1]=fn
     return {Disconnect=function()
         for i=#ST.Framework.UnloadCallbacks,1,-1 do
@@ -5955,6 +6217,7 @@ function API:CreateMaid()
         if not self.Alive then
             pcall(function()
                 if type(taskItem)=="function" then taskItem()
+                elseif type(taskItem)=="thread" then task.cancel(taskItem)
                 elseif taskItem and taskItem.Disconnect then taskItem:Disconnect()
                 elseif taskItem and taskItem.Destroy then taskItem:Destroy() end
             end)
@@ -5974,6 +6237,7 @@ function API:CreateMaid()
             self.Tasks[i]=nil
             pcall(function()
                 if type(item)=="function" then item()
+                elseif type(item)=="thread" then task.cancel(item)
                 elseif item and item.Disconnect then item:Disconnect()
                 elseif item and item.Destroy then item:Destroy() end
             end)
@@ -5992,17 +6256,27 @@ function API:CreateState(initial)
         local old=self.Value
         if old==v then return true end
         self.Value=v
-        for i=#self.Listeners,1,-1 do
-            local rec=self.Listeners[i]
-            if rec and rec.Active then SafeCall("State",rec.Fn,v,old) else table.remove(self.Listeners,i) end
+        local listeners={}
+        for i=1,#self.Listeners do listeners[i]=self.Listeners[i] end
+        for i=#listeners,1,-1 do
+            if not self.Alive then break end
+            local rec=listeners[i]
+            if rec and rec.Active then SafeCall("State",rec.Fn,v,old) end
         end
-        return true
+        for i=#self.Listeners,1,-1 do local rec=self.Listeners[i]; if not rec or not rec.Active then table.remove(self.Listeners,i) end end
+        return self.Alive
     end
     function state:OnChanged(fn)
         if type(fn)~="function" or not self.Alive then return {Disconnect=function() end} end
         local rec={Fn=fn,Active=true}
         self.Listeners[#self.Listeners+1]=rec
-        return {Disconnect=function() rec.Active=false end}
+        local owner=self
+        return {Disconnect=function()
+            if not rec.Active then return false end
+            rec.Active=false
+            for i=#owner.Listeners,1,-1 do if owner.Listeners[i]==rec then table.remove(owner.Listeners,i); break end end
+            return true
+        end}
     end
     function state:Destroy()
         self.Alive=false
@@ -6096,7 +6370,9 @@ function API:IsMaximized()
     return CFG.Fullscreen==true
 end
 function API:Restore()
+    if ST.Destroyed or ST.State=="Destroying" then return false end
     if CFG.Fullscreen then self:Fullscreen() end
+    if not ST.MainVisible or not UI.Main.Visible then ApplyVis(true) end
     return true
 end
 function API:SetTransparency(v)
@@ -6134,6 +6410,9 @@ function API:AddTab(name,cfg)
     local page
     page=select(1,CrtPg(name))
     if not page then return nil,"não foi possível criar tab" end
+    local content=UI.PageCts[name] or page
+    local contentLayout=content:FindFirstChildOfClass("UIListLayout")
+    if contentLayout then Tk(contentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(ScrollU)) end
     local nextOrder=0
     for _,meta in pairs(ST.Framework.TabMeta) do
         local o=tn(meta and meta.Order) or 0
@@ -6185,24 +6464,24 @@ function API:AddTab(name,cfg)
     Tk(b.MouseButton1Click:Connect(function() SetTab(name) end))
     if cfg.Visible==false then b.Visible=false; page.Visible=false end
     local tab=self:GetTab(name)
-    function tab:AddLeftGroupbox(gcfg) gcfg=gcfg or {}; gcfg.Side="Left"; return MakeGroupbox(page,gcfg) end
-    function tab:AddRightGroupbox(gcfg) gcfg=gcfg or {}; gcfg.Side="Right"; return MakeGroupbox(page,gcfg) end
-    function tab:AddGroupbox(gcfg) return MakeGroupbox(page,gcfg or {}) end
-    function tab:AddTabbox(tcfg) return MakeTabbox(page,tcfg or {}) end
-    function tab:AddDependencyBox() return MakeDependency(page,false) end
-    function tab:AddDependencyGroupbox() return MakeDependency(page,true) end
-    function tab:AddLabel(c) return ElementAPI(page):AddLabel(c) end
-    function tab:AddButton(a,b) return ElementAPI(page):AddButton(a,b) end
-    function tab:AddToggle(a,b) return ElementAPI(page):AddToggle(a,b) end
-    function tab:AddCheckbox(a,b) return ElementAPI(page):AddCheckbox(a,b) end
-    function tab:AddSlider(a,b) return ElementAPI(page):AddSlider(a,b) end
-    function tab:AddDropdown(a,b) return ElementAPI(page):AddDropdown(a,b) end
-    function tab:AddMultiDropdown(a,b) b=b or {}; b.Multi=true; return ElementAPI(page):AddDropdown(a,b) end
-    function tab:AddInput(a,b) return ElementAPI(page):AddInput(a,b) end
-    function tab:AddKeybind(a,b) return ElementAPI(page):AddKeybind(a,b) end
-    function tab:AddColorPicker(a,b) b=b or {}; b.Index=b.Index or a; return El.ColorPicker(page,b) end
-    function tab:AddSection(a) return El.Section(page,a) end
-    function tab:AddDivider(a) return El.Divider(page,a) end
+    function tab:AddLeftGroupbox(gcfg) gcfg=gcfg or {}; gcfg.Side="Left"; return MakeGroupbox(content,gcfg) end
+    function tab:AddRightGroupbox(gcfg) gcfg=gcfg or {}; gcfg.Side="Right"; return MakeGroupbox(content,gcfg) end
+    function tab:AddGroupbox(gcfg) return MakeGroupbox(content,gcfg or {}) end
+    function tab:AddTabbox(tcfg) return MakeTabbox(content,tcfg or {}) end
+    function tab:AddDependencyBox() return MakeDependency(content,false) end
+    function tab:AddDependencyGroupbox() return MakeDependency(content,true) end
+    function tab:AddLabel(c) return ElementAPI(content):AddLabel(c) end
+    function tab:AddButton(a,b) return ElementAPI(content):AddButton(a,b) end
+    function tab:AddToggle(a,b) return ElementAPI(content):AddToggle(a,b) end
+    function tab:AddCheckbox(a,b) return ElementAPI(content):AddCheckbox(a,b) end
+    function tab:AddSlider(a,b) return ElementAPI(content):AddSlider(a,b) end
+    function tab:AddDropdown(a,b) return ElementAPI(content):AddDropdown(a,b) end
+    function tab:AddMultiDropdown(a,b) b=b or {}; b.Multi=true; return ElementAPI(content):AddDropdown(a,b) end
+    function tab:AddInput(a,b) return ElementAPI(content):AddInput(a,b) end
+    function tab:AddKeybind(a,b) return ElementAPI(content):AddKeybind(a,b) end
+    function tab:AddColorPicker(a,b) b=b or {}; b.Index=b.Index or a; return El.ColorPicker(content,b) end
+    function tab:AddSection(a) return El.Section(content,a) end
+    function tab:AddDivider(a) return El.Divider(content,a) end
     tab.GetContainer=function() return UI.PageCts[name] end
     if cfg.Select==true or (firstUserTab and cfg.Select~=false and cfg.Visible~=false) then SetTab(name,true) end
     ScheduleResp()
@@ -6327,25 +6606,29 @@ function API:SetElementValue(id,v)
 end
 function API:GetElementValue(id)
     local e=self:GetElement(id); if not e then return nil end
-    if e.Get then local ok,v=pcall(e.Get); if ok then return v end end
+    if type(e.GetValue)=="function" then local ok,v=pcall(e.GetValue,e); if ok then return v end end
+    if e.Get then local ok,v=pcall(e.Get,e); if ok then return v end end
     return e.Value
 end
 function API:DependsOn(element,source,expected,mode)
     if not element or type(element.OnChanged)~="function" then return false end
+    if not source or (type(source.GetValue)~="function" and type(source.Get)~="function") then return false end
     element._FrameworkDeps=element._FrameworkDeps or {}
     element._FrameworkDepMode=mode or "AND"
     element._FrameworkDepRefresh=function()
         local deps=element._FrameworkDeps; local okAll=true; local okAny=false
         for i=1,#deps do
             local d=deps[i]; local value=nil; local got=false
-            if d.Source and type(d.Source.Get) == "function" then local ok,v=pcall(d.Source.Get); got=ok; value=v end
+            local getter=d.Source and (d.Source.GetValue or d.Source.Get)
+            if type(getter)=="function" then local ok,v=pcall(getter,d.Source); got=ok; value=v end
             local match=got and (d.Expected==nil and value or value==d.Expected)
             if d.Inverse then match=not match end
             if match then okAny=true else okAll=false end
         end
         local enabled=(element._FrameworkDepMode=="OR") and okAny or okAll
-        if element.SetVisible and element._FrameworkVisibleRule==nil then element:SetVisible(enabled) end
-        if element.SetDisabled and element._FrameworkDisabledRule==nil then element:SetDisabled(not enabled) end
+            element._FrameworkDependencyEnabled=enabled
+            if element._FrameworkVisibleRefresh then element._FrameworkVisibleRefresh() elseif element.SetVisible and element._FrameworkVisibleRule==nil then element:SetVisible(enabled) end
+            if element._FrameworkDisabledRefresh then element._FrameworkDisabledRefresh() elseif element.SetDisabled and element._FrameworkDisabledRule==nil then element:SetDisabled(not enabled) end
     end
     element._FrameworkDeps[#element._FrameworkDeps+1]={Source=source,Expected=expected,Inverse=false}
     if source and type(source.OnChanged)=="function" then
@@ -6358,10 +6641,11 @@ end
 function API:VisibleWhen(element,fn)
     if not element or type(fn)~="function" then return false end
     element._FrameworkVisibleRule=fn
-    element._FrameworkVisibleConn=element._FrameworkVisibleConn or nil
     element._FrameworkVisibleRefresh=function()
-        local ok,v=pcall(fn,element); if element.SetVisible then element:SetVisible(ok and v==true) end
+        local ok,v=pcall(fn,element); if element.SetVisible then element:SetVisible(element._FrameworkDependencyEnabled~=false and ok and v==true) end
     end
+    if element._FrameworkVisibleConn and element._FrameworkVisibleConn.Disconnect then element._FrameworkVisibleConn:Disconnect() end
+    if type(element.OnChanged)=="function" then element._FrameworkVisibleConn=element:OnChanged(function() if element._FrameworkVisibleRefresh then element._FrameworkVisibleRefresh() end end) end
     element._FrameworkVisibleRefresh()
     return true
 end
@@ -6369,8 +6653,10 @@ function API:DisabledWhen(element,fn)
     if not element or type(fn)~="function" then return false end
     element._FrameworkDisabledRule=fn
     element._FrameworkDisabledRefresh=function()
-        local ok,v=pcall(fn,element); if element.SetDisabled then element:SetDisabled(ok and v==true) end
+        local ok,v=pcall(fn,element); if element.SetDisabled then element:SetDisabled(element._FrameworkDependencyEnabled==false or (ok and v==true)) end
     end
+    if element._FrameworkDisabledConn and element._FrameworkDisabledConn.Disconnect then element._FrameworkDisabledConn:Disconnect() end
+    if type(element.OnChanged)=="function" then element._FrameworkDisabledConn=element:OnChanged(function() if element._FrameworkDisabledRefresh then element._FrameworkDisabledRefresh() end end) end
     element._FrameworkDisabledRefresh()
     return true
 end
@@ -6379,7 +6665,14 @@ function API:BindDependency(element,deps,mode)
     element._FrameworkDeps=element._FrameworkDeps or {}
     element._FrameworkDepMode=mode or element._FrameworkDepMode or "AND"
     for i=1,#deps do
-        local d=deps[i]; if type(d)=="table" then self:DependsOn(element,d[1] or d.Source,d[2] or d.Expected,d.Inverse and "AND" or (mode or "AND")); if d.Inverse and element._FrameworkDeps[#element._FrameworkDeps] then element._FrameworkDeps[#element._FrameworkDeps].Inverse=true end end
+        local d=deps[i]
+        if type(d)=="table" then
+            local source=d.Source or d[1]
+            local expected=d.Expected
+            if expected==nil then expected=d[2] end
+            self:DependsOn(element,source,expected,mode or d.Mode or "AND")
+            if d.Inverse and element._FrameworkDeps[#element._FrameworkDeps] then element._FrameworkDeps[#element._FrameworkDeps].Inverse=true end
+        end
     end
     if element._FrameworkDepRefresh then element._FrameworkDepRefresh() end
     return true
@@ -6434,6 +6727,73 @@ API.ThemeManager={
 
 -- ---------- Config manager / autosave / import-export ----------
 ST.Framework.ConfigDefaults=ST.Framework.ConfigDefaults or {}
+local function EncodeConfigValue(value,seen)
+    local kind=typeof(value)
+    if kind=="Color3" then return {__LuaInterfaceType="Color3",R=value.R,G=value.G,B=value.B} end
+    if kind=="EnumItem" then return {__LuaInterfaceType="EnumItem",Enum=value.EnumType.Name,Name=value.Name} end
+    if kind=="Vector2" then return {__LuaInterfaceType="Vector2",X=value.X,Y=value.Y} end
+    if kind=="Vector3" then return {__LuaInterfaceType="Vector3",X=value.X,Y=value.Y,Z=value.Z} end
+    if kind=="UDim" then return {__LuaInterfaceType="UDim",Scale=value.Scale,Offset=value.Offset} end
+    if kind=="UDim2" then return {__LuaInterfaceType="UDim2",XS=value.X.Scale,XO=value.X.Offset,YS=value.Y.Scale,YO=value.Y.Offset} end
+    if kind=="Instance" or type(value)=="function" or type(value)=="thread" then return nil end
+    if type(value)~="table" then return value end
+    seen=seen or {}
+    if seen[value] then return nil end
+    seen[value]=true
+    local numericKeys,numericMax,hasOtherKey,allBoolean=0,0,false,true
+    for key,item in pairs(value) do
+        if type(key)=="number" then
+            numericKeys=numericKeys+1
+            if key<1 or key%1~=0 then hasOtherKey=true else numericMax=math.max(numericMax,key) end
+        else
+            hasOtherKey=true
+        end
+        if type(item)~="boolean" then allBoolean=false end
+    end
+    local numericMap=numericKeys>0 and (hasOtherKey or numericMax~=numericKeys or allBoolean)
+    if numericMap then
+        local entries={}
+        for key,item in pairs(value) do
+            if type(key)=="string" or type(key)=="number" then
+                local encoded=EncodeConfigValue(item,seen)
+                if encoded~=nil then entries[#entries+1]={Key=key,Value=encoded} end
+            end
+        end
+        seen[value]=nil
+        return {__LuaInterfaceType="TableMap",Entries=entries}
+    end
+    local out={}
+    for key,item in pairs(value) do
+        if type(key)=="string" or type(key)=="number" then
+            local encoded=EncodeConfigValue(item,seen)
+            if encoded~=nil then out[key]=encoded end
+        end
+    end
+    seen[value]=nil
+    return out
+end
+local function DecodeConfigValue(value)
+    if type(value)~="table" then return value end
+    local kind=value.__LuaInterfaceType
+    if kind=="TableMap" then
+        local out={}
+        for _,entry in ipairs(type(value.Entries)=="table" and value.Entries or {}) do
+            if type(entry)=="table" and (type(entry.Key)=="string" or type(entry.Key)=="number") then out[entry.Key]=DecodeConfigValue(entry.Value) end
+        end
+        return out
+    end
+    if kind=="Color3" then return Color3.new(cl(tn(value.R) or 0,0,1),cl(tn(value.G) or 0,0,1),cl(tn(value.B) or 0,0,1)) end
+    if kind=="EnumItem" and type(value.Enum)=="string" and type(value.Name)=="string" then
+        local ok,item=pcall(function() return Enum[value.Enum][value.Name] end)
+        if ok then return item end
+    elseif kind=="Vector2" then return V2(tn(value.X) or 0,tn(value.Y) or 0)
+    elseif kind=="Vector3" then return V3(tn(value.X) or 0,tn(value.Y) or 0,tn(value.Z) or 0)
+    elseif kind=="UDim" then return Un(tn(value.Scale) or 0,tn(value.Offset) or 0)
+    elseif kind=="UDim2" then return U2(tn(value.XS) or 0,tn(value.XO) or 0,tn(value.YS) or 0,tn(value.YO) or 0) end
+    local out={}
+    for key,item in pairs(value) do out[key]=DecodeConfigValue(item) end
+    return out
+end
 function SM:SetDefault(name)
     self.DefaultName=ts(name or "")
     return self.DefaultName
@@ -6452,10 +6812,11 @@ function SM:Export(name)
         if typeof(v)~="UDim2" then return nil end
         return {XS=v.X.Scale,XO=v.X.Offset,YS=v.Y.Scale,YO=v.Y.Offset}
     end
-    local data={Theme=SM.IgnoreTheme and nil or ST.CurrentTheme,Scale=ST.Scale,Elements={},Window={Position=packUDim2(UI.Main.Position),Size=packUDim2(UI.Main.Size),Fullscreen=false}}
+    local data={Scale=ST.Scale,Elements={},Window={Position=packUDim2(UI.Main.Position),Size=packUDim2(UI.Main.Size),Fullscreen=false}}
+    if not self.IgnoreTheme then data.Theme=ST.CurrentTheme end
     for i=1,#ST.ElementOrder do
         local id=ST.ElementOrder[i]; local e=ST.Elements[id]
-        if e and e.Get and not self.IgnoreIndexes[id] then local ok,v=pcall(e.Get); if ok then data.Elements[id]=v end end
+        if e and e.Get and not self.IgnoreIndexes[id] then local ok,v=pcall(e.Get,e); if ok then data.Elements[id]=EncodeConfigValue(v) end end
     end
     local ok,out=pcall(function() return S.H:JSONEncode(data) end)
     if not ok then return false,out end
@@ -6468,7 +6829,7 @@ function SM:Import(raw,applyNow)
     if applyNow~=false then
         if data.Theme and Themes[resolveThemeName(data.Theme)] and not self.IgnoreTheme then API:ApplyTheme(data.Theme) end
         if tn(data.Scale) then API:SetScale(data.Scale) end
-        for id,v in pairs(data.Elements or {}) do local e=ST.Elements[id]; if e and e.Set then SafeCall("Import:"..id,e.Set,v) end end
+        for id,v in pairs(data.Elements or {}) do local e=ST.Elements[id]; if e and e.Set and not self.IgnoreIndexes[id] then SafeCall("Import:"..id,e.Set,DecodeConfigValue(v)) end end
         if type(data.Window)=="table" then
             local w=data.Window
             if type(w.Position)=="table" then
@@ -6522,7 +6883,6 @@ function SM:Save(name)
     end
     local data={
         Version=CFG.Version,
-        Theme=self.IgnoreTheme and nil or ST.CurrentTheme,
         Scale=ST.Scale,
         Language=ST.Language,
         Elements={},
@@ -6537,11 +6897,12 @@ function SM:Save(name)
             GlobalSearch=ST.Window.GlobalSearch==true,
         }
     }
+    if not self.IgnoreTheme then data.Theme=ST.CurrentTheme end
     for i=1,#ST.ElementOrder do
         local id=ST.ElementOrder[i]; local e=ST.Elements[id]
         if e and e.Get and not self.IgnoreIndexes[id] then
-            local ok,v=pcall(e.Get)
-            if ok and (type(v)=="boolean" or type(v)=="number" or type(v)=="string" or type(v)=="table") then data.Elements[id]=v end
+            local ok,v=pcall(e.Get,e)
+            if ok and (type(v)=="boolean" or type(v)=="number" or type(v)=="string" or type(v)=="table" or typeof(v)=="Color3" or typeof(v)=="EnumItem" or typeof(v)=="Vector2" or typeof(v)=="Vector3" or typeof(v)=="UDim" or typeof(v)=="UDim2") then data.Elements[id]=EncodeConfigValue(v) end
         end
     end
     local ok,encoded=pcall(function() return S.H:JSONEncode(data) end)
@@ -6562,7 +6923,7 @@ function SM:Load(name)
     if data.Language then API:SetLanguage(data.Language) end
     for id,v in pairs(data.Elements or {}) do
         local e=ST.Elements[id]
-        if e and e.Set and not self.IgnoreIndexes[id] then SafeCall("Load:"..id,e.Set,v) end
+        if e and e.Set and not self.IgnoreIndexes[id] then SafeCall("Load:"..id,e.Set,DecodeConfigValue(v)) end
     end
     local w=data.Window
     if type(w)=="table" then
@@ -6697,6 +7058,7 @@ function API:GetNotifications()
     return out
 end
 function API:QueueNotification(cfg)
+    if ST.Destroyed or ST.State=="Destroying" then return nil,"LuaInterface destroyed" end
     if ST.ActiveCount<CFG.MaxNotify then return LuaNotify(cfg) end
     ST.Framework.NotifyQueue[#ST.Framework.NotifyQueue+1]=cfg
     return nil
@@ -7130,7 +7492,7 @@ API.Framework={
 
 
 -- ---------- API compatibility facade ----------
-local Compat={Version="1.1.1-beta",Source="LuaInterface",RemoteAssets=false}
+local Compat={Version="1.1.2-beta",Source="LuaInterface",RemoteAssets=false}
 local function copyOpts(value)
     local out={}
     if type(value)=="table" then for k,v in pairs(value) do out[k]=v end end
@@ -7630,7 +7992,12 @@ API.Notify=notifyCompat
 API.NotificationManager.Notify=notifyCompat
 API.NotificationManager.NotifyWindow=notifyCompat
 function API:SetNotificationPosition(position)
-    local map={TopRight={V2(1,0),U2(1,-16,0,16),Enum.HorizontalAlignment.Right,Enum.VerticalAlignment.Top},TopLeft={V2(0,0),U2(0,16,0,16),Enum.HorizontalAlignment.Left,Enum.VerticalAlignment.Top},BottomRight={V2(1,1),U2(1,-16,1,-16),Enum.HorizontalAlignment.Right,Enum.VerticalAlignment.Bottom},BottomLeft={V2(0,1),U2(0,16,1,-16),Enum.HorizontalAlignment.Left,Enum.VerticalAlignment.Bottom},TopCenter={V2(.5,0),U2(.5,0,0,16),Enum.HorizontalAlignment.Center,Enum.VerticalAlignment.Top},BottomCenter={V2(.5,1),U2(.5,0,1,-16),Enum.HorizontalAlignment.Center,Enum.VerticalAlignment.Bottom}}
+    local centerLeft={V2(0,.5),U2(0,16,.5,0),Enum.HorizontalAlignment.Left,Enum.VerticalAlignment.Center}
+    local centerRight={V2(1,.5),U2(1,-16,.5,0),Enum.HorizontalAlignment.Right,Enum.VerticalAlignment.Center}
+    local center={V2(.5,.5),U2(.5,0,.5,0),Enum.HorizontalAlignment.Center,Enum.VerticalAlignment.Center}
+    local topCenter={V2(.5,0),U2(.5,0,0,16),Enum.HorizontalAlignment.Center,Enum.VerticalAlignment.Top}
+    local bottomCenter={V2(.5,1),U2(.5,0,1,-16),Enum.HorizontalAlignment.Center,Enum.VerticalAlignment.Bottom}
+    local map={TopRight={V2(1,0),U2(1,-16,0,16),Enum.HorizontalAlignment.Right,Enum.VerticalAlignment.Top},TopLeft={V2(0,0),U2(0,16,0,16),Enum.HorizontalAlignment.Left,Enum.VerticalAlignment.Top},BottomRight={V2(1,1),U2(1,-16,1,-16),Enum.HorizontalAlignment.Right,Enum.VerticalAlignment.Bottom},BottomLeft={V2(0,1),U2(0,16,1,-16),Enum.HorizontalAlignment.Left,Enum.VerticalAlignment.Bottom},TopCenter=topCenter,BottomCenter=bottomCenter,Center=center,CenterLeft=centerLeft,LeftCenter=centerLeft,CenterRight=centerRight,RightCenter=centerRight,Left=centerLeft,Right=centerRight,Top=topCenter,Bottom=bottomCenter}
     local item=map[ts(position or "TopRight")]; if not item then return false,"unknown notification position" end
     UI.NH.AnchorPoint=item[1]; UI.NH.Position=item[2]; UI.NL.HorizontalAlignment=item[3]; UI.NL.VerticalAlignment=item[4]; return true
 end
@@ -7696,13 +8063,14 @@ API.Destroy=function(self)
         SafeCall("OnUnload",fn,self)
     end
     for k,v in pairs(ST.Framework.Modules) do
-        if type(v)=="table" and type(v.Destroy)=="function" then SafeCall("ModuleDestroy:"..k,v.Destroy) end
+        if type(v)=="table" and type(v.Destroy)=="function" then SafeCall("ModuleDestroy:"..k,v.Destroy,v) end
     end
     for k,v in pairs(ST.Plugins or {}) do
-        if type(v)=="table" and type(v.Destroy)=="function" then SafeCall("PluginDestroy:"..k,v.Destroy) end
+        if type(v)=="table" and type(v.Destroy)=="function" then SafeCall("PluginDestroy:"..k,v.Destroy,v) end
     end
-    ST.Framework.Modules={}
-    ST.Framework.Plugins={}
+    table.clear(ST.Framework.Modules)
+    table.clear(ST.Framework.Plugins)
+    if ST.Plugins then table.clear(ST.Plugins) end
     ST.Framework.Input.Blocked=false
     ST.Framework.Input.Began={}; ST.Framework.Input.Ended={}; ST.Framework.Input.Changed={}; ST.Framework.Input.Captures={}
     if ST.Framework.CursorConn then pcall(function() ST.Framework.CursorConn:Disconnect() end); ST.Framework.CursorConn=nil end
@@ -7722,6 +8090,7 @@ API.SaveManager=SM
 API.Library=API
 API.Unload=API.Destroy
 API.UnloadLibrary=API.Destroy
+API.DestroyLibrary=API.Destroy
 
 return API
 end)()
